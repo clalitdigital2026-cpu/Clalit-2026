@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>קריאות תפעול ART</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{
+  --teal:#05454F; --teal2:#0B5D6B; --green:#00A651; --blue:#00AEEF;
+  --mint:#A4E5CF; --turq:#13C2DD; --ink:#0d3340; --muted:#5b7680; --bg:#F5FBFA;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden}
+body{font-family:'Rubik','Heebo',sans-serif;color:var(--teal);
+  background:linear-gradient(120deg,#13C2DD,#A4E5CF 30%,#8CEFC3 55%,#4FD3E0 80%,#13C2DD);
+  background-size:300% 300%;}
+#panel{position:absolute;inset:22px;border-radius:38px;background:#fff;overflow:hidden;
+  box-shadow:0 20px 60px rgba(5,69,79,.18)}
+.bgdeco{position:absolute;inset:0;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.38}
+.dots{position:absolute;inset:0;background-image:radial-gradient(rgba(5,69,79,.08) 2px,transparent 2.5px);background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(ellipse at center,transparent 35%,#000 90%);mask-image:radial-gradient(ellipse at center,transparent 35%,#000 90%)}
+.chev{position:absolute;opacity:.10}
+
+/* header */
+#header{position:absolute;top:26px;left:0;right:0;display:flex;justify-content:center;z-index:5}
+#hwrap{display:flex;align-items:center;gap:22px;direction:ltr}
+#hlogo{height:76px;display:block}
+#hdiv{width:3px;height:56px;background:linear-gradient(var(--blue),var(--green));border-radius:3px}
+#htext{direction:rtl;font-weight:700;font-style:italic;font-size:27px;line-height:1.05;color:var(--teal)}
+
+.scene{position:absolute;inset:0;display:none}
+.scene.show{display:block}
+.center{position:absolute;left:0;right:0;text-align:center}
+
+[data-on]:not(.on){visibility:hidden}
+body.measure [data-on]{visibility:visible}
+
+/* intro */
+.pill{display:inline-flex;align-items:center;gap:14px;padding:14px 36px;border-radius:999px;background:var(--teal);color:#fff;font-weight:700;font-size:40px}
+.pill .bell{width:40px;height:40px}
+h1{font-weight:900;font-size:112px;line-height:1.08;color:var(--teal);letter-spacing:-1px}
+.w{display:inline-block;white-space:pre}
+.art{font-family:'Rubik';font-weight:900;font-size:230px;line-height:1;letter-spacing:4px;direction:ltr;display:inline-block;
+  background:linear-gradient(100deg,#00AEEF 0%,#00A651 35%,#9af0cb 50%,#00A651 65%,#00AEEF 100%);background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;padding:0 10px}
+.sub{font-size:48px;font-weight:500;color:var(--muted)}
+.ring{position:absolute;border-radius:50%;border:3px solid var(--mint)}
+
+/* explain */
+.big{font-size:74px;font-weight:800;color:var(--green)}
+.lead{font-size:58px;font-weight:500;color:var(--teal);line-height:1.3}
+.lead b{font-weight:800}
+.cards{display:flex;justify-content:center;gap:46px}
+.card{width:250px;height:250px;border-radius:36px;background:#fff;box-shadow:0 18px 50px rgba(5,69,79,.14);border:2px solid #e3f4ef;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+.ic{width:112px;height:112px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff}
+.ic svg{width:60px;height:60px}
+.card span{font-size:44px;font-weight:700;color:var(--teal)}
+.cta{display:inline-flex;align-items:center;gap:22px;background:linear-gradient(90deg,var(--teal),#0a6a77);color:#fff;font-size:56px;font-weight:700;
+  padding:24px 54px;border-radius:999px;box-shadow:0 16px 40px rgba(5,69,79,.3)}
+.cta svg{width:58px;height:58px}
+
+/* how */
+.q{font-size:140px;font-weight:900;color:var(--teal)}
+.steps3{position:absolute;left:310px;right:310px;top:560px;height:200px}
+.line{position:absolute;top:78px;left:120px;right:120px;height:10px;border-radius:10px;background:linear-gradient(90deg,var(--blue),var(--green));transform-origin:right}
+.dot{position:absolute;top:0;width:166px;height:166px;margin-left:-83px;border-radius:50%;background:var(--teal);color:#fff;font-size:86px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 14px #fff,0 18px 40px rgba(5,69,79,.3)}
+.dlabel{position:absolute;top:200px;width:420px;margin-left:-210px;text-align:center;font-size:40px;font-weight:600;color:var(--teal)}
+
+/* step scenes */
+.txtcol{position:absolute;right:96px;top:215px;width:740px}
+.badge{display:flex;align-items:center;gap:26px;margin-bottom:34px}
+.num{width:132px;height:132px;border-radius:50%;background:var(--teal);color:#fff;font-size:82px;font-weight:800;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 10px rgba(164,229,207,.6)}
+.of{font-size:36px;font-weight:600;color:var(--green);letter-spacing:.5px}
+h2{font-size:78px;font-weight:900;line-height:1.12;color:var(--teal)}
+.p{font-size:50px;font-weight:500;color:var(--teal2);line-height:1.35;margin-top:22px}
+.chip{display:inline-flex;align-items:center;gap:16px;margin-top:30px;padding:22px 44px;border-radius:26px;font-size:64px;font-weight:800;color:#fff;
+  background:linear-gradient(100deg,var(--blue),var(--green));box-shadow:0 18px 40px rgba(0,166,81,.35)}
+.chip.light{background:#e9f8f2;color:var(--teal);box-shadow:none;font-size:46px;padding:16px 30px;border:2px solid var(--mint)}
+.chip.light svg{width:44px;height:44px;color:var(--green)}
+
+.vis{position:absolute;left:78px;top:190px;width:930px;height:660px}
+.win{position:absolute;inset:0;border-radius:24px;background:#fff;box-shadow:0 30px 80px rgba(5,69,79,.25),0 0 0 1px rgba(5,69,79,.08);overflow:hidden}
+.bar{height:58px;background:#eef4f6;display:flex;align-items:center;padding:0 22px;gap:10px;direction:ltr;border-bottom:1px solid #dde8ec}
+.bar i{width:16px;height:16px;border-radius:50%;display:block}
+.url{flex:1;margin-left:18px;height:34px;border-radius:17px;background:#fff;border:1px solid #d6e2e6;font-size:20px;color:#6b8790;display:flex;align-items:center;padding:0 18px;direction:ltr}
+.body{position:absolute;top:58px;left:0;right:0;bottom:0}
+
+/* portal */
+.ptop{height:88px;background:linear-gradient(90deg,var(--teal),#0a6a77);display:flex;align-items:center;justify-content:space-between;padding:0 34px;color:#fff}
+.ptop b{font-size:34px;font-weight:700}
+.ptop img{height:44px}
+.grid{position:absolute;top:128px;left:40px;right:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.tile{height:180px;border-radius:22px;background:#f4f9f9;border:2px solid #e2eef0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  font-size:30px;font-weight:600;color:var(--teal)}
+.tile svg{width:56px;height:56px;color:#7fa3ab}
+.tile.hot{background:#fff}
+.tile.hot svg{color:var(--green)}
+.tglow{position:absolute;inset:-3px;border-radius:24px;border:5px solid var(--green);box-shadow:0 0 0 10px rgba(0,166,81,.15),0 18px 40px rgba(0,166,81,.3)}
+.page2{position:absolute;inset:0;background:#fff}
+.load{position:absolute;top:0;left:0;right:0;height:8px;background:linear-gradient(90deg,var(--blue),var(--green));transform-origin:right}
+.p2h{padding:50px 50px 0;display:flex;align-items:center;gap:20px}
+.p2h .ic{width:84px;height:84px}
+.p2h .ic svg{width:46px;height:46px}
+.p2h b{font-size:46px;font-weight:800}
+.rows{padding:30px 50px}
+.rowi{height:66px;border-radius:12px;background:#f3f7f8;margin-bottom:16px}
+.btn{position:absolute;display:inline-flex;align-items:center;gap:14px;padding:20px 38px;border-radius:16px;background:var(--green);color:#fff;font-size:34px;font-weight:700}
+.btn svg{width:36px;height:36px}
+
+/* legacy form */
+.form{position:absolute;inset:0;background:#e3eff3;padding:46px 50px}
+.fs{position:relative;border:2px solid #a9bcc4;border-radius:6px;padding:46px 34px 30px;background:#edf5f8}
+.fs .lg{position:absolute;top:-24px;right:24px;background:#e3eff3;padding:0 12px;font-size:32px;font-weight:600;color:#25424b}
+.frow{display:flex;align-items:center;gap:28px;margin-bottom:26px}
+.frow label{width:160px;font-size:32px;color:#25424b;font-weight:500}
+.sel{position:relative;width:560px;height:66px;border:2px solid #6f95c2;background:#fff;display:flex;align-items:center;font-size:32px;color:#1d2f36}
+.sel .val{position:absolute;right:22px;top:50%;transform:translateY(-50%);white-space:nowrap}
+.sel .arr{position:absolute;left:0;top:0;bottom:0;width:72px;background:#2f7cc7;display:flex;align-items:center;justify-content:center}
+.sel .arr svg{width:36px;height:36px;color:#fff}
+.sel.dis{border-color:#b8c6cc;background:#f6f8f9;color:#9aa8ad}
+.sel.dis .arr{background:#b8c6cc}
+.list{position:absolute;top:66px;right:-2px;left:70px;background:#fff;border:2px solid #6f95c2;box-shadow:0 14px 30px rgba(0,0,0,.18);z-index:4}
+.opt{height:72px;display:flex;align-items:center;padding-right:22px;font-size:32px;color:#1d2f36;position:relative}
+.opt .hov{position:absolute;inset:0;background:#e6e6e6;z-index:-1}
+.okglow{position:absolute;inset:-8px;border:5px solid var(--green);border-radius:6px;box-shadow:0 0 0 10px rgba(0,166,81,.15)}
+.okb{position:absolute;left:86px;top:50%;margin-top:-24px;width:48px;height:48px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center}
+.okb svg{width:36px;height:36px;color:#fff}
+.lghl{position:absolute;inset:-8px -14px;border-radius:10px;background:rgba(255,213,74,.55);z-index:-1}
+.ta{position:relative;margin-top:16px;height:200px;border:2px solid #9fb3bb;background:#fff;padding:20px 24px;font-size:34px;line-height:1.45;color:#1d2f36}
+.caret{display:inline-block;width:3px;height:40px;background:#1d2f36;vertical-align:middle;margin-right:2px}
+.taglow{position:absolute;inset:-6px;border:4px solid var(--blue);box-shadow:0 0 0 8px rgba(0,174,239,.15)}
+.mini{display:flex;align-items:center;gap:20px;font-size:30px;color:#25424b}
+.mini .v{background:#fff;border:2px solid #6f95c2;padding:10px 20px;font-size:30px}
+.toast{position:absolute;left:50%;bottom:44px;margin-left:-300px;width:600px;padding:24px 30px;border-radius:20px;background:var(--teal);color:#fff;font-size:34px;font-weight:700;
+  display:flex;align-items:center;gap:18px;box-shadow:0 20px 50px rgba(5,69,79,.4);z-index:6}
+.toast .okb{position:static;margin:0;flex:none}
+.shotcard{position:absolute;left:-30px;bottom:-30px;width:520px;padding:18px;border-radius:22px;background:#fff;box-shadow:0 24px 60px rgba(5,69,79,.35);transform:rotate(-3deg)}
+.shotcard img{width:100%;display:block;border-radius:10px}
+.shotcard .cap{font-size:26px;font-weight:700;color:var(--green);margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.shotcard .cap svg{width:30px;height:30px}
+
+/* cursor */
+.cursor{position:absolute;left:0;top:0;width:0;height:0;z-index:20}
+.cursor .ico{position:absolute;left:-6px;top:-4px;width:54px;height:66px;transform-origin:6px 4px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.35))}
+.ripple{position:absolute;width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;border:6px solid var(--blue);opacity:0;z-index:19}
+
+/* stepper */
+.stepper{position:absolute;bottom:46px;left:50%;margin-left:-640px;width:1280px;display:flex;gap:18px;direction:rtl}
+.st{flex:1;height:84px;border-radius:22px;background:#f0f6f6;display:flex;align-items:center;gap:18px;padding:0 24px;font-size:32px;font-weight:600;color:#8aa3a9;position:relative;overflow:hidden}
+.st .n{width:50px;height:50px;border-radius:50%;background:#d5e5e7;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:28px;flex:none}
+.st.done{color:var(--teal)} .st.done .n{background:var(--green)}
+.st.act{color:#fff} .st.act .n{background:#fff;color:var(--teal)}
+.st .fill{position:absolute;inset:0;background:linear-gradient(100deg,var(--teal),#0a6a77);z-index:-1;transform-origin:right}
+.st{z-index:0}
+
+/* outro */
+.recap{display:flex;justify-content:center;gap:40px}
+.rc{width:470px;border-radius:32px;background:#fff;border:2px solid #e3f4ef;box-shadow:0 18px 50px rgba(5,69,79,.13);padding:34px 30px;text-align:center}
+.rc .ic{margin:0 auto 20px;width:100px;height:100px}
+.rc .ic svg{width:54px;height:54px}
+.rc .k{font-size:28px;font-weight:700;color:var(--green);margin-bottom:8px}
+.rc .t{font-size:40px;font-weight:700;color:var(--teal);line-height:1.2}
+.msg{font-size:52px;font-weight:500;line-height:1.4;color:var(--teal)}
+.msg b{font-weight:800;color:var(--green)}
+.sign{font-size:40px;font-weight:600;color:var(--teal)}
+.sign b{display:block;font-size:50px;font-weight:800;margin-top:6px}
+
+/* wipe */
+#wipe{position:absolute;inset:0;z-index:50;pointer-events:none}
+.band{position:absolute;top:-10%;bottom:-10%;left:0;width:165%;transform:translateX(120%)}
+</style>
+</head>
+<body>
+<div id="panel">
+  <div class="bgdeco">
+    <div class="blob" id="b1" style="width:700px;height:700px;background:#8CEFC3;right:-200px;top:-200px"></div>
+    <div class="blob" id="b2" style="width:640px;height:640px;background:#13C2DD;left:-220px;bottom:-240px"></div>
+    <div class="blob" id="b3" style="width:420px;height:420px;background:#00A651;left:42%;top:60%;opacity:.12"></div>
+    <div class="dots"></div>
+    <svg class="chev" id="c1" style="right:-60px;bottom:-40px;width:420px" viewBox="0 0 100 60"><path d="M5 40 L50 10 L95 40" fill="none" stroke="#00AEEF" stroke-width="12" stroke-linejoin="round"/></svg>
+    <svg class="chev" id="c2" style="left:-50px;top:40px;width:380px" viewBox="0 0 100 60"><path d="M5 20 L50 50 L95 20" fill="none" stroke="#00A651" stroke-width="12" stroke-linejoin="round"/></svg>
+  </div>
+
+  <div id="header">
+    <div id="hwrap">
+      <div id="htext" data-a="fromL 2.7 .7">חטיבת מערכות<br>מידע ודיגיטל</div>
+      <div id="hdiv" data-a="growY 2.6 .5"></div>
+      <img id="hlogo" src="logo_t.png" alt="כללית">
+    </div>
+  </div>
+
+  <!-- ============ INTRO ============ -->
+  <section class="scene" data-start="0" data-end="7">
+    <div class="ring" style="width:900px;height:900px;left:488px;top:70px" data-a="ringIn .3 2.2"></div>
+    <div class="ring" style="width:1300px;height:1300px;left:288px;top:-130px;border-color:#d6f2f7" data-a="ringIn .5 2.6"></div>
+    <div class="center" style="top:250px"><span class="pill" data-a="pop 2.9 .6"><i data-icon="bell" class="bell"></i>תזכורת</span></div>
+    <div class="center" style="top:360px"><h1 data-words="3.2 .12">פתיחת קריאות בנושאי תפעול</h1></div>
+    <div class="center" style="top:490px">
+      <h1 style="display:inline-flex;align-items:center;gap:30px"><span data-words="3.9 .12">במתחם</span>
+      <span class="art" data-a="blur 4.2 .9;shine 4.6 2.2">ART</span></h1>
+    </div>
+    <div class="center" style="top:800px"><span class="sub" data-a="rise 5.3 .7">מדריך קצר ב־3 שלבים פשוטים</span></div>
+  </section>
+
+  <!-- ============ EXPLAIN ============ -->
+  <section class="scene" data-start="7" data-end="15">
+    <div class="center" style="top:170px"><div class="big" data-a="rise .35 .7">עובדים יקרים,</div></div>
+    <div class="center" style="top:275px"><div class="lead" data-words=".8 .07">כדי שנוכל להמשיך לתת לכם שירות מהיר ומקצועי,</div></div>
+    <div class="center" style="top:360px"><div class="lead" data-a="rise 1.7 .6">אנו מזכירים כי <b>כל פנייה</b> בנושאי</div></div>
+    <div class="cards" style="position:absolute;left:0;right:0;top:480px">
+      <div class="card" data-a="pop 2.3 .6"><div class="ic" style="background:var(--blue)"><i data-icon="wrench"></i></div><span>תחזוקה</span></div>
+      <div class="card" data-a="pop 2.55 .6"><div class="ic" style="background:var(--green)"><i data-icon="box"></i></div><span>ציוד</span></div>
+      <div class="card" data-a="pop 2.8 .6"><div class="ic" style="background:var(--turq)"><i data-icon="sparkles"></i></div><span>ניקיון</span></div>
+      <div class="card" data-a="pop 3.05 .6"><div class="ic" style="background:var(--teal)"><i data-icon="building"></i></div><span>משק</span></div>
+    </div>
+    <div class="center" style="top:800px"><span class="cta" data-a="rise 4.1 .7;pulse 5.6 .8"><i data-icon="monitor"></i>במתחם ART מתבצעת דרך המערכת הדיגיטלית</span></div>
+  </section>
+
+  <!-- ============ HOW ============ -->
+  <section class="scene" data-start="15" data-end="18.5">
+    <div class="center" style="top:250px"><div class="q" data-words=".3 .14">איך עושים זאת נכון?</div></div>
+    <div class="steps3">
+      <div class="line" data-a="growX 1.1 1.0"></div>
+      <div style="position:absolute;left:100%"><div class="dot" data-a="pop 1.0 .55">1</div><div class="dlabel" data-a="rise 1.3 .5">נכנסים למערכת</div></div>
+      <div style="position:absolute;left:50%"><div class="dot" data-a="pop 1.35 .55">2</div><div class="dlabel" data-a="rise 1.65 .5">בוחרים סיווג</div></div>
+      <div style="position:absolute;left:0"><div class="dot" data-a="pop 1.7 .55">3</div><div class="dlabel" data-a="rise 2.0 .5">מציינים מיקום</div></div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 1 ============ -->
+  <section class="scene" data-start="18.5" data-end="26.5" id="s1">
+    <div class="txtcol">
+      <div class="badge"><div class="num" data-a="pop .3 .6">1</div><div class="of" data-a="fromR .5 .5">שלב 1 מתוך 3</div></div>
+      <h2 data-words=".6 .1">נכנסים למערכת פניות לאחזקה</h2>
+      <div class="p" data-a="rise 1.3 .6">דרך הפורטל, בלשונית</div>
+      <div class="chip" data-a="pop 1.7 .6;pulse 3.3 .7"><i data-icon="wrench" style="width:60px;height:60px"></i>״פניות לאחזקה״</div>
+    </div>
+    <div class="vis">
+      <div class="win" data-a="fromL .35 .8">
+        <div class="bar"><i style="background:#ff6058"></i><i style="background:#ffbd2e"></i><i style="background:#28c940"></i><div class="url">portal.clalit.org.il</div></div>
+        <div class="body" id="s1body">
+          <div class="ptop"><b>הפורטל הארגוני</b><img src="logo_w.png"></div>
+          <div class="grid">
+            <div class="tile"><i data-icon="users"></i>משאבי אנוש</div>
+            <div class="tile"><i data-icon="monitor"></i>שירותי מחשוב</div>
+            <div class="tile hot" id="t-maint" style="position:relative"><i data-icon="wrench"></i>פניות לאחזקה<div class="tglow" data-on="3.4"></div></div>
+            <div class="tile"><i data-icon="calendar"></i>לוח אירועים</div>
+            <div class="tile"><i data-icon="file"></i>טפסים</div>
+            <div class="tile"><i data-icon="book"></i>נהלים</div>
+          </div>
+          <div class="page2" data-a="fromL 4.1 .6">
+            <div class="load" data-a="growX 4.4 .9"></div>
+            <div class="p2h"><div class="ic" style="background:var(--green)"><i data-icon="wrench"></i></div><b>מערכת פניות לאחזקה</b></div>
+            <div class="rows"><div class="rowi"></div><div class="rowi" style="width:80%"></div><div class="rowi" style="width:90%"></div><div class="rowi" style="width:60%"></div></div>
+            <div class="btn" id="b-new" style="left:50px;bottom:50px" data-a="pop 5.1 .5"><i data-icon="plus"></i>פנייה חדשה</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="stepper" data-a="rise .6 .6">
+      <div class="st act"><div class="fill" data-a="growX .9 .7"></div><div class="n">1</div>נכנסים למערכת</div>
+      <div class="st"><div class="n">2</div>בוחרים סיווג</div>
+      <div class="st"><div class="n">3</div>מציינים מיקום</div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 2 ============ -->
+  <section class="scene" data-start="26.5" data-end="38" id="s2">
+    <div class="txtcol">
+      <div class="badge"><div class="num" data-a="pop .3 .6">2</div><div class="of" data-a="fromR .5 .5">שלב 2 מתוך 3</div></div>
+      <h2 data-words=".6 .1">בלשונית ״סיווג הפניה״</h2>
+      <div class="p" data-a="rise 1.2 .6">יש לבחור באפשרות</div>
+      <div class="chip" data-a="pop 1.6 .6;pulse 6.4 .8">ART מוקד תפעול</div>
+    </div>
+    <div class="vis">
+      <div class="win" data-a="fromL .35 .8">
+        <div class="bar"><i style="background:#ff6058"></i><i style="background:#ffbd2e"></i><i style="background:#28c940"></i><div class="url">מערכת פניות לאחזקה › פנייה חדשה</div></div>
+        <div class="body" style="overflow:hidden">
+          <div class="form" id="s2zoom">
+            <div class="fs">
+              <div class="lg"><span style="position:relative">סיווג הפניה<span class="lghl" data-a="fade 1.4 .4"></span></span></div>
+              <div class="frow"><label>סוג</label>
+                <div class="sel" id="sel2">
+                  <span class="val" data-on="0 6.15">--- בחר ---</span>
+                  <span class="val" data-on="6.15">ART-מוקד תפעול מגדל</span>
+                  <div class="arr" id="arr2"><i data-icon="chev"></i></div>
+                  <div class="list" data-on="3.65 6.15">
+                    <div class="opt">--- בחר ---</div>
+                    <div class="opt" id="opt-art"><span class="hov" data-on="5.05"></span>ART-מוקד תפעול מגדל</div>
+                  </div>
+                  <div class="okglow" data-on="6.15" data-a="fade 6.15 .3"></div>
+                  <div class="okb" data-a="pop 6.3 .5"><i data-icon="check"></i></div>
+                </div>
+              </div>
+              <div class="frow" style="margin-bottom:0"><label>גורם מטפל</label><div class="sel dis"><span class="val">---</span><div class="arr"><i data-icon="chev"></i></div></div></div>
+            </div>
+            <div class="fs" style="margin-top:46px"><div class="lg">פרטי הפניה</div><div class="rowi" style="background:#fff;height:110px;margin:0"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="shotcard" data-a="pop 8.4 .7"><div class="cap"><i data-icon="camera"></i>כך זה נראה במערכת</div><img src="shot.png"></div>
+    </div>
+    <div class="stepper" data-a="rise .6 .6">
+      <div class="st done"><div class="n"><i data-icon="check" style="width:30px;height:30px"></i></div>נכנסים למערכת</div>
+      <div class="st act"><div class="fill" data-a="growX .9 .7"></div><div class="n">2</div>בוחרים סיווג</div>
+      <div class="st"><div class="n">3</div>מציינים מיקום</div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 3 ============ -->
+  <section class="scene" data-start="38" data-end="47" id="s3">
+    <div class="txtcol">
+      <div class="badge"><div class="num" data-a="pop .3 .6">3</div><div class="of" data-a="fromR .5 .5">שלב 3 מתוך 3</div></div>
+      <h2 data-words=".6 .1">מציינים בתיאור הפניה את המיקום המדויק</h2>
+      <div style="display:flex;gap:22px;flex-wrap:wrap">
+        <div class="chip light" data-a="pop 5.0 .5"><i data-icon="layers"></i>קומה</div>
+        <div class="chip light" data-a="pop 5.25 .5"><i data-icon="door"></i>חדר</div>
+        <div class="chip light" data-a="pop 5.5 .5"><i data-icon="pin"></i>מיקום מדויק</div>
+      </div>
+    </div>
+    <div class="vis">
+      <div class="win" data-a="fromL .35 .8">
+        <div class="bar"><i style="background:#ff6058"></i><i style="background:#ffbd2e"></i><i style="background:#28c940"></i><div class="url">מערכת פניות לאחזקה › פנייה חדשה</div></div>
+        <div class="body">
+          <div class="form">
+            <div class="fs" style="padding:40px 34px 24px">
+              <div class="lg">סיווג הפניה</div>
+              <div class="mini">סוג <span class="v">ART-מוקד תפעול מגדל</span><span class="okb" style="position:static;margin:0;width:46px;height:46px"><i data-icon="check" style="width:28px;height:28px"></i></span></div>
+            </div>
+            <div class="fs" style="margin-top:44px;padding-top:40px">
+              <div class="lg">תיאור הפניה</div>
+              <div class="ta" id="ta3"><div class="taglow" data-on="1.9"></div><span id="typed"></span><span class="caret" id="caret"></span></div>
+            </div>
+          </div>
+          <div class="btn" id="b-send" style="left:50px;bottom:36px" data-a="pop .9 .5"><i data-icon="send"></i>שליחת פנייה</div>
+          <div class="toast" data-a="pop 7.2 .6"><span class="okb"><i data-icon="check"></i></span>הפנייה נשלחה לצוות הרלוונטי</div>
+        </div>
+      </div>
+    </div>
+    <div class="stepper" data-a="rise .6 .6">
+      <div class="st done"><div class="n"><i data-icon="check" style="width:30px;height:30px"></i></div>נכנסים למערכת</div>
+      <div class="st done"><div class="n"><i data-icon="check" style="width:30px;height:30px"></i></div>בוחרים סיווג</div>
+      <div class="st act"><div class="fill" data-a="growX .9 .7"></div><div class="n">3</div>מציינים מיקום</div>
+    </div>
+  </section>
+
+  <!-- ============ OUTRO ============ -->
+  <section class="scene" data-start="47" data-end="56" id="outro">
+    <div id="outroIn">
+    <div class="center" style="top:170px"><div class="big" style="font-size:60px;color:var(--teal)" data-a="rise .3 .6">בקצרה</div></div>
+    <div class="recap" style="position:absolute;left:0;right:0;top:270px">
+      <div class="rc" data-a="pop .6 .6"><div class="ic" style="background:var(--blue)"><i data-icon="wrench"></i></div><div class="k">שלב 1</div><div class="t">נכנסים ל״פניות לאחזקה״</div></div>
+      <div class="rc" data-a="pop .9 .6"><div class="ic" style="background:var(--green)"><i data-icon="list"></i></div><div class="k">שלב 2</div><div class="t">בוחרים ״ART מוקד תפעול״</div></div>
+      <div class="rc" data-a="pop 1.2 .6"><div class="ic" style="background:var(--teal)"><i data-icon="pin"></i></div><div class="k">שלב 3</div><div class="t">מציינים קומה וחדר</div></div>
+    </div>
+    <div class="center" style="top:640px"><div class="msg" data-a="rise 2.2 .7">הקפדה על <b>בחירת הסיווג הנכון</b> ו<b>המיקום המדויק</b></div></div>
+    <div class="center" style="top:715px"><div class="msg" data-a="rise 2.6 .7">תבטיח שהפנייה תגיע ישירות לצוות הרלוונטי ותטופל ללא עיכובים</div></div>
+    <div class="center" style="top:840px"><div class="sign" data-a="rise 4.0 .7">בברכה,<b>ליאור אליאב – מנהל תפעול</b></div></div>
+    </div>
+  </section>
+
+  <div id="wipe">
+    <div class="band" style="background:var(--blue)"></div>
+    <div class="band" style="background:var(--green)"></div>
+    <div class="band" style="background:var(--teal)"></div>
+  </div>
+</div>
+
+<script>
+const TOTAL=56, EASE='cubic-bezier(.2,.8,.2,1)';
+const ICONS={
+ bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+ wrench:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+ box:'<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+ sparkles:'<path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.13-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.13a.5.5 0 0 1 .96 0L14.06 8.5A2 2 0 0 0 15.5 9.94l6.13 1.58a.5.5 0 0 1 0 .96L15.5 14.06a2 2 0 0 0-1.44 1.44l-1.58 6.13a.5.5 0 0 1-.96 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/>',
+ building:'<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+ monitor:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>',
+ users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+ calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
+ file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+ book:'<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>',
+ plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',
+ chev:'<path d="m6 9 6 6 6-6"/>',
+ check:'<path d="M20 6 9 17l-5-5"/>',
+ camera:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
+ layers:'<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
+ door:'<path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4.562v16.157a1 1 0 0 1-1.242.97L5 20V5.562a2 2 0 0 1 1.515-1.94l4-1A2 2 0 0 1 13 4.561Z"/>',
+ pin:'<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+ send:'<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/>',
+ list:'<path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/>'
+};
+document.querySelectorAll('[data-icon]').forEach(el=>{
+  const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  s.setAttribute('viewBox','0 0 24 24');s.setAttribute('fill','none');s.setAttribute('stroke','currentColor');
+  s.setAttribute('stroke-width','2.2');s.setAttribute('stroke-linecap','round');s.setAttribute('stroke-linejoin','round');
+  s.innerHTML=ICONS[el.dataset.icon];
+  if(el.getAttribute('style'))s.setAttribute('style',el.getAttribute('style'));
+  s.setAttribute('class',el.className);
+  el.replaceWith(s);
+});
+
+const ANIMS=[], UPD=[];
+function A(el,kf,start,dur,o={}){
+  const a=el.animate(kf,{delay:start*1000,duration:dur*1000,fill:o.fill||'both',easing:o.ease||EASE,iterations:o.it||1,direction:o.dir||'normal',composite:o.comp||'replace'});
+  a.pause();ANIMS.push(a);return a;
+}
+const P={
+ rise:[{opacity:0,transform:'translateY(60px)'},{opacity:1,transform:'none'}],
+ pop:[{opacity:0,transform:'scale(.3)'},{opacity:1,transform:'scale(1.08)',offset:.65},{opacity:1,transform:'scale(1)'}],
+ fade:[{opacity:0},{opacity:1}],
+ fromR:[{opacity:0,transform:'translateX(140px)'},{opacity:1,transform:'none'}],
+ fromL:[{opacity:0,transform:'translateX(-160px)'},{opacity:1,transform:'none'}],
+ blur:[{opacity:0,filter:'blur(24px)',transform:'scale(1.4)'},{opacity:1,filter:'blur(0px)',transform:'none'}],
+ growX:[{transform:'scaleX(0)'},{transform:'scaleX(1)'}],
+ growY:[{transform:'scaleY(0)'},{transform:'scaleY(1)'}],
+ ringIn:[{opacity:0,transform:'scale(.4)'},{opacity:1,transform:'scale(1)'}],
+};
+const FX={ // emphasis, no fill
+ pulse:[{transform:'scale(1)'},{transform:'scale(1.1)',offset:.4},{transform:'scale(1)'}],
+ shine:[{backgroundPosition:'100% 0'},{backgroundPosition:'0% 0'}],
+};
+const base=el=>{const s=el.closest('[data-start]');return s?+s.dataset.start:0};
+
+// words
+document.querySelectorAll('[data-words]').forEach(el=>{
+  const [st,sg]=el.dataset.words.split(' ').map(Number);
+  const words=el.textContent.trim().split(/\s+/);
+  el.innerHTML=words.map(w=>`<span class="w">${w}</span>`).join(' ');
+  const b=base(el);
+  el.querySelectorAll('.w').forEach((w,i)=>A(w,[{opacity:0,transform:'translateY(70px) rotate(-4deg)',filter:'blur(8px)'},{opacity:1,transform:'none',filter:'blur(0px)'}],b+st+i*sg,.7));
+});
+document.querySelectorAll('[data-a]').forEach(el=>{
+  const b=base(el);
+  el.dataset.a.split(';').forEach(spec=>{
+    const [n,s,d]=spec.trim().split(/\s+/);
+    if(FX[n]) A(el,FX[n],b+ +s,+d,{fill:'none',ease:'ease-in-out'});
+    else A(el,P[n],b+ +s,+d);
+  });
+});
+document.querySelectorAll('[data-on]').forEach(el=>{
+  const b=base(el);const [a,z]=el.dataset.on.split(' ').map(Number);
+  UPD.push(t=>el.classList.toggle('on',t>=b+a&&t<b+(isNaN(z)?1e9:z)));
+});
+const scenes=[...document.querySelectorAll('.scene')];
+UPD.push(t=>scenes.forEach(s=>s.classList.toggle('show',t>=+s.dataset.start&&t<+s.dataset.end)));
+
+// ---- intro logo flight & header
+const logo=document.getElementById('hlogo');
+const lr=logo.getBoundingClientRect(),pr=document.getElementById('panel').getBoundingClientRect();
+const LX=(pr.left+pr.width/2)-(lr.left+lr.width/2), LY=(pr.top+pr.height/2-20)-(lr.top+lr.height/2);
+const BIG=`translate(${LX}px,${LY}px) scale(2.6)`;
+A(logo,[{opacity:0,transform:`translate(${LX}px,${LY}px) scale(1.6)`,filter:'blur(14px)'},{opacity:1,transform:BIG,filter:'blur(0px)'}],.2,1.1);
+A(logo,[{transform:BIG},{transform:'none'}],2.0,1.0,{fill:'forwards',ease:'cubic-bezier(.7,0,.2,1)'});
+// end fade-out (loop back to empty panel)
+const hdr=document.getElementById('header');
+A(hdr,[{opacity:1},{opacity:0}],55.1,.7,{fill:'forwards',ease:'ease-in'});
+A(document.getElementById('outroIn'),[{opacity:1,transform:'none'},{opacity:0,transform:'scale(.96)'}],55.0,.7,{fill:'forwards',ease:'ease-in'});
+
+// ---- background (period divides TOTAL)
+A(document.body,[{backgroundPosition:'0% 50%'},{backgroundPosition:'100% 50%'}],0,14,{it:Infinity,dir:'alternate',ease:'ease-in-out',fill:'none'});
+A(document.getElementById('b1'),[{transform:'translate(0,0)'},{transform:'translate(-260px,180px)'}],0,14,{it:Infinity,dir:'alternate',ease:'ease-in-out',fill:'none'});
+A(document.getElementById('b2'),[{transform:'translate(0,0)'},{transform:'translate(300px,-160px)'}],0,7,{it:Infinity,dir:'alternate',ease:'ease-in-out',fill:'none'});
+A(document.getElementById('b3'),[{transform:'translate(0,0) scale(1)'},{transform:'translate(-500px,-300px) scale(1.4)'}],0,14,{it:Infinity,dir:'alternate',ease:'ease-in-out',fill:'none'});
+A(document.getElementById('c1'),[{transform:'translateY(0) rotate(0deg)'},{transform:'translateY(-40px) rotate(-6deg)'}],0,7,{it:Infinity,dir:'alternate',ease:'ease-in-out',fill:'none'});
+A(document.getElementById('c2'),[{transform:'translateY(0) rotate(0deg)'},{transform:'translateY(40px) rotate(6deg)'}],0,7,{it:Infinity,dir:'alternate',ease:'ease-in-out',fill:'none'});
+A(document.getElementById('panel'),[{opacity:0,transform:'scale(.97)'},{opacity:1,transform:'none'}],0,.01); // panel present from first frame
+
+// ---- wipes at scene boundaries
+const bands=[...document.querySelectorAll('.band')];
+[7,15,18.5,26.5,38,47].forEach(b=>{
+  bands.forEach((el,i)=>A(el,[{transform:'translateX(75%) skewX(-16deg)'},{transform:'translateX(-170%) skewX(-16deg)'}],b-0.55+i*0.06,1.0,{fill:'none',ease:'cubic-bezier(.75,0,.25,1)'}));
+});
+
+// ---- cursor helper
+function measure(){document.body.classList.add('measure');scenes.forEach(s=>s.classList.add('show'));}
+function unmeasure(){document.body.classList.remove('measure');scenes.forEach(s=>s.classList.remove('show'));}
+function center(el,cont){const r=el.getBoundingClientRect(),c=cont.getBoundingClientRect();return [r.left-c.left+r.width/2,r.top-c.top+r.height/2];}
+const CURSOR_SVG='<svg class="ico" viewBox="0 0 18 22"><path d="M1 1 L1 17 L5.2 13.2 L8 20 L11 18.7 L8.3 12.2 L14 12.2 Z" fill="#fff" stroke="#0d3340" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+function cursor(cont,b,pts,clicks){
+  const c=document.createElement('div');c.className='cursor';c.innerHTML=CURSOR_SVG;cont.appendChild(c);
+  const P2=pts.map(([t,tg,dx=0,dy=0])=>{const p=typeof tg==='string'?center(document.querySelector(tg),cont):tg;return [t,p[0]+dx,p[1]+dy]});
+  const t0=P2[0][0],t1=P2[P2.length-1][0],D=t1-t0;
+  A(c,P2.map(([t,x,y])=>({offset:(t-t0)/D,transform:`translate(${x}px,${y}px)`,easing:'cubic-bezier(.45,0,.2,1)'})),b+t0,D,{ease:'linear'});
+  A(c,[{opacity:0},{opacity:1}],b+t0-.3,.3,{fill:'none'});
+  A(c,[{opacity:1},{opacity:1}],b+t0,D+.6,{fill:'none'});
+  c.style.opacity=0;
+  const ico=c.querySelector('.ico');
+  clicks.forEach(([t,tg])=>{
+    A(ico,[{transform:'scale(1)'},{transform:'scale(.8)',offset:.4},{transform:'scale(1)'}],b+t,.35,{fill:'none',ease:'ease-in-out'});
+    const p=typeof tg==='string'?center(document.querySelector(tg),cont):tg;
+    for(let k=0;k<2;k++){const r=document.createElement('div');r.className='ripple';r.style.left=p[0]+'px';r.style.top=p[1]+'px';cont.appendChild(r);
+      A(r,[{opacity:.9,transform:'scale(.2)'},{opacity:0,transform:'scale(2.2)'}],b+t+k*.15,.7,{fill:'none',ease:'ease-out'});}
+  });
+}
+measure();
+// step1
+const v1=document.querySelector('#s1 .vis');
+cursor(v1,18.5,[[1.5,[200,620]],[3.0,'#t-maint',30,20],[3.9,'#t-maint',30,20],[5.6,[260,560]],[6.4,'#b-new',20,10],[7.6,'#b-new',20,10]],[[3.2,'#t-maint'],[6.6,'#b-new']]);
+A(document.getElementById('t-maint'),[{transform:'scale(1)'},{transform:'scale(.93)',offset:.35},{transform:'scale(1.05)',offset:.7},{transform:'scale(1)'}],18.5+3.2,.6,{fill:'none'});
+A(document.getElementById('b-new'),[{transform:'scale(1)'},{transform:'scale(.9)'},{transform:'scale(1)'}],18.5+6.6,.35,{fill:'none',comp:'add'});
+// step2 zoom & cursor
+const z=document.getElementById('s2zoom');z.style.transformOrigin='50% 22%';
+const v2=document.querySelector('#s2 .body');
+cursor(z,26.5,[[2.0,[200,520]],[3.3,'#arr2',6,6],[4.2,'#arr2',6,6],[5.0,'#opt-art',-40,8],[6.2,'#opt-art',-40,8],[7.4,[120,470]]],[[3.5,'#arr2'],[5.95,'#opt-art']]);
+A(z,[{transform:'scale(1)'},{transform:'scale(1.08)'}],26.5+2.2,1.2,{fill:'forwards',ease:'cubic-bezier(.6,0,.2,1)'});
+A(z,[{transform:'scale(1.08)'},{transform:'scale(1)'}],26.5+7.6,1.0,{fill:'forwards',ease:'cubic-bezier(.6,0,.2,1)'});
+// step3
+const v3=document.querySelector('#s3 .body');
+cursor(v3,38,[[1.2,[500,560]],[1.8,'#ta3',0,0],[5.6,'#ta3',0,0],[6.6,'#b-send',10,10],[7.8,'#b-send',10,10]],[[1.9,'#ta3'],[6.85,'#b-send']]);
+A(document.getElementById('b-send'),[{transform:'scale(1)'},{transform:'scale(.9)'},{transform:'scale(1)'}],38+6.85,.35,{fill:'none',comp:'add'});
+unmeasure();
+
+// typing
+const TXT='מגדל ART, קומה 7, חדר 712 – נזילה מהתקרה ליד החלון';
+const typed=document.getElementById('typed'),caret=document.getElementById('caret');
+UPD.push(t=>{const l=t-38;const n=Math.max(0,Math.min(TXT.length,Math.floor((l-2.1)/2.9*TXT.length)));typed.textContent=TXT.slice(0,n);
+  caret.style.visibility=(l>1.9&&(n<TXT.length||Math.floor(l*2.2)%2===0))?'visible':'hidden';});
+
+function seek(t){ANIMS.forEach(a=>a.currentTime=t*1000);UPD.forEach(f=>f(t));}
+window.seek=seek;window.TOTAL=TOTAL;
+if(!location.search.includes('render')){
+  let t0=null;const loop=ts=>{if(t0===null)t0=ts;seek(((ts-t0)/1000)%TOTAL);requestAnimationFrame(loop)};
+  document.fonts.ready.then(()=>requestAnimationFrame(loop));
+}else seek(0);
+</script>
+</body>
+</html>
