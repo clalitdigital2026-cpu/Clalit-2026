@@ -1,9 +1,9 @@
-/* EMG – computer opponent. Searches angle/power with the real physics simulation,
+/* חביתת אלסטר – computer opponent. Searches angle/power with the real physics simulation,
    then applies human-like aiming error that shrinks as it learns from previous shots. */
 (function () {
   'use strict';
-  const U = EMG.U;
-  const P = EMG.Physics;
+  const U = ELSTER.U;
+  const P = ELSTER.Physics;
 
   const CFG = {
     easy: {
@@ -112,6 +112,6 @@
       }
     }
   }
-  EMG.AIBrain = AIBrain;
-  EMG.AI_CFG = CFG;
+  ELSTER.AIBrain = AIBrain;
+  ELSTER.AI_CFG = CFG;
 })();

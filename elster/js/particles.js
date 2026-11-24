@@ -1,7 +1,7 @@
-/* EMG – particles: shell shards, yolk spray, dust, poof smoke, floating damage text, confetti, ambient weather */
+/* חביתת אלסטר – particles: shell shards, yolk spray, dust, poof smoke, floating damage text, confetti, ambient weather */
 (function () {
   'use strict';
-  const U = EMG.U;
+  const U = ELSTER.U;
   const OUT = '#2a1b26';
 
   class Particles {
@@ -314,5 +314,5 @@
       }
     }
   }
-  EMG.Particles = Particles;
+  ELSTER.Particles = Particles;
 })();

@@ -1,22 +1,22 @@
-/* EMG – core game: state machine, turns, input, camera and rendering */
+/* חביתת אלסטר – core game: state machine, turns, input, camera and rendering */
 (function () {
   'use strict';
-  const U = EMG.U;
-  const P = EMG.Physics;
-  const A = EMG.Audio;
-  const UI = EMG.UI;
+  const U = ELSTER.U;
+  const P = ELSTER.Physics;
+  const A = ELSTER.Audio;
+  const UI = ELSTER.UI;
 
   const PREVIEW_T = { easy: 1.5, medium: 0.42, hard: 0 };
   const DAMAGE = { head: 35, body: 20 };
   const MAX_STAGE = 8;
-  const GENDER = { einat: 'f', michal: 'f', gilad: 'm' };
+  const GENDER = { roni: 'f', shiri: 'f', yair: 'm' };
 
   class Game {
     constructor(canvas) {
       this.canvas = canvas;
       this.ctx = canvas.getContext('2d');
       this.cam = { x: 600, y: 640, scale: 1, tx: 600, ty: 640, shake: 0, free: false, focus: null, speed: 3 };
-      this.particles = new EMG.Particles();
+      this.particles = new ELSTER.Particles();
       this.mode = 'menu';
       this.state = 'idle';
       this.stateT = 0;
@@ -74,13 +74,13 @@
       this.clearTimers();
       this.paused = false;
       this.updateScale();
-      const level = EMG.buildLevel(1, 4242, { menu: true });
+      const level = ELSTER.buildLevel(1, 4242, { menu: true });
       this.setLevel(level);
       const W = level.W;
       const xs = [W / 2 - 360, W / 2 + 10, W / 2 + 380];
-      const ids = ['einat', 'gilad', 'michal'];
+      const ids = ['roni', 'yair', 'shiri'];
       this.chars = ids.map((id, i) => {
-        const ch = new EMG.Character(id);
+        const ch = new ELSTER.Character(id);
         ch.pos.x = xs[i];
         ch.pos.y = level.terrain.surfaceY(xs[i], level.hm[Math.round(xs[i] / level.hmStep)] - 40);
         ch.facing = i === 0 ? 1 : i === 2 ? -1 : U.rand.sign();
@@ -122,7 +122,7 @@
     startCampaign(diff, playerId, stage) {
       this.difficulty = diff;
       this.playerId = playerId;
-      const others = EMG.CHAR_IDS.filter((id) => id !== playerId);
+      const others = ELSTER.CHAR_IDS.filter((id) => id !== playerId);
       if (U.rand() < 0.5) others.reverse();
       this.opponents = others;
       this.progress.lastChar = playerId;
@@ -133,7 +133,7 @@
 
     setLevel(level) {
       this.level = level;
-      this.bg = new EMG.Background(level.theme, level.W, level.seed);
+      this.bg = new ELSTER.Background(level.theme, level.W, level.seed);
       this.particles.clear();
       this.particles.terrain = level.terrain;
       this.particles.setAmbient(level.theme.ambient);
@@ -147,11 +147,11 @@
       this.clearTimers();
       this.paused = false;
       this.stage = n;
-      const level = EMG.buildLevel(n, 1000 + n * 7919);
+      const level = ELSTER.buildLevel(n, 1000 + n * 7919);
       this.setLevel(level);
       const oppId = this.opponents[(n - 1) % 2];
-      const player = (this.player = new EMG.Character(this.playerId));
-      const enemy = (this.enemy = new EMG.Character(oppId));
+      const player = (this.player = new ELSTER.Character(this.playerId));
+      const enemy = (this.enemy = new ELSTER.Character(oppId));
       player.pos = { ...level.spawns.right };
       player.facing = -1;
       enemy.pos = { ...level.spawns.left };
@@ -159,7 +159,7 @@
       player.lookTarget = enemy.headCenter;
       enemy.lookTarget = player.headCenter;
       this.chars = [player, enemy];
-      this.ai = new EMG.AIBrain(this.difficulty);
+      this.ai = new ELSTER.AIBrain(this.difficulty);
       this.wind = 0;
       this.shotsFired = 0;
       UI.hideScreens();
@@ -717,7 +717,7 @@
           ctx.fill();
         }
       }
-      if (this.egg) EMG.drawEgg(ctx, this.egg.x, this.egg.y, this.egg.rot, 0.95);
+      if (this.egg) ELSTER.drawEgg(ctx, this.egg.x, this.egg.y, this.egg.rot, 0.95);
       this.particles.draw(ctx);
       this.particles.drawTexts(ctx);
       ctx.restore();
@@ -878,7 +878,7 @@
       ctx.arc(0, 0, 20, 0, U.TAU);
       ctx.fillStyle = 'rgba(42,27,38,0.75)';
       ctx.fill();
-      EMG.drawEgg(ctx, 0, 0, 0, 0.9);
+      ELSTER.drawEgg(ctx, 0, 0, 0, 0.9);
       ctx.rotate(Math.atan2(p.y - y, p.x - x));
       ctx.beginPath();
       ctx.moveTo(30, 0);
@@ -890,6 +890,6 @@
     }
   }
 
-  EMG.Game = Game;
-  EMG.MAX_STAGE = MAX_STAGE;
+  ELSTER.Game = Game;
+  ELSTER.MAX_STAGE = MAX_STAGE;
 })();

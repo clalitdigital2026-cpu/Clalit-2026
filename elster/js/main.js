@@ -1,9 +1,9 @@
-/* EMG – bootstrap: wires UI handlers to the game and runs the main loop */
+/* חביתת אלסטר – bootstrap: wires UI handlers to the game and runs the main loop */
 (function () {
   'use strict';
-  const A = EMG.Audio;
-  const UI = EMG.UI;
-  const game = (EMG.game = new EMG.Game(document.getElementById('game')));
+  const A = ELSTER.Audio;
+  const UI = ELSTER.UI;
+  const game = (ELSTER.game = new ELSTER.Game(document.getElementById('game')));
   let pending = { diff: 'medium', stage: 1 };
 
   function goFullscreen() {
@@ -69,14 +69,14 @@
       const on = !A.soundOn;
       A.setSound(on);
       game.settings.sound = on;
-      EMG.U.store.set('settings', game.settings);
+      ELSTER.U.store.set('settings', game.settings);
       UI.setSoundIcon(on);
     },
     toggleMusic() {
       const on = !A.musicOn;
       A.setMusic(on);
       game.settings.music = on;
-      EMG.U.store.set('settings', game.settings);
+      ELSTER.U.store.set('settings', game.settings);
       UI.setMusicLabel(on);
     },
   });
@@ -99,7 +99,7 @@
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     try {
-      const n = EMG.timeScale || 1; // test hook: run the simulation faster
+      const n = ELSTER.timeScale || 1; // test hook: run the simulation faster
       for (let i = 0; i < n; i++) game.update(dt);
       game.render();
     } catch (e) {

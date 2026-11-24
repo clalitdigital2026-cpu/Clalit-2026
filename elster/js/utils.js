@@ -1,8 +1,8 @@
-/* EMG – shared helpers (math, RNG, easing, colors, storage) */
+/* חביתת אלסטר – shared helpers (math, RNG, easing, colors, storage) */
 (function () {
   'use strict';
-  const EMG = (window.EMG = window.EMG || {});
-  const U = (EMG.U = {});
+  const ELSTER = (window.ELSTER = window.ELSTER || {});
+  const U = (ELSTER.U = {});
 
   U.clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
   U.lerp = (a, b, t) => a + (b - a) * t;
@@ -113,7 +113,7 @@
   U.store = {
     get(key, def) {
       try {
-        const v = localStorage.getItem('emg.' + key);
+        const v = localStorage.getItem('elster.' + key);
         return v == null ? def : JSON.parse(v);
       } catch (e) {
         return def;
@@ -121,7 +121,7 @@
     },
     set(key, val) {
       try {
-        localStorage.setItem('emg.' + key, JSON.stringify(val));
+        localStorage.setItem('elster.' + key, JSON.stringify(val));
       } catch (e) { /* ignore */ }
     },
   };

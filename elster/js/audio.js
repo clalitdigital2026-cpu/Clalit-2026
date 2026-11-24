@@ -1,7 +1,7 @@
-/* EMG – synthesized retro audio: original chiptune music + sound effects (Web Audio API) */
+/* חביתת אלסטר – synthesized retro audio: original chiptune music + sound effects (Web Audio API) */
 (function () {
   'use strict';
-  const U = EMG.U;
+  const U = ELSTER.U;
   const mtof = (m) => 440 * Math.pow(2, (m - 69) / 12);
 
   // ---- Original music: "Egg Shell Shuffle" (A minor, 8 bars A + 8 bars B) ----
@@ -29,7 +29,7 @@
   const BASS_ROOTS = [45, 41, 48, 43, 45, 41, 48, 43]; // Am F C G
   const BASS_ROOTS_B = [41, 41, 48, 43, 45, 45, 41, 43];
 
-  const A = (EMG.Audio = {
+  const A = (ELSTER.Audio = {
     ctx: null,
     soundOn: true,
     musicOn: true,

@@ -1,16 +1,16 @@
-/* EMG – DOM user interface: screens, HUD, banners, character cards */
+/* חביתת אלסטר – DOM user interface: screens, HUD, banners, character cards */
 (function () {
   'use strict';
-  const U = EMG.U;
+  const U = ELSTER.U;
   const $ = (id) => document.getElementById(id);
 
   const CARD_COLORS = {
-    einat: ['#ff8fb1', '#c44b7a'],
-    michal: ['#ffd38a', '#e58a2f'],
-    gilad: ['#8fd3ff', '#3a7bd5'],
+    roni: ['#ff8fb1', '#c44b7a'],
+    shiri: ['#ffd38a', '#e58a2f'],
+    yair: ['#8fd3ff', '#3a7bd5'],
   };
 
-  const UI = (EMG.UI = {
+  const UI = (ELSTER.UI = {
     screens: ['title', 'difficulty', 'select', 'pause', 'win', 'lose', 'final'],
     cardChars: {},
     hudChars: {},
@@ -19,22 +19,22 @@
     init(handlers) {
       this.h = handlers;
       const click = (id, fn) => $(id).addEventListener('click', (e) => {
-        EMG.Audio.init();
-        EMG.Audio.click();
+        ELSTER.Audio.init();
+        ELSTER.Audio.click();
         fn(e);
       });
       click('btn-play', () => handlers.play());
       click('btn-continue', () => handlers.continueGame());
       document.querySelectorAll('.diff-btn').forEach((b) =>
         b.addEventListener('click', () => {
-          EMG.Audio.init();
-          EMG.Audio.click();
+          ELSTER.Audio.init();
+          ELSTER.Audio.click();
           handlers.difficulty(b.dataset.diff);
         })
       );
       document.querySelectorAll('[data-back]').forEach((b) =>
         b.addEventListener('click', () => {
-          EMG.Audio.click();
+          ELSTER.Audio.click();
           this.show(b.dataset.back);
         })
       );
@@ -51,7 +51,7 @@
       click('btn-final-home', () => handlers.home());
       click('btn-music', () => handlers.toggleMusic());
       ['btn-sound', 'btn-sound-title'].forEach((id) => click(id, () => handlers.toggleSound()));
-      document.querySelectorAll('button').forEach((b) => b.addEventListener('pointerenter', () => EMG.Audio.ctx && EMG.Audio.hover()));
+      document.querySelectorAll('button').forEach((b) => b.addEventListener('pointerenter', () => ELSTER.Audio.ctx && ELSTER.Audio.hover()));
       this.buildCards();
     },
 
@@ -74,14 +74,14 @@
 
     buildCards() {
       const wrap = $('cards');
-      EMG.CHAR_IDS.forEach((id) => {
-        const d = EMG.CHAR_DEFS[id];
+      ELSTER.CHAR_IDS.forEach((id) => {
+        const d = ELSTER.CHAR_DEFS[id];
         const card = document.createElement('button');
         card.className = 'card';
         card.style.setProperty('--c1', CARD_COLORS[id][0]);
         card.style.setProperty('--c2', CARD_COLORS[id][1]);
         card.innerHTML = `<canvas width="300" height="324"></canvas><div class="card-name">${d.name}</div><div class="card-tag">${d.tagline}</div>`;
-        const ch = new EMG.Character(id);
+        const ch = new ELSTER.Character(id);
         ch.facing = 1;
         this.cardChars[id] = ch;
         card.addEventListener('pointerenter', () => {
@@ -89,8 +89,8 @@
         });
         card.addEventListener('click', () => {
           if (this.selected) return;
-          EMG.Audio.init();
-          EMG.Audio.cheer();
+          ELSTER.Audio.init();
+          ELSTER.Audio.cheer();
           this.selected = id;
           card.classList.add('selected');
           ch.setPose('victory');
@@ -115,7 +115,7 @@
         g.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.fillStyle = g;
         ctx.fillRect(0, 0, c.width, c.height);
-        EMG.drawPortrait(ctx, card._id, c.width, c.height, { char: ch, scale: 2.35, bottom: 10, dx: -6 });
+        ELSTER.drawPortrait(ctx, card._id, c.width, c.height, { char: ch, scale: 2.35, bottom: 10, dx: -6 });
       });
     },
 
@@ -126,8 +126,8 @@
     setupHud(player, enemy, stage) {
       $('name-player').textContent = player.name;
       $('name-enemy').textContent = enemy.name;
-      this.hudChars.player = new EMG.Character(player.id);
-      this.hudChars.enemy = new EMG.Character(enemy.id);
+      this.hudChars.player = new ELSTER.Character(player.id);
+      this.hudChars.enemy = new ELSTER.Character(enemy.id);
       this.hudSrc = { player, enemy };
       this.setStage(stage);
       this.setHP('player', 100, true);
@@ -204,7 +204,7 @@
         hc.loaded = false;
         const c = $('avatar-' + side), ctx = c.getContext('2d');
         ctx.clearRect(0, 0, c.width, c.height);
-        EMG.drawPortrait(ctx, src.id, c.width, c.height, { char: hc, scale: 2.0, bottom: -58, noShadow: true, facing: side === 'player' ? -1 : 1 });
+        ELSTER.drawPortrait(ctx, src.id, c.width, c.height, { char: hc, scale: 2.0, bottom: -58, noShadow: true, facing: side === 'player' ? -1 : 1 });
       });
     },
 

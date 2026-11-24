@@ -1,7 +1,7 @@
-/* EMG – themes, procedural arena generation, terrain rendering and collision mask */
+/* חביתת אלסטר – themes, procedural arena generation, terrain rendering and collision mask */
 (function () {
   'use strict';
-  const U = EMG.U;
+  const U = ELSTER.U;
   const OUT = '#2a1b26';
 
   // ------------------------------------------------------------------ themes
@@ -102,7 +102,7 @@
       leaf: '#43b14f', leafHi: '#90e86e', rock: '#9a8fb5', ambient: 'none', cloud: '#ffffff', islands: true,
     },
   ];
-  EMG.THEMES = THEMES;
+  ELSTER.THEMES = THEMES;
 
   // ------------------------------------------------------------------ Terrain (render canvas + mask)
   class Terrain {
@@ -135,7 +135,7 @@
       const c = this.ctx;
       c.save();
       c.globalCompositeOperation = 'source-atop';
-      EMG.drawSplat(c, x, y, r, rot, seed, 1);
+      ELSTER.drawSplat(c, x, y, r, rot, seed, 1);
       c.restore();
     }
     bakeScorch(x, y, r) {
@@ -150,7 +150,7 @@
       c.restore();
     }
   }
-  EMG.Terrain = Terrain;
+  ELSTER.Terrain = Terrain;
 
   // ------------------------------------------------------------------ painting helpers
   function stroke(ctx, w, c) {
@@ -1103,6 +1103,6 @@
     level.spawnScanR = yR - 60;
   }
 
-  EMG.buildLevel = buildLevel;
-  EMG.OBSTACLES = OB;
+  ELSTER.buildLevel = buildLevel;
+  ELSTER.OBSTACLES = OB;
 })();

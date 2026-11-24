@@ -1,10 +1,10 @@
-/* EMG – projectile physics: deterministic fixed-step integration with swept collision.
+/* חביתת אלסטר – projectile physics: deterministic fixed-step integration with swept collision.
    The exact same step function drives the real egg, the aiming preview and the AI's simulations. */
 (function () {
   'use strict';
-  const U = EMG.U;
+  const U = ELSTER.U;
 
-  const P = (EMG.Physics = {
+  const P = (ELSTER.Physics = {
     G: 900,            // gravity, world units / s^2
     DT: 1 / 120,       // fixed simulation step
     EGG_R: 9,          // egg collision radius

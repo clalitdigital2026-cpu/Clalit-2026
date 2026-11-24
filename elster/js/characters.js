@@ -1,13 +1,13 @@
-/* EMG – illustrated characters (pure vector canvas art) + pose/animation state machine */
+/* חביתת אלסטר – illustrated characters (pure vector canvas art) + pose/animation state machine */
 (function () {
   'use strict';
-  const U = EMG.U;
+  const U = ELSTER.U;
   const OUT = '#2a1b26';
 
   // ------------------------------------------------------------------ definitions
   const DEFS = {
-    einat: {
-      id: 'einat', name: 'עינת', tagline: 'החיוך הכי מסוכן בזירה',
+    roni: {
+      id: 'roni', name: 'רוני אלסטר', tagline: 'החיוך הכי מסוכן בזירה',
       skin: '#efc2a2', skinShade: '#d69a7b', blush: 0.32,
       hair: '#1b1311', hairHi: '#4a362c', hairMid: '#2c201b',
       iris: '#4a2c1b', brow: '#1d1411', browW: 2.6, lips: '#c4646c',
@@ -16,8 +16,8 @@
       sleeve: 'short', mouth: 'grin', lashes: true, freckles: true,
       faceRx: 20, faceRy: 23, chin: 0.42, accent: '#ff5d8f',
     },
-    michal: {
-      id: 'michal', name: 'מיכל', tagline: 'קליעה מתוקה כמו קרמל',
+    shiri: {
+      id: 'shiri', name: 'שירי אלסטר', tagline: 'קליעה מתוקה כמו קרמל',
       skin: '#f8d6c2', skinShade: '#e5ae95', blush: 0.38,
       hair: '#8d5a33', hairHi: '#cf9660', hairMid: '#6c4124',
       iris: '#6e5a34', brow: '#6b4529', browW: 2.1, lips: '#d9787a',
@@ -26,8 +26,8 @@
       sleeve: 'long', mouth: 'grin', lashes: true, liner: true,
       faceRx: 20.5, faceRy: 22.5, chin: 0.45, accent: '#ffb347',
     },
-    gilad: {
-      id: 'gilad', name: 'גלעד', tagline: 'מבט רציני, יד יציבה',
+    yair: {
+      id: 'yair', name: 'יאיר אלסטר', tagline: 'מבט רציני, יד יציבה',
       skin: '#e8b694', skinShade: '#c88f6d', blush: 0.12,
       hair: '#2b211c', hairHi: '#55463c', hairMid: '#3a2d26', gray: '#9d968f',
       iris: '#3b2416', brow: '#221813', browW: 3.6, lips: '#b8796b',
@@ -37,8 +37,8 @@
       faceRx: 21, faceRy: 24, chin: 0.55, accent: '#4fc3f7',
     },
   };
-  EMG.CHAR_DEFS = DEFS;
-  EMG.CHAR_IDS = ['einat', 'michal', 'gilad'];
+  ELSTER.CHAR_DEFS = DEFS;
+  ELSTER.CHAR_IDS = ['roni', 'shiri', 'yair'];
 
   // geometry (local space, feet at 0,0, facing +x)
   const HEAD_Y = -84;
@@ -91,7 +91,7 @@
     ctx.fill();
     ctx.restore();
   }
-  EMG.drawEgg = drawEgg;
+  ELSTER.drawEgg = drawEgg;
 
   /** egg splat decal (yolk + white + drips) */
   function drawSplat(ctx, x, y, r, rot, seed, alpha) {
@@ -135,7 +135,7 @@
     ctx.fill();
     ctx.restore();
   }
-  EMG.drawSplat = drawSplat;
+  ELSTER.drawSplat = drawSplat;
 
   function limb(ctx, x1, y1, x2, y2, w, col) {
     ctx.beginPath();
@@ -281,7 +281,7 @@
   }
 
   function drawEye(ctx, d, x, y, type, look, side) {
-    const big = d.id !== 'gilad';
+    const big = d.id !== 'yair';
     const rx = big ? 4.9 : 4.4, ry = big ? 5.9 : 4.9;
     ctx.save();
     ctx.lineCap = 'round';
@@ -363,7 +363,7 @@
     let lid = 0;
     if (type === 'squint') lid = 0.5;
     if (type === 'sad') lid = 0.3;
-    if (d.id === 'gilad' && type === 'open') lid = 0.22; // heavier lids
+    if (d.id === 'yair' && type === 'open') lid = 0.22; // heavier lids
     if (lid > 0) {
       ctx.beginPath();
       if (type === 'sad') {
@@ -426,7 +426,7 @@
   function drawBrow(ctx, d, x, y, side, mode) {
     // inner point near center, outer point to the side
     let ix = x - side * 4.5, iy = y + 1, ox = x + side * 5.5, oy = y + 0.5;
-    let arch = d.id === 'gilad' ? -1.2 : -3;
+    let arch = d.id === 'yair' ? -1.2 : -3;
     if (mode === 'angry' || mode === 'focus') { iy += mode === 'angry' ? 3 : 1.8; oy -= 1; arch = -0.5; }
     if (mode === 'worried') { iy -= 3; oy += 1.5; }
     if (mode === 'raised') { iy -= 3; oy -= 3; arch -= 1; }
@@ -437,7 +437,7 @@
     ctx.lineWidth = d.browW;
     ctx.strokeStyle = d.brow;
     ctx.stroke();
-    if (d.id === 'gilad') {
+    if (d.id === 'yair') {
       // bushier: a second offset stroke
       ctx.beginPath();
       ctx.moveTo(ix, iy + 1.2);
@@ -449,7 +449,7 @@
 
   function drawNose(ctx, d, x, y) {
     ctx.lineCap = 'round';
-    if (d.id === 'gilad') {
+    if (d.id === 'yair') {
       ctx.beginPath();
       ctx.moveTo(x + 0.5, y - 8);
       ctx.quadraticCurveTo(x + 3.2, y - 1, x + 2.6, y + 1.5);
@@ -483,7 +483,7 @@
     const lip = d.lips;
     switch (type) {
       case 'grin': {
-        const w = d.id === 'gilad' ? 7 : 8.2;
+        const w = d.id === 'yair' ? 7 : 8.2;
         ctx.beginPath();
         ctx.moveTo(x - w, y - 1.5);
         ctx.quadraticCurveTo(x, y + 0.5, x + w, y - 1.5);
@@ -606,7 +606,7 @@
 
   // ------------------------------------------------------------------ hair & per-person details
   const HAIR = {
-    gilad: {
+    yair: {
       back(ctx, d) {
         // short back/sides mass
         ctx.beginPath();
@@ -711,7 +711,7 @@
       },
     },
 
-    michal: {
+    shiri: {
       back(ctx, d) {
         const y0 = HEAD_Y;
         ctx.beginPath();
@@ -784,7 +784,7 @@
       face() {},
     },
 
-    einat: {
+    roni: {
       back(ctx, d) {
         const y0 = HEAD_Y;
         // long dark hair behind shoulders
@@ -912,7 +912,7 @@
   }
 
   function drawTorso(ctx, d) {
-    const fem = d.id !== 'gilad';
+    const fem = d.id !== 'yair';
     const sw = fem ? 17 : 19;
     const ww = fem ? 13.5 : 16;
     ctx.beginPath();
@@ -932,7 +932,7 @@
     outlineFill(ctx, g);
     ctx.save();
     ctx.clip();
-    if (d.id === 'michal') {
+    if (d.id === 'shiri') {
       // knit cable texture + ribbing
       ctx.strokeStyle = U.rgba(d.topShade, 0.95);
       ctx.lineWidth = 1.2;
@@ -947,7 +947,7 @@
       ctx.fillStyle = U.rgba(d.topShade, 0.9);
       ctx.fillRect(-20, -27, 40, 5);
     }
-    if (d.id === 'gilad') {
+    if (d.id === 'yair') {
       // subtle tee folds
       ctx.strokeStyle = 'rgba(255,255,255,0.08)';
       ctx.lineWidth = 2;
@@ -958,7 +958,7 @@
     }
     ctx.restore();
     // neckline
-    if (d.id === 'gilad') {
+    if (d.id === 'yair') {
       ctx.beginPath();
       ctx.moveTo(-7.5, -60.5);
       ctx.lineTo(0, -47);
@@ -972,7 +972,7 @@
       // chest hair hint
       ctx.fillStyle = 'rgba(60,45,40,0.35)';
       for (let i = 0; i < 6; i++) ctx.fillRect(-2 + (i % 3) * 1.6, -56 + Math.floor(i / 3) * 2.2, 0.8, 0.8);
-    } else if (d.id === 'michal') {
+    } else if (d.id === 'shiri') {
       ctx.beginPath();
       ctx.ellipse(0, -60, 8.5, 4.5, 0, 0, Math.PI);
       ctx.fillStyle = d.skin;
@@ -1015,7 +1015,7 @@
     outlineFill(ctx, d.skin, 2);
     ctx.fillStyle = 'rgba(0,0,0,0.12)';
     ctx.fillRect(-4, -63, 8, 3);
-    if (d.id !== 'michal') {
+    if (d.id !== 'shiri') {
       drawEar(ctx, d, -1);
       drawEar(ctx, d, 1);
     }
@@ -1042,7 +1042,7 @@
     const ey = HEAD_Y + 1;
     [-1, 1].forEach((s) => drawEye(ctx, d, fx + s * 8.8, ey, S.eyes, [S.lookX, S.lookY], s));
     // brows
-    [-1, 1].forEach((s) => drawBrow(ctx, d, fx + s * 9, HEAD_Y - 9 - (d.id === 'gilad' ? -1.4 : 0), s, S.brow));
+    [-1, 1].forEach((s) => drawBrow(ctx, d, fx + s * 9, HEAD_Y - 9 - (d.id === 'yair' ? -1.4 : 0), s, S.brow));
     drawNose(ctx, d, fx + 0.5, HEAD_Y + 7);
     drawMouth(ctx, d, fx + 0.3, HEAD_Y + 13.5, S.mouth);
     H.front(ctx, d);
@@ -1472,11 +1472,11 @@
       ctx.restore();
     }
   }
-  EMG.Character = Character;
-  EMG.CHAR_GEOM = { HEAD_Y, AX, AY };
+  ELSTER.Character = Character;
+  ELSTER.CHAR_GEOM = { HEAD_Y, AX, AY };
 
   /** Draw a character portrait (for menus / HUD) into a 2D context */
-  EMG.drawPortrait = function (ctx, id, w, h, opts) {
+  ELSTER.drawPortrait = function (ctx, id, w, h, opts) {
     opts = opts || {};
     const ch = opts.char || new Character(id);
     ch.pos.x = 0;

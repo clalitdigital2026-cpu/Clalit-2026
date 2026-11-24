@@ -1,4 +1,4 @@
-/* EMG – retro arcade UI */
+/* חביתת אלסטר – retro arcade UI */
 :root {
   --outline3: -3px -3px 0 var(--ink), 3px -3px 0 var(--ink), -3px 3px 0 var(--ink), 3px 3px 0 var(--ink), 0 3px 0 var(--ink), 3px 0 0 var(--ink), 0 -3px 0 var(--ink), -3px 0 0 var(--ink);
   --outline2: -2px -2px 0 var(--ink), 2px -2px 0 var(--ink), -2px 2px 0 var(--ink), 2px 2px 0 var(--ink), 0 2px 0 var(--ink), 2px 0 0 var(--ink), 0 -2px 0 var(--ink), -2px 0 0 var(--ink);
@@ -81,17 +81,15 @@ button { font-family: var(--font); cursor: pointer; border: none; touch-action: 
 #screen-title { justify-content: flex-start; padding-top: calc(3vh + var(--safe-t)); background: linear-gradient(rgba(20,8,40,0.25), rgba(20,8,40,0) 45%); }
 .logo-wrap { text-align: center; animation: float 3.2s ease-in-out infinite; }
 .logo {
-  margin: 0; font-family: var(--pixel); font-size: clamp(56px, 13vh, 132px); line-height: 1; letter-spacing: .06em;
-  display: flex; gap: .06em; justify-content: center; direction: ltr;
+  margin: 0; font-family: var(--font); font-weight: 900; font-size: clamp(48px, 12vh, 116px); line-height: 1.05;
+  display: flex; gap: .28em; justify-content: center; flex-wrap: wrap;
 }
 .logo .l {
   display: inline-block; color: #ffe066;
-  -webkit-text-stroke: 0.06em var(--ink);
-  text-shadow: 0.07em 0.07em 0 var(--ink), 0.11em 0.11em 0 #ff5d8f, 0 0 30px rgba(255,200,60,0.6);
+  text-shadow: var(--outline3), 0.07em 0.07em 0 var(--ink), 0.11em 0.11em 0 #ff5d8f, 0 0 30px rgba(255,200,60,0.6);
   animation: bob 1.6s ease-in-out infinite;
 }
-.logo .l2 { color: #fff6e0; animation-delay: .15s; }
-.logo .l3 { color: #8ff0d6; animation-delay: .3s; }
+.logo .l2 { color: #8ff0d6; animation-delay: .2s; }
 .logo-sub {
   margin-top: 1.4vh; display: inline-block; font-weight: 900; font-size: clamp(18px, 3.4vh, 30px); color: #fff;
   background: var(--pink); border: 4px solid var(--ink); border-radius: 999px; padding: 4px 20px; box-shadow: 0 5px 0 var(--ink);

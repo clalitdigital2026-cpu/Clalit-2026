@@ -1,7 +1,7 @@
-/* EMG – sky, sun/moon, stars, parallax layers and drifting clouds */
+/* חביתת אלסטר – sky, sun/moon, stars, parallax layers and drifting clouds */
 (function () {
   'use strict';
-  const U = EMG.U;
+  const U = ELSTER.U;
   const OUT = '#2a1b26';
 
   class Background {
@@ -331,5 +331,5 @@
       ctx.restore();
     }
   }
-  EMG.Background = Background;
+  ELSTER.Background = Background;
 })();
