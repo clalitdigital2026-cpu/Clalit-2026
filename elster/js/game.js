@@ -52,8 +52,10 @@
       document.getElementById('rotate').classList.toggle('hidden', !portrait);
     }
     updateScale() {
-      const viewH = this.mode === 'menu' ? 640 : 700;
-      this.cam.scale = Math.min(this.vh / viewH, this.vw / 1080);
+      // phones in landscape get a closer camera so characters and the egg are easier to grab
+      const small = this.vh < 520;
+      const viewH = this.mode === 'menu' ? 640 : small ? 540 : 700;
+      this.cam.scale = Math.min(this.vh / viewH, this.vw / (small ? 760 : 1080));
     }
 
     after(sec, fn) {

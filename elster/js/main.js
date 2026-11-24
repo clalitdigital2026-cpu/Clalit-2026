@@ -6,14 +6,48 @@
   const game = (ELSTER.game = new ELSTER.Game(document.getElementById('game')));
   let pending = { diff: 'medium', stage: 1 };
 
-  function goFullscreen() {
+  const fsEnabled = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+  const isFs = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  function enterFullscreen() {
     const el = document.documentElement;
-    const touch = matchMedia('(pointer: coarse)').matches;
-    if (!touch || document.fullscreenElement) return;
     try {
-      const r = el.requestFullscreen && el.requestFullscreen({ navigationUI: 'hide' });
-      if (r && r.then) r.then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => {})).catch(() => {});
-    } catch (e) { /* ignore */ }
+      const req = el.requestFullscreen || el.webkitRequestFullscreen;
+      const r = req && req.call(el, { navigationUI: 'hide' });
+      const lock = () => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => {});
+      if (r && r.then) r.then(lock).catch(() => {});
+      else lock();
+    } catch (e) { /* not available here */ }
+  }
+  function toggleFullscreen() {
+    if (isFs()) {
+      try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) { /* ignore */ }
+    } else enterFullscreen();
+  }
+  function syncFsButtons() {
+    document.querySelectorAll('.fs-btn').forEach((b) => {
+      b.classList.toggle('hidden', !fsEnabled);
+      b.classList.toggle('active', isFs());
+    });
+  }
+  document.addEventListener('fullscreenchange', syncFsButtons);
+  document.addEventListener('webkitfullscreenchange', syncFsButtons);
+  ['btn-fs', 'btn-fs-title'].forEach((id) => document.getElementById(id).addEventListener('click', () => {
+    A.init();
+    A.click();
+    toggleFullscreen();
+  }));
+  syncFsButtons();
+  // iPhone has no fullscreen API for pages: suggest "Add to Home Screen" (only on the standalone site)
+  const ios = /iPhone|iPod/.test(navigator.userAgent);
+  const standalone = window.navigator.standalone || matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches;
+  let topLevel = true;
+  try { topLevel = window.self === window.top; } catch (e) { topLevel = false; }
+  if (ios && !standalone && !fsEnabled && topLevel) document.getElementById('ios-tip').classList.remove('hidden');
+
+  function goFullscreen() {
+    const touch = matchMedia('(pointer: coarse)').matches;
+    if (!touch || !fsEnabled || isFs()) return;
+    enterFullscreen();
   }
 
   function transition(fn) {

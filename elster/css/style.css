@@ -60,6 +60,11 @@ button { font-family: var(--font); cursor: pointer; border: none; touch-action: 
 .sound-btn .off { display: none; }
 .sound-btn.muted .on { display: none; }
 .sound-btn.muted .off { display: block; }
+.fs-btn .fs-off { display: none; }
+.fs-btn.active .fs-on { display: none; }
+.fs-btn.active .fs-off { display: block; }
+.icon-btn.corner2 { position: absolute; top: calc(14px + var(--safe-t)); left: calc(72px + var(--safe-l)); }
+.ios-tip { position: absolute; bottom: calc(12px + var(--safe-b)); left: 50%; transform: translateX(-50%); background: rgba(42,27,38,0.85); color: #fff; font-weight: 800; font-size: 14px; padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
 .icon-btn.corner { position: absolute; top: calc(14px + var(--safe-t)); left: calc(14px + var(--safe-l)); }
 
 /* ---------------- screens ---------------- */
