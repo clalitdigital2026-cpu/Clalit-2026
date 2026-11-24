@@ -261,7 +261,8 @@
     },
     setWeaponButton(o) {
       const b = $('btn-weapon');
-      if (!o.kind) {
+      if (!o.kind || !o.ready) {
+        // once used it's no longer relevant – the small icon in the top bar shows it was used
         b.classList.add('hidden');
         return;
       }
