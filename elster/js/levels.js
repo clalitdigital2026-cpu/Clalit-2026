@@ -867,7 +867,7 @@
       // obstacles
       const count = opts.menu || opts.boss ? 0 : Math.min(7, 1 + Math.floor(s * 0.7));
       const placed = [];
-      const zone0 = xL + 210, zone1 = xR - 210;
+      const zone0 = xL + 330, zone1 = xR - 330; // keep obstacles off the characters' doorstep
       for (let k = 0, tries = 0; k < count && tries < 200; tries++) {
         const x = k === 0 ? U.lerp(zone0, zone1, rnd.range(0.4, 0.6)) : rnd.range(zone0, zone1);
         if (placed.some((p) => Math.abs(p - x) < 150)) continue;
@@ -877,7 +877,13 @@
         let sc = U.clamp(0.75 + s * 0.06 + rnd.range(-0.1, 0.15), 0.7, 1.45);
         // keep obstacles from towering into an unbeatable wall: their top stays within
         // reach of a normal lob over the lower spawn (more room in later stages)
-        const allowedTop = Math.min(yL, yR) - (140 + s * 28);
+        let allowedTop = Math.min(yL, yR) - (140 + s * 28);
+        // close to a character, obstacles stay low so falling shots can still reach them
+        const dSpawn = Math.min(Math.abs(x - xL), Math.abs(x - xR));
+        if (dSpawn < 650) {
+          const nearY = Math.abs(x - xL) < Math.abs(x - xR) ? yL : yR;
+          allowedTop = Math.max(allowedTop, nearY - (110 + s * 10));
+        }
         const baseH = OB_HEIGHT[type] || 160;
         if (gy - baseH * sc < allowedTop) {
           sc = (gy - allowedTop) / baseH;
@@ -1113,7 +1119,10 @@
       const w = rnd.range(110, 190);
       if (x + w / 2 > xR - 160) break;
       const base = Math.min(yL, yR);
-      const roof = U.clamp(base - rnd.range(-160, 60 + s * 22), 300, street - 120);
+      let roof = U.clamp(base - rnd.range(-160, 60 + s * 22), 300, street - 120);
+      const cx = x + w / 2;
+      if (cx - xL < 520) roof = Math.max(roof, yL + 40);
+      if (xR - cx < 520) roof = Math.max(roof, yR + 40);
       if (rnd() < 0.85) OB.building(ctx, x + w / 2, street, 1, rnd, theme, { w, h: street - roof });
       x += w + rnd.range(30, 110);
     }
