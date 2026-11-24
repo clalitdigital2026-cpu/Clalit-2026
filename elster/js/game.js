@@ -13,7 +13,7 @@
   const KNOCKBACK = { easy: 30, medium: 70, hard: 130 };
   const POINTS = { body: 10, head: 25, win: 100 };
   const MULT = { easy: 1, medium: 1.5, hard: 2 };
-  const GENDER = { roni: 'f', shiri: 'f', yair: 'm', adi: 'f' };
+  const GENDER = { roni: 'f', shiri: 'f', yair: 'm', adi: 'f', tamar: 'f' };
 
   class Game {
     constructor(canvas) {
@@ -94,8 +94,8 @@
       const level = ELSTER.buildLevel(1, 4242, { menu: true });
       this.setLevel(level);
       const W = level.W;
-      const xs = [W / 2 - 440, W / 2 - 145, W / 2 + 150, W / 2 + 445];
-      const ids = ['roni', 'yair', 'adi', 'shiri'];
+      const xs = [W / 2 - 460, W / 2 - 230, W / 2, W / 2 + 230, W / 2 + 460];
+      const ids = ['roni', 'yair', 'tamar', 'adi', 'shiri'];
       this.chars = ids.map((id, i) => {
         const ch = new ELSTER.Character(id);
         ch.pos.x = xs[i];
@@ -345,6 +345,7 @@
           pl.aim = { anchor: [a.x, a.y], dir: [pl.facing, 0], power: 0 };
           this.cam.free = true; // freeze camera while aiming
           this.canvas.classList.add('aiming');
+          document.getElementById('hud').classList.add('aiming');
           A.stretchStart();
           UI.hint(false);
           this.updateAim(e.clientX, e.clientY);
@@ -377,6 +378,7 @@
       this.pointer = null;
       if (p.mode === 'aim') {
         this.canvas.classList.remove('aiming');
+        document.getElementById('hud').classList.remove('aiming');
         const pl = this.player;
         A.stretchStop();
         UI.setPower(false);
@@ -690,6 +692,9 @@
         ch.addSplat(ev.part === 'head' ? 'body' : 'head', ch.pos.x, ch.pos.y - 60, 'choco', '#6b3a1f');
       } else if (wk === 'brush') {
         for (let i = 0; i < 3; i++) ch.addSplat(i % 2 ? 'body' : 'head', ch.pos.x + U.rand.range(-14, 14), ch.pos.y - U.rand.range(30, 95), 'paint', U.rand.pick(cols));
+      } else if (wk === 'tomato') {
+        ch.addSplat('head', ch.pos.x + U.rand.range(-6, 6), ch.pos.y - 90, 'paint', '#d62828');
+        ch.addSplat(ev.part, ev.x, ev.y, 'paint', '#e63946');
       }
     }
 
@@ -703,6 +708,10 @@
         T.ctx.restore();
       };
       if (wk === 'choco') paint('#5a2e14', 0, 0, 20);
+      else if (wk === 'tomato') {
+        paint('#d62828', 0, 0, 18);
+        paint('#ff6b6b', 14, 4, 7);
+      }
       else if (wk === 'brush') ELSTER.WEAPONS.brush.cols.forEach((c, i) => paint(c, Math.cos(i) * 22, Math.sin(i * 2) * 10, 11));
       else T.bakeScorch(x, y, 34);
     }

@@ -8,9 +8,10 @@
     guitar: { name: 'גיטרה', owner: 'yair', hitR: 26, trail: 'note', fx: 'notes', cols: ['#ffd166', '#06d6a0', '#ff5d8f', '#4cc9f0', '#ffffff'] },
     globe: { name: 'גלובוס', owner: 'shiri', hitR: 26, trail: 'plane', fx: 'planets', cols: ['#ffffff', '#ffd166', '#8ecae6'] },
     choco: { name: 'שוקולד', owner: 'adi', hitR: 26, trail: 'candy', fx: 'choco', cols: ['#ff5d8f', '#ffd166', '#06d6a0', '#4cc9f0', '#b388ff', '#ff8c42'] },
+    tomato: { name: 'עגבניית שרי', owner: 'tamar', hitR: 26, trail: 'paint', fx: 'tomato', cols: ['#d62828', '#e63946', '#ff6b6b', '#2d9a3b', '#f77f00'] },
     brush: { name: 'מכחול צבעים', owner: 'roni', hitR: 26, trail: 'paint', fx: 'paint', cols: ['#ff4d6d', '#ffb703', '#ffe14d', '#06d6a0', '#3a86ff', '#9b5de5'] },
   });
-  ELSTER.WEAPON_OF = { yair: 'guitar', shiri: 'globe', adi: 'choco', roni: 'brush' };
+  ELSTER.WEAPON_OF = { yair: 'guitar', shiri: 'globe', adi: 'choco', roni: 'brush', tamar: 'tomato' };
   ELSTER.WEAPON_DAMAGE = { head: 50, body: 35, splash: 20 };
   ELSTER.WEAPON_SPLASH_R = 130;
 
@@ -24,6 +25,36 @@
 
   // ------------------------------------------------------------------ weapon art (centered, ~44 units long)
   const ART = {
+    tomato(ctx) {
+      // a giant shiny cherry tomato
+      const r = 15;
+      ctx.beginPath();
+      ctx.ellipse(0, 1, r, r * 0.92, 0, 0, U.TAU);
+      const g = ctx.createRadialGradient(-5, -4, 2, 0, 0, r + 2);
+      g.addColorStop(0, '#ff8a80');
+      g.addColorStop(0.45, '#e63946');
+      g.addColorStop(1, '#a4161a');
+      fillOut(ctx, g, 2.6);
+      ctx.beginPath();
+      ctx.ellipse(-6, -5, 4.2, 2.6, -0.6, 0, U.TAU);
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.fill();
+      // green star calyx + stem
+      ctx.beginPath();
+      for (let i = 0; i < 10; i++) {
+        const a = -Math.PI / 2 + (i * Math.PI) / 5;
+        const rr = i % 2 ? 2.4 : 7.5;
+        ctx.lineTo(Math.cos(a) * rr, -r * 0.8 + Math.sin(a) * rr * 0.6);
+      }
+      ctx.closePath();
+      fillOut(ctx, '#2d9a3b', 1.6);
+      ctx.beginPath();
+      ctx.moveTo(0, -r * 0.8);
+      ctx.quadraticCurveTo(1, -r - 4, 4, -r - 5);
+      ctx.lineWidth = 2.6;
+      ctx.strokeStyle = '#1f6f2a';
+      ctx.stroke();
+    },
     guitar(ctx) {
       ctx.rotate(-0.5);
       // neck + headstock

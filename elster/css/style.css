@@ -270,7 +270,8 @@ button { font-family: var(--font); cursor: pointer; border: none; touch-action: 
   .card canvas { aspect-ratio: 1 / 0.78; }
   .card { padding: 4px 4px 8px; border-radius: 18px; }
   .card-tag { font-size: 11px; }
-  .card-name { font-size: 20px; }
+  .card-name { font-size: 16px; white-space: nowrap; }
+  .card-tag { font-size: 10px; }
   #power { padding: 3px 10px 5px; width: min(280px, 33vw); }
   .power-row { font-size: 12px; }
   #hint { bottom: calc(62px + var(--safe-b)); font-size: 13px; }
@@ -375,4 +376,21 @@ button { font-family: var(--font); cursor: pointer; border: none; touch-action: 
   .mom-btn { width: 74px; right: calc(96px + var(--safe-r)); border-radius: 16px; }
   .mom-btn canvas { width: 42px; height: 42px; }
   .mom-label { font-size: 11px; }
+}
+
+/* power-ups live at the top centre, away from the slingshot */
+.powerups { display: flex; gap: 8px; justify-content: center; pointer-events: auto; margin-top: 6px; }
+.powerups .weapon-btn, .powerups .mom-btn {
+  position: static; width: 70px; padding: 3px 3px 4px; border-radius: 16px; border-width: 3px; box-shadow: 0 4px 0 var(--ink);
+}
+.powerups .weapon-btn canvas, .powerups .mom-btn canvas { width: 40px; height: 40px; }
+.powerups .weapon-tag { font-size: 10px; margin-top: -11px; }
+.powerups .weapon-label, .powerups .mom-label { font-size: 11px; }
+.powerups .mom-label { white-space: normal; line-height: 1.1; text-align: center; }
+#hud.aiming .powerups { opacity: .3; pointer-events: none; transition: opacity .15s; }
+@media (max-height: 520px) {
+  .powerups { gap: 6px; margin-top: 3px; }
+  .powerups .weapon-btn, .powerups .mom-btn { width: 60px; border-radius: 13px; }
+  .powerups .weapon-btn canvas, .powerups .mom-btn canvas { width: 32px; height: 32px; }
+  .powerups .weapon-label, .powerups .mom-label { font-size: 10px; }
 }

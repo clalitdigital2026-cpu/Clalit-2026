@@ -628,6 +628,13 @@
     },
   };
 
+  // approximate height of each obstacle at scale 1 (used to cap walls)
+  const OB_HEIGHT = {
+    tree: 150, bigTree: 205, pine: 190, rock: 50, mossRock: 60, cactus: 160, mesa: 220, arch: 190,
+    iceSpike: 170, snowman: 150, palm: 270, basalt: 230, spike: 160, mushroom: 170, deadTree: 180,
+    crystal: 140, building: 200,
+  };
+
   // decorations (non-solid; baked after the mask)
   const DECO = {
     tuft(ctx, x, y, th, rnd) {
@@ -864,9 +871,17 @@
         if (placed.some((p) => Math.abs(p - x) < 150)) continue;
         const gy = hm[Math.round(x / STEP)];
         if (lavaY != null && gy > lavaY - 5) continue;
-        placed.push(x);
         const type = theme.obstacles[k % theme.obstacles.length];
-        const sc = U.clamp(0.75 + s * 0.06 + rnd.range(-0.1, 0.15), 0.7, 1.45);
+        let sc = U.clamp(0.75 + s * 0.06 + rnd.range(-0.1, 0.15), 0.7, 1.45);
+        // keep obstacles from towering into an unbeatable wall: their top stays within
+        // reach of a normal lob over the lower spawn (more room in later stages)
+        const allowedTop = Math.min(yL, yR) - (140 + s * 28);
+        const baseH = OB_HEIGHT[type] || 160;
+        if (gy - baseH * sc < allowedTop) {
+          sc = (gy - allowedTop) / baseH;
+          if (sc < 0.55) continue; // too high up here – try another spot
+        }
+        placed.push(x);
         const r = OB[type](ctx, x, gy, sc, rnd, theme);
         if (r && r.glow) glows.push(r.glow);
         k++;

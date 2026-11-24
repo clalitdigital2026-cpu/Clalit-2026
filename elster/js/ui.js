@@ -5,6 +5,7 @@
   const $ = (id) => document.getElementById(id);
 
   const CARD_COLORS = {
+    tamar: ['#ff9b85', '#a4161a'],
     adi: ['#c3f584', '#3fae6a'],
     roni: ['#ff8fb1', '#c44b7a'],
     shiri: ['#ffd38a', '#e58a2f'],

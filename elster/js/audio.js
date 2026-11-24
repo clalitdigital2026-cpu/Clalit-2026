@@ -298,6 +298,10 @@
       } else if (kind === 'globe') {
         this.tone({ type: 'sine', f0: 220, dur: 1.0, gain: 0.2, vib: 4, vibDepth: 6 });
         [84, 88, 91, 96].forEach((m, i) => this.tone({ type: 'triangle', f0: mtof(m), dur: 0.2, gain: 0.06, delay: 0.15 + i * 0.08 }));
+      } else if (kind === 'tomato') {
+        // juicy squish
+        this.noise({ f0: 1200, f1: 300, dur: 0.35, gain: 0.35, filter: 'lowpass', q: 3 });
+        this.tone({ type: 'sine', f0: 300, f1: 90, dur: 0.25, gain: 0.2, vib: 30, vibDepth: 50 });
       } else if (kind === 'choco') {
         this.tone({ type: 'triangle', f0: 500, f1: 150, dur: 0.3, gain: 0.12, vib: 25, vibDepth: 60 });
         for (let i = 0; i < 6; i++) this.tone({ type: 'sine', f0: 1200 + Math.random() * 1200, dur: 0.05, gain: 0.07, delay: 0.1 + i * 0.06 });

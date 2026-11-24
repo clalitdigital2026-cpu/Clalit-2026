@@ -26,6 +26,16 @@
       sleeve: 'long', mouth: 'grin', lashes: true, liner: true,
       faceRx: 20.5, faceRy: 22.5, chin: 0.45, accent: '#ffb347',
     },
+    tamar: {
+      id: 'tamar', name: 'תמר אלסטר', tagline: 'עגבנייה אחת – בול בפרצוף',
+      skin: '#efc6a8', skinShade: '#d69f7f', blush: 0.3,
+      hair: '#3b2a20', hairHi: '#6f513e', hairMid: '#2c1f17',
+      iris: '#5a3d26', brow: '#3b2a20', browW: 2.9, lips: '#c97a7a',
+      top: '#7a1426', topShade: '#560d1a', topHi: '#a11d35',
+      pants: '#2f3d56', shoes: '#f4f1ea', shoeTrim: '#7a1426',
+      sleeve: 'short', mouth: 'grin', lashes: true, noseRing: true,
+      faceRx: 20, faceRy: 22.5, chin: 0.48, accent: '#d62828', scale: 0.95,
+    },
     adi: {
       id: 'adi', name: 'עדי אלסטר', tagline: 'קטנה אבל קולעת בול',
       skin: '#efc19f', skinShade: '#d39a78', blush: 0.3,
@@ -48,7 +58,7 @@
     },
   };
   DEFS.ima = {
-    id: 'ima', name: 'אמא', tagline: 'באה לעזור עם גושגידז׳ה',
+    id: 'ima', name: 'אמא רוחי', tagline: 'באה לעזור עם גושגידז׳ה',
     skin: '#e8b48f', skinShade: '#c98f6c', blush: 0.25,
     hair: '#1d1512', hairHi: '#4a3a33', hairMid: '#2a201c', gray: '#a8a29c',
     iris: '#3a2416', brow: '#1d1512', browW: 2.5, lips: '#c06a6a',
@@ -69,7 +79,7 @@
     faceRx: 21, faceRy: 24, chin: 0.55, accent: '#ff5d8f', scale: 3,
   };
   ELSTER.CHAR_DEFS = DEFS;
-  ELSTER.CHAR_IDS = ['roni', 'shiri', 'yair', 'adi'];
+  ELSTER.CHAR_IDS = ['roni', 'shiri', 'yair', 'adi', 'tamar'];
 
   // geometry (local space, feet at 0,0, facing +x)
   const HEAD_Y = -84;
@@ -659,6 +669,78 @@
 
   // ------------------------------------------------------------------ hair & per-person details
   const HAIR = {
+    tamar: {
+      back(ctx, d) {
+        const y0 = HEAD_Y;
+        // loose hair behind the shoulders
+        ctx.beginPath();
+        ctx.moveTo(-21, y0 - 4);
+        ctx.bezierCurveTo(-30, y0 + 8, -26, y0 + 22, -29, y0 + 34);
+        ctx.quadraticCurveTo(-24, y0 + 42, -15, y0 + 36);
+        ctx.lineTo(15, y0 + 36);
+        ctx.quadraticCurveTo(24, y0 + 42, 29, y0 + 34);
+        ctx.bezierCurveTo(26, y0 + 22, 30, y0 + 8, 21, y0 - 4);
+        ctx.closePath();
+        outlineFill(ctx, d.hairMid);
+        // messy bun on top
+        ctx.beginPath();
+        ctx.ellipse(-6, y0 - 26, 15, 11, -0.3, 0, U.TAU);
+        outlineFill(ctx, d.hair);
+        ctx.strokeStyle = U.rgba(d.hairHi, 0.9);
+        ctx.lineWidth = 1.3;
+        [[-16, -28, -4, -36], [-12, -21, 4, -31], [-3, -20, 8, -28]].forEach(([a, b, c, e]) => {
+          ctx.beginPath();
+          ctx.moveTo(a, y0 + b);
+          ctx.quadraticCurveTo((a + c) / 2 + 3, y0 + (b + e) / 2 - 4, c, y0 + e);
+          ctx.stroke();
+        });
+      },
+      front(ctx, d) {
+        const y0 = HEAD_Y;
+        ctx.beginPath();
+        ctx.moveTo(-21, y0 - 2);
+        ctx.bezierCurveTo(-23, y0 - 18, -14, y0 - 29, 1, y0 - 29.5);
+        ctx.bezierCurveTo(15, y0 - 29, 23, y0 - 18, 21, y0 - 2);
+        ctx.bezierCurveTo(19.5, y0 - 11, 17, y0 - 15, 11, y0 - 17.5);
+        ctx.bezierCurveTo(5, y0 - 20, -4, y0 - 19.5, -11, y0 - 17);
+        ctx.bezierCurveTo(-17, y0 - 15, -19.5, y0 - 11, -21, y0 - 2);
+        ctx.closePath();
+        const g = ctx.createLinearGradient(0, y0 - 30, 0, y0 - 14);
+        g.addColorStop(0, d.hairHi);
+        g.addColorStop(1, d.hair);
+        outlineFill(ctx, g);
+        // messy strands falling around the face
+        ctx.lineCap = 'round';
+        [[-17, -14, -25, 2, -22, 12], [17, -14, 24, 0, 21, 10]].forEach(([a, b, c, e, f, h]) => {
+          ctx.beginPath();
+          ctx.moveTo(a, y0 + b);
+          ctx.quadraticCurveTo(c, y0 + e, f, y0 + h);
+          ctx.lineWidth = 3.4;
+          ctx.strokeStyle = OUT;
+          ctx.stroke();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = d.hair;
+          ctx.stroke();
+        });
+      },
+      face(ctx, d, fx) {
+        // beauty marks on the cheek
+        ctx.fillStyle = 'rgba(80,45,30,0.85)';
+        [[fx + 10, HEAD_Y + 9, 1], [fx + 6.5, HEAD_Y + 12.5, 0.7]].forEach(([x, y, r]) => {
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, U.TAU);
+          ctx.fill();
+        });
+      },
+      earrings(ctx, d) {
+        // small gold hoop + a nose ring
+        ctx.beginPath();
+        ctx.arc(d.faceRx + 0.6, HEAD_Y + 7, 2.2, 0, U.TAU);
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = '#e9c46a';
+        ctx.stroke();
+      },
+    },
     ima: {
       back(ctx, d) {
         const y0 = HEAD_Y;
@@ -1433,6 +1515,13 @@
     // brows
     [-1, 1].forEach((s) => drawBrow(ctx, d, fx + s * 9, HEAD_Y - 9 - (d.male ? -1.4 : 0), s, S.brow));
     drawNose(ctx, d, fx + 0.5, HEAD_Y + 7);
+    if (d.noseRing) {
+      ctx.beginPath();
+      ctx.arc(fx - 2.6, HEAD_Y + 9.2, 1.6, 0.2, Math.PI + 0.6);
+      ctx.lineWidth = 1.1;
+      ctx.strokeStyle = '#d9dde2';
+      ctx.stroke();
+    }
     drawMouth(ctx, d, fx + 0.3, HEAD_Y + 13.5, S.mouth);
     H.front(ctx, d);
     if (d.glasses) {
@@ -1654,6 +1743,11 @@
             S.blush = 0.35;
             S.brow = 'raised';
             S.oy = -Math.abs(Math.sin(pt * 12)) * 6;
+          } else if (fx === 'tomato') {
+            // a juicy face full of tomato
+            S.eyes = pt < 0.7 ? 'closed' : 'sad';
+            S.mouth = pt < 0.7 ? 'grit' : 'wavy';
+            S.headRot = Math.sin(pt * 18) * 0.12 * Math.max(0, 1 - pt / 1.2);
           } else if (fx === 'paint') {
             S.eyes = pt < 0.6 ? 'wide' : 'dizzy';
             S.mouth = pt < 0.6 ? 'bigO' : 'wavy';
@@ -1978,8 +2072,8 @@
       if (this.hitFx && ELSTER.WEAPONS) {
         if (t > 1.7) return;
         const fx = this.hitFx;
-        const kindOf = { notes: 'note', planets: 'planet', choco: 'candy', paint: 'paint' };
-        const w = ELSTER.WEAPONS[{ notes: 'guitar', planets: 'globe', choco: 'choco', paint: 'brush' }[fx]];
+        const kindOf = { notes: 'note', planets: 'planet', choco: 'candy', paint: 'paint', tomato: 'paint' };
+        const w = ELSTER.WEAPONS[{ notes: 'guitar', planets: 'globe', choco: 'choco', paint: 'brush', tomato: 'tomato' }[fx]];
         ctx.save();
         for (let i = 0; i < 5; i++) {
           const a = t * 6 + (i * U.TAU) / 5;

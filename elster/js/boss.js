@@ -522,7 +522,7 @@
     };
     this.chars.push(mom);
     this.gushes = this.gushes || [];
-    UI.banner('אמא באה לעזור!', 'קיאי!', true);
+    UI.banner('אמא רוחי באה לעזור!', 'קיאי!', true);
     A.momKiai();
   };
 
@@ -555,7 +555,7 @@
         mom.facing = 1;
         st.x0 = mom.pos.x;
         st.y0 = mom.pos.y;
-        if (!(this.bossHp <= 0)) UI.banner('אמא יוצאת!', null, true);
+        if (!(this.bossHp <= 0)) UI.banner('אמא רוחי יוצאת!', null, true);
         return;
       }
       // shuffle around and keep throwing
