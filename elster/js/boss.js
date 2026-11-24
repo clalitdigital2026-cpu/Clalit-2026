@@ -56,10 +56,12 @@
     this.bossAcc = 0;
     // tougher, faster and angrier every stage
     const dm = { easy: 0.75, medium: 1, hard: 1.3 }[this.difficulty] || 1;
-    this.bossMax = Math.round((70 + n * 30) * dm);
+    this.bossMax = Math.round((80 + n * 11) * dm); // toughness grows a little; the real challenge is the firing
     this.bossHp = this.bossMax;
     this.bossSpeed = (40 + n * 14) * (0.8 + 0.2 * dm);
-    this.bossInterval = Math.max(0.8, 2.6 - n * 0.18) / dm;
+    this.bossInterval = Math.max(1.2, 2.4 - n * 0.15) / dm;
+    // more fire every stage: single shots, then double, then triple volleys
+    this.bossVolley = n <= 2 ? 1 : n <= 5 ? 2 : 3;
     this.bossAimErr = Math.max(0.05, 0.14 - n * 0.008);
     this.bossZone = [level.spawns.left.x - 240, level.spawns.left.x + 240];
     this.bossDir = 1;
@@ -160,23 +162,26 @@
       if (this.bossThrowIn <= 0) {
         this.bossThrowIn = this.bossInterval * U.rand.range(0.75, 1.25);
         boss.setPose('bossThrow');
-        this.after(0.38, () => this.state === 'boss' && this.spawnFireball());
+        for (let v = 0; v < this.bossVolley; v++) {
+          this.after(0.38 + v * 0.16, () => this.state === 'boss' && this.spawnFireball(v));
+        }
       }
     }
     this.updateFireballs(dt);
     this.updateBossEggs(dt);
   };
 
-  G.spawnFireball = function () {
+  G.spawnFireball = function (idx) {
     const boss = this.boss, pl = this.player;
     const k = boss.k;
     const sx = boss.pos.x + boss.facing * 38 * k, sy = boss.pos.y - 76 * k;
     const tx = pl.pos.x, ty = pl.pos.y - 45;
-    const th = U.rand.range(28, 56) * (Math.PI / 180);
+    // volleys fan out a little so they cover more ground around the player
+    const th = (U.rand.range(28, 56) + (idx || 0) * U.rand.range(-11, 11)) * (Math.PI / 180);
     const d = Math.abs(tx - sx), h = sy - ty;
     let denom = 2 * Math.cos(th) ** 2 * (d * Math.tan(th) - h);
     if (denom <= 0) denom = 1;
-    let v = Math.sqrt((P.G * d * d) / denom) * (1 + U.gauss() * this.bossAimErr);
+    let v = Math.sqrt((P.G * d * d) / denom) * (1 + U.gauss() * this.bossAimErr * (idx ? 1.8 : 1));
     v = U.clamp(v, 300, 2200);
     const dir = Math.sign(tx - sx) || 1;
     this.fireballs.push({ x: sx, y: sy, vx: dir * v * Math.cos(th), vy: -v * Math.sin(th), t: 0, col: boss.fireCol });
