@@ -849,6 +849,7 @@
         lavaY = maxY - 45;
         paintLava(ctx, hm, STEP, xL + 200, xR - 200, lavaY);
         level.lavaY = lavaY;
+        level.lavaX = [xL + 200, xR - 200]; // lava only fills valleys between the spawns
       }
 
       // obstacles

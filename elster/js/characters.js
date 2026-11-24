@@ -1451,9 +1451,11 @@
       ctx.translate(this.pos.x + S.ox * this.facing, this.pos.y + S.oy);
       ctx.scale(this.facing, 1);
       ctx.rotate(S.rot);
-      if (S.spin) {
+      const spin = (S.spin || 0) - (this.roll || 0);
+      if (spin) {
+        // spins and knockback tumbles turn around the middle of the body
         ctx.translate(0, -48 * this.k);
-        ctx.rotate(S.spin);
+        ctx.rotate(spin);
         ctx.translate(0, 48 * this.k);
       }
       ctx.scale(S.sx * this.k, S.sy * this.k);

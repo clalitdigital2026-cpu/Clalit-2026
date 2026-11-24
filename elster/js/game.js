@@ -9,6 +9,8 @@
   const PREVIEW_T = { easy: 1.5, medium: 0.42, hard: 0 };
   const DAMAGE = { head: 35, body: 20 };
   const MAX_STAGE = 8;
+  // how far a hit knocks the target back (world units), so the same shot never works twice
+  const KNOCKBACK = { easy: 30, medium: 70, hard: 130 };
   const POINTS = { body: 10, head: 25, win: 100 };
   const MULT = { easy: 1, medium: 1.5, hard: 2 };
   const GENDER = { roni: 'f', shiri: 'f', yair: 'm', adi: 'f' };
@@ -480,10 +482,11 @@
           }
         });
         killed = this.mode === 'game' && ch.hp <= 0;
+        if (this.mode === 'game' && !killed && shooter) this.knockback(ch, shooter, wk ? 1.5 : 1);
       } else if (ev.type === 'terrain') {
         const n = P.surfaceNormal(this.level.terrain, ev.x, ev.y);
         const bx = ev.x - n.x * 4, by = ev.y - n.y * 4;
-        const lava = this.level.lavaY != null && ev.y >= this.level.lavaY - 6;
+        const lava = this.isLava(ev.x, ev.y, 6);
         if (lava) {
           this.level.terrain.bakeScorch(bx, by, 26);
           this.particles.sizzle(ev.x, ev.y);
@@ -513,6 +516,7 @@
               if (shooter === this.player) this.addPoints(10);
               this.after(0.25, () => A.ouch());
               killed = target.hp <= 0;
+              if (!killed) this.knockback(target, shooter, 0.6);
             }
           }
         } else {
@@ -556,6 +560,71 @@
       } else {
         this.after(ev.type === 'char' || egg.weapon ? 1.9 : 1.35, () => this.beginTurn(shooter === this.player ? 'enemy' : 'player'));
       }
+    }
+
+    isLava(x, y, margin) {
+      const L = this.level;
+      return L.lavaY != null && L.lavaX && x > L.lavaX[0] && x < L.lavaX[1] && y >= L.lavaY - margin;
+    }
+
+    // ------------------------------------------------------------ knockback
+    /** walk the ground away from the shooter and pick a safe landing spot */
+    knockback(ch, shooter, mult) {
+      const dist = (KNOCKBACK[this.difficulty] || 70) * mult * U.rand.range(0.85, 1.15);
+      const dir = Math.sign(ch.pos.x - shooter.pos.x) || 1;
+      const T = this.level.terrain, L = this.level;
+      let x = ch.pos.x, y = ch.pos.y, moved = 0;
+      const STEP = 4;
+      while (moved < dist) {
+        const nx = x + dir * STEP;
+        if (nx < 90 || nx > L.W - 90) break;
+        const ny = T.surfaceY(nx, y - 40);
+        if (ny < y - 36) break; // a wall, tree trunk or steep slope stops the roll
+        if (ny > y + 60) break; // never roll off a cliff or an island edge
+        if (this.isLava(nx, ny, 8)) break; // or into lava
+        if (T.isSolid(nx, ny - 70)) break; // no room to stand (overhang)
+        x = nx;
+        y = ny;
+        moved += STEP;
+      }
+      if (moved < 6) {
+        ch.slide = null;
+        return;
+      }
+      ch.slide = { x0: ch.pos.x, x1: x, y1: y, t: 0, dur: 0.45 + moved / 260, delay: 0.12, dir, dist: moved };
+    }
+
+    updateSlides(dt) {
+      if (this.mode !== 'game' || !this.level) return;
+      const T = this.level.terrain;
+      this.chars.forEach((ch) => {
+        const s = ch.slide;
+        if (!s) return;
+        if (s.delay > 0) {
+          s.delay -= dt;
+          return;
+        }
+        s.t += dt;
+        const k = U.clamp(s.t / s.dur, 0, 1);
+        const e = U.easeOutCubic(k);
+        const x = U.lerp(s.x0, s.x1, e);
+        const gy = T.surfaceY(x, ch.pos.y - 40);
+        ch.pos.x = x;
+        ch.pos.y = Math.min(gy, ch.pos.y + 600 * dt) - Math.sin(k * Math.PI) * 14; // small hop while tumbling
+        // one tumble per ~90 units, rolling backwards
+        ch.roll = (s.dist / 90) * U.TAU * e * ch.facing * -s.dir;
+        if (k > 0.5 && !s.dust) {
+          s.dust = true;
+          this.particles.dust(ch.pos.x, gy, 5, this.level.theme.ground.hi);
+        }
+        if (k >= 1) {
+          ch.pos.x = s.x1;
+          ch.pos.y = s.y1;
+          ch.roll = 0;
+          ch.slide = null;
+          this.particles.dust(ch.pos.x, ch.pos.y, 6, this.level.theme.ground.hi);
+        }
+      });
     }
 
     // ------------------------------------------------------------ secret weapons
@@ -723,6 +792,7 @@
         }
       }
       this.chars.forEach((c) => c.update(dt));
+      this.updateSlides(dt);
       if (this.bg) this.bg.update(dt, this.wind);
       this.particles.update(dt, this.wind);
 
@@ -905,11 +975,11 @@
         g.addColorStop(0, 'rgba(255,90,20,0)');
         g.addColorStop(1, `rgba(255,120,30,${0.35 * fl})`);
         ctx.fillStyle = g;
-        ctx.fillRect(0, L.lavaY - 70, L.W, 70);
+        ctx.fillRect(L.lavaX[0], L.lavaY - 70, L.lavaX[1] - L.lavaX[0], 70);
         ctx.restore();
         // bubbles
         if (Math.random() < 0.15) {
-          const x = U.rand.range(this.cam.x - 600, this.cam.x + 600);
+          const x = U.clamp(U.rand.range(this.cam.x - 600, this.cam.x + 600), L.lavaX[0], L.lavaX[1]);
           if (this.level.terrain.isSolid(x, L.lavaY + 3) && !this.level.terrain.isSolid(x, L.lavaY - 4)) {
             this.particles.add({ kind: 'spark', x, y: L.lavaY - 2, vx: 0, vy: -120, g: 300, s: 4, life: 0.5, col: '#ffd23f' });
           }
