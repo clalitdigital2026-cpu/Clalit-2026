@@ -39,12 +39,12 @@
     yair: {
       id: 'yair', name: 'יאיר אלסטר', tagline: 'מבט רציני, יד יציבה',
       skin: '#e8b694', skinShade: '#c88f6d', blush: 0.12,
-      hair: '#2b211c', hairHi: '#55463c', hairMid: '#3a2d26', gray: '#9d968f',
+      hair: '#2b211c', hairHi: '#55463c', hairMid: '#3a2d26', gray: '#55463c',
       iris: '#3b2416', brow: '#221813', browW: 3.6, lips: '#b8796b',
       top: '#1d1e23', topShade: '#111216', topHi: '#353741',
       pants: '#40506a', shoes: '#2e2e33', shoeTrim: '#d8d8d8',
-      sleeve: 'short', mouth: 'smirk', bags: true, stubble: true,
-      faceRx: 21, faceRy: 24, chin: 0.55, accent: '#4fc3f7',
+      sleeve: 'short', mouth: 'smirk', armW: 1.4, muscular: true,
+      faceRx: 21, faceRy: 23, chin: 0.5, accent: '#4fc3f7',
     },
   };
   ELSTER.CHAR_DEFS = DEFS;
@@ -54,6 +54,7 @@
   const HEAD_Y = -84;
   const AX = 31, AY = -57;            // slingshot rest anchor (pouch)
   const SH_F = [9, -55], SH_B = [-5, -55];
+  const SH_F_M = [14, -55], SH_B_M = [-12, -55];
   const ARM_L = 18.5;
   const BAND_REST = 0;
 
@@ -178,9 +179,30 @@
     const sleeve = d.top;
     const fore = d.sleeve === 'long' ? d.top : d.skin;
     // upper arm
-    limb(ctx, sx, sy, ex, ey, 8.5, sleeve);
+    const aw = d.armW || 1;
+    if (d.muscular) {
+      // strong bare arms with a tight short sleeve
+      limb(ctx, sx, sy, ex, ey, 8.5 * aw, d.skin);
+      limb(ctx, ex, ey, tx, ty, 7.2 * aw, d.skin);
+      const k = 0.38;
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx + (ex - sx) * k, sy + (ey - sy) * k);
+      ctx.lineCap = 'round';
+      ctx.lineWidth = 8.5 * aw + 4.6;
+      ctx.strokeStyle = OUT;
+      ctx.stroke();
+      ctx.lineWidth = 8.5 * aw + 1;
+      ctx.strokeStyle = sleeve;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(tx, ty, 5.6, 0, U.TAU);
+      outlineFill(ctx, d.skin, 2);
+      return;
+    }
+    limb(ctx, sx, sy, ex, ey, 8.5 * aw, sleeve);
     // forearm
-    limb(ctx, ex, ey, tx, ty, 7.2, fore);
+    limb(ctx, ex, ey, tx, ty, 7.2 * aw, fore);
     if (d.sleeve === 'short') {
       // sleeve cuff over elbow-ish
       ctx.beginPath();
@@ -373,7 +395,7 @@
     let lid = 0;
     if (type === 'squint') lid = 0.5;
     if (type === 'sad') lid = 0.3;
-    if (d.id === 'yair' && type === 'open') lid = 0.22; // heavier lids
+    if (d.id === 'yair' && type === 'open') lid = 0.08;
     if (lid > 0) {
       ctx.beginPath();
       if (type === 'sad') {
@@ -701,11 +723,11 @@
         ctx.bezierCurveTo(-25, y0 - 18, -17, y0 - 33, 0, y0 - 34);
         ctx.bezierCurveTo(13, y0 - 37, 27, y0 - 33, 29.5, y0 - 23);
         ctx.bezierCurveTo(31, y0 - 17, 28, y0 - 12, 23.5, y0 - 11);
-        ctx.bezierCurveTo(21.5, y0 - 14, 18, y0 - 17.5, 14, y0 - 18);
+        ctx.bezierCurveTo(21.5, y0 - 13, 18, y0 - 15, 14, y0 - 15.6);
         // receded right temple, widow's peak, receded left temple
-        ctx.bezierCurveTo(10, y0 - 18.5, 6, y0 - 15.5, 1.5, y0 - 15.8);
-        ctx.bezierCurveTo(-3, y0 - 16, -7, y0 - 19, -11, y0 - 18.5);
-        ctx.bezierCurveTo(-15, y0 - 18, -18.5, y0 - 14, -20, y0 - 9);
+        ctx.bezierCurveTo(10, y0 - 16, 6, y0 - 15, 1.5, y0 - 15.2);
+        ctx.bezierCurveTo(-3, y0 - 15.2, -7, y0 - 15.8, -11, y0 - 15.8);
+        ctx.bezierCurveTo(-15, y0 - 15.5, -18.5, y0 - 13, -20, y0 - 9);
         ctx.lineTo(-20.5, y0 - 4);
         ctx.closePath();
         const g = ctx.createLinearGradient(0, y0 - 36, 0, y0 - 10);
@@ -748,6 +770,7 @@
         });
       },
       face(ctx, d, fx) {
+        if (!d.stubble) return;
         // stubble: jaw, chin and upper lip
         const y0 = HEAD_Y;
         ctx.save();
@@ -990,8 +1013,8 @@
 
   function drawTorso(ctx, d) {
     const fem = d.id !== 'yair';
-    const sw = fem ? 17 : 19;
-    const ww = fem ? 13.5 : 16;
+    const sw = d.muscular ? 23 : fem ? 17 : 19;
+    const ww = d.muscular ? 14.5 : fem ? 13.5 : 16;
     ctx.beginPath();
     ctx.moveTo(-sw + 4, -60);
     ctx.quadraticCurveTo(-sw, -60, -sw, -54);
@@ -1023,6 +1046,18 @@
       }
       ctx.fillStyle = U.rgba(d.topShade, 0.9);
       ctx.fillRect(-20, -27, 40, 5);
+    }
+    if (d.muscular) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(-16, -50);
+      ctx.quadraticCurveTo(-8, -41, -1, -46);
+      ctx.moveTo(16, -50);
+      ctx.quadraticCurveTo(8, -41, 1, -46);
+      ctx.moveTo(0, -44);
+      ctx.lineTo(0, -30);
+      ctx.stroke();
     }
     if (d.id === 'yair') {
       // subtle tee folds
@@ -1099,7 +1134,8 @@
     const H = HAIR[d.id];
     const fx = S.lookX * 2.2;
     // neck
-    U.rr(ctx, -5, -66, 10, 9, 2);
+    const nw = d.muscular ? 13 : 10;
+    U.rr(ctx, -nw / 2, -66, nw, 9, 2);
     outlineFill(ctx, d.skin, 2);
     ctx.fillStyle = 'rgba(0,0,0,0.12)';
     ctx.fillRect(-4, -63, 8, 3);
@@ -1175,6 +1211,10 @@
       this.recoil = 0;
       this.lookTarget = null;
       this.isActive = false;
+      this.weapon = ELSTER.WEAPON_OF ? ELSTER.WEAPON_OF[id] : null;
+      this.weaponReady = true;
+      this.armed = false;
+      this.hitFx = null;
     }
 
     get k() { return this.def.scale || 1; }
@@ -1202,7 +1242,7 @@
       this.loadT = 0;
     }
 
-    addSplat(part, wx, wy) {
+    addSplat(part, wx, wy, kind, col) {
       let lx = ((wx - this.pos.x) * this.facing) / this.k, ly = (wy - this.pos.y) / this.k;
       if (part === 'head') {
         lx = U.clamp(lx, -14, 14);
@@ -1211,7 +1251,7 @@
         lx = U.clamp(lx, -12, 12);
         ly = U.clamp(ly, -54, -28);
       }
-      this.splats.push({ x: lx, y: ly, r: part === 'head' ? 9 : 8, rot: Math.random() * 6, seed: (Math.random() * 1e6) | 0, a: 0 });
+      this.splats.push({ x: lx, y: ly, r: part === 'head' ? 9 : 8, rot: Math.random() * 6, seed: (Math.random() * 1e6) | 0, a: 0, kind: kind || 'egg', col });
       if (this.splats.length > 8) this.splats.shift();
     }
 
@@ -1229,7 +1269,11 @@
       this.dispHp += (this.hp - this.dispHp) * Math.min(1, dt * 6);
       this.splats.forEach((s) => (s.a = Math.min(1, s.a + dt * 8)));
       const transient = { shoot: 0.55, hit: 1.1, frustrated: 1.6, cheer: 1.2 };
-      if (transient[this.pose] && this.poseT > transient[this.pose]) this.setPose('idle');
+      if (this.hitFx) transient.hit = 1.8;
+      if (transient[this.pose] && this.poseT > transient[this.pose]) {
+        if (this.pose === 'hit') this.hitFx = null;
+        this.setPose('idle');
+      }
       if (this.pose === 'lose') {
         if (this.poseT > 2.1) {
           this.alpha = Math.max(0, 1 - (this.poseT - 2.1) * 3.5);
@@ -1294,6 +1338,27 @@
           S.back = [-31, -80 + Math.cos(pt * 25) * 6];
           S.slingUp = [0.6, -0.8];
           S.stars = true;
+          const fx = this.hitFx;
+          if (fx === 'planets') {
+            // the globe sends you spinning around the world
+            S.spin = -U.easeInOutCubic(U.clamp(pt / 0.9, 0, 1)) * U.TAU;
+            S.oy = -Math.sin(U.clamp(pt / 0.9, 0, 1) * Math.PI) * 26;
+          } else if (fx === 'notes') {
+            // strummed like a guitar string
+            S.ox = Math.sin(pt * 70) * 4 * Math.max(0, 1 - pt / 1.4);
+            S.sx = 1 + Math.sin(pt * 70) * 0.04 * Math.max(0, 1 - pt / 1.4);
+            S.mouth = pt < 0.45 ? 'bigO' : 'o';
+          } else if (fx === 'choco' && pt > 0.5) {
+            // sugar rush: dizzy but delighted
+            S.eyes = 'happy';
+            S.mouth = 'grin';
+            S.blush = 0.35;
+            S.brow = 'raised';
+            S.oy = -Math.abs(Math.sin(pt * 12)) * 6;
+          } else if (fx === 'paint') {
+            S.eyes = pt < 0.6 ? 'wide' : 'dizzy';
+            S.mouth = pt < 0.6 ? 'bigO' : 'wavy';
+          }
           break;
         }
         case 'frustrated':
@@ -1386,6 +1451,11 @@
       ctx.translate(this.pos.x + S.ox * this.facing, this.pos.y + S.oy);
       ctx.scale(this.facing, 1);
       ctx.rotate(S.rot);
+      if (S.spin) {
+        ctx.translate(0, -48 * this.k);
+        ctx.rotate(S.spin);
+        ctx.translate(0, 48 * this.k);
+      }
       ctx.scale(S.sx * this.k, S.sy * this.k);
       ctx.lineJoin = 'round';
 
@@ -1428,7 +1498,7 @@
       drawTorso(ctx, d);
       // back arm (pulling hand) – over torso; raised arms go over the head
       const backHigh = S.mode === 'free' && back[1] < -66;
-      if (!backHigh) drawArm(ctx, d, SH_B, back, true);
+      if (!backHigh) drawArm(ctx, d, d.muscular ? SH_B_M : SH_B, back, true);
       ctx.save();
       headXf();
       drawHead(ctx, d, S);
@@ -1437,14 +1507,17 @@
         if (s.y < -60) {
           ctx.save();
           ctx.scale(s.a, s.a);
-          drawSplat(ctx, s.x / s.a, s.y / s.a, s.r, s.rot, s.seed, 0.95);
+          if (s.kind !== 'egg') ELSTER.drawColorSplat(ctx, s.x / s.a, s.y / s.a, s.r * 0.8, s.rot, s.seed, s.col, 0.95);
+          else drawSplat(ctx, s.x / s.a, s.y / s.a, s.r, s.rot, s.seed, 0.95);
           ctx.restore();
         }
       });
       ctx.restore();
-      if (backHigh) drawArm(ctx, d, SH_B, back, false);
+      if (backHigh) drawArm(ctx, d, d.muscular ? SH_B_M : SH_B, back, false);
       this.splats.forEach((s) => {
-        if (s.y >= -60) drawSplat(ctx, s.x, s.y, s.r * s.a, s.rot, s.seed, 0.95);
+        if (s.y < -60) return;
+        if (s.kind !== 'egg') ELSTER.drawColorSplat(ctx, s.x, s.y, s.r * s.a * 0.8, s.rot, s.seed, s.col, 0.95);
+        else drawSplat(ctx, s.x, s.y, s.r * s.a, s.rot, s.seed, 0.95);
       });
 
       // bands + egg + fork
@@ -1453,11 +1526,12 @@
       if (this.loaded || this.pose === 'aim') {
         drawPouch(ctx, P, dir);
         const es = this.loadT < 1 ? U.easeOutBack(this.loadT) : 1;
-        drawEgg(ctx, P[0], P[1], Math.atan2(dir[1], dir[0]) + Math.PI / 2, 0.92 * es);
+        if (this.armed && this.weapon) ELSTER.drawWeapon(ctx, this.weapon, P[0], P[1], Math.atan2(dir[1], dir[0]) + Math.PI / 2, 0.8 * es, this.t);
+        else drawEgg(ctx, P[0], P[1], Math.atan2(dir[1], dir[0]) + Math.PI / 2, 0.92 * es);
       }
       drawBand(ctx, g.T1, P, stretch);
       drawFork(ctx, g);
-      drawArm(ctx, d, SH_F, front, true);
+      drawArm(ctx, d, d.muscular ? SH_F_M : SH_F, front, true);
       ctx.restore();
 
       // overlays in world space (not flipped)
@@ -1537,6 +1611,22 @@
 
     drawStars(ctx, x, y) {
       const t = this.poseT;
+      if (this.hitFx && ELSTER.WEAPONS) {
+        if (t > 1.7) return;
+        const fx = this.hitFx;
+        const kindOf = { notes: 'note', planets: 'planet', choco: 'candy', paint: 'paint' };
+        const w = ELSTER.WEAPONS[{ notes: 'guitar', planets: 'globe', choco: 'choco', paint: 'brush' }[fx]];
+        ctx.save();
+        for (let i = 0; i < 5; i++) {
+          const a = t * 6 + (i * U.TAU) / 5;
+          const p = { kind: kindOf[fx], x: x + Math.cos(a) * 28, y: y + Math.sin(a) * 9, vx: Math.cos(a + 1.6), vy: Math.sin(a + 1.6), rot: Math.sin(t * 5 + i) * 0.4, s: 5.5, col: w.cols[i % w.cols.length] };
+          ctx.save();
+          ELSTER.drawFunParticle(ctx, p);
+          ctx.restore();
+        }
+        ctx.restore();
+        return;
+      }
       if (t > 1.0) return;
       ctx.save();
       for (let i = 0; i < 4; i++) {

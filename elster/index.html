@@ -27,7 +27,7 @@
         <div class="hud-side" id="hud-player">
           <canvas class="avatar" id="avatar-player" width="128" height="128"></canvas>
           <div class="hud-info">
-            <div class="hud-name"><span id="name-player"></span><span class="you-tag">אני</span></div>
+            <div class="hud-name"><span id="name-player"></span><canvas class="wpn-mini" id="wmini-player" width="56" height="56"></canvas><span class="you-tag">אני</span></div>
             <div class="hpbar"><div class="hp-ghost" id="hpg-player"></div><div class="hp-fill" id="hp-player"></div><span class="hp-text" id="hpt-player">100</span></div>
           </div>
         </div>
@@ -44,7 +44,7 @@
         <div class="hud-side enemy" id="hud-enemy">
           <canvas class="avatar" id="avatar-enemy" width="128" height="128"></canvas>
           <div class="hud-info">
-            <div class="hud-name"><span id="name-enemy"></span><span class="cpu-tag">מחשב</span></div>
+            <div class="hud-name"><span id="name-enemy"></span><canvas class="wpn-mini" id="wmini-enemy" width="56" height="56"></canvas><span class="cpu-tag">מחשב</span></div>
             <div class="hpbar"><div class="hp-ghost" id="hpg-enemy"></div><div class="hp-fill" id="hp-enemy"></div><span class="hp-text" id="hpt-enemy">100</span></div>
           </div>
         </div>
@@ -69,6 +69,12 @@
           <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M6 10v9h4.5v-5h3v5H18v-9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
+
+      <button class="weapon-btn hidden" id="btn-weapon" aria-label="נשק סודי">
+        <span class="weapon-tag">נשק סודי</span>
+        <canvas id="weapon-icon" width="104" height="104"></canvas>
+        <span class="weapon-label" id="weapon-label">גיטרה</span>
+      </button>
 
       <div id="power" class="hidden">
         <div class="power-row"><span>עוצמה</span><b id="power-val">0%</b><span class="sep">|</span><span>זווית</span><b id="angle-val">0°</b></div>
@@ -223,6 +229,7 @@
   <script src="js/audio.js"></script>
   <script src="js/physics.js"></script>
   <script src="js/characters.js"></script>
+  <script src="js/weapons.js"></script>
   <script src="js/levels.js"></script>
   <script src="js/background.js"></script>
   <script src="js/particles.js"></script>

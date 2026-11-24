@@ -90,6 +90,7 @@
       transition(() => game.startMenu());
     },
     switchCam() { game.switchCam(); },
+    weapon() { game.toggleWeapon(); },
     next() {
       UI.overlay('win', false);
       A.stage();

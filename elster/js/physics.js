@@ -18,8 +18,8 @@
       return { vx: dirX * v, vy: dirY * v };
     },
 
-    makeEgg(x, y, vx, vy) {
-      return { x, y, vx, vy, t: 0, rot: 0 };
+    makeEgg(x, y, vx, vy, hitR) {
+      return { x, y, vx, vy, t: 0, rot: 0, hitR: hitR || P.EGG_R };
     },
 
     /** circle against the terrain solidity mask (center + 8 rim samples) */
@@ -51,7 +51,7 @@
         for (let c = 0; c < chars.length; c++) {
           const ch = chars[c];
           if (ch === world.ignore || !ch.solid) continue;
-          const part = ch.hitTest(egg.x, egg.y, P.EGG_R);
+          const part = ch.hitTest(egg.x, egg.y, egg.hitR || P.EGG_R);
           if (part) return { type: 'char', char: ch, part, x: egg.x, y: egg.y };
         }
         if (world.terrain && P.circleHitsTerrain(world.terrain, egg.x, egg.y, P.EGG_R)) {
@@ -72,7 +72,7 @@
      */
     simulate(x, y, vx, vy, world, opts) {
       opts = opts || {};
-      const egg = P.makeEgg(x, y, vx, vy);
+      const egg = P.makeEgg(x, y, vx, vy, opts.hitR);
       const maxT = opts.maxT || P.MAX_T;
       const pts = opts.record ? [] : null;
       let minD = Infinity, ev = null;

@@ -271,7 +271,7 @@ button { font-family: var(--font); cursor: pointer; border: none; touch-action: 
   .card { padding: 4px 4px 8px; border-radius: 18px; }
   .card-tag { font-size: 11px; }
   .card-name { font-size: 20px; }
-  #power { padding: 3px 10px 5px; }
+  #power { padding: 3px 10px 5px; width: min(280px, 33vw); }
   .power-row { font-size: 12px; }
   #hint { bottom: calc(62px + var(--safe-b)); font-size: 13px; }
   .stars-row i { width: 30px; height: 30px; }
@@ -323,4 +323,28 @@ button { font-family: var(--font); cursor: pointer; border: none; touch-action: 
   .lb-row { padding: 3px 8px; }
   .name-input { padding: 6px 10px; }
   .panel-note { display: none; }
+}
+
+/* ---------------- secret weapon ---------------- */
+.weapon-btn {
+  position: absolute; right: calc(12px + var(--safe-r)); bottom: calc(12px + var(--safe-b));
+  width: 88px; padding: 4px 4px 6px; border-radius: 20px; border: 4px solid var(--ink);
+  background: linear-gradient(#c8b6ff, #7b5cff); box-shadow: 0 5px 0 var(--ink);
+  display: flex; flex-direction: column; align-items: center; color: #fff; font-family: var(--font);
+  transition: transform .1s, filter .2s, opacity .2s;
+}
+.weapon-btn canvas { width: 54px; height: 54px; display: block; }
+.weapon-tag { font-size: 11px; font-weight: 900; background: var(--ink); border-radius: 999px; padding: 0 8px; margin-top: -14px; white-space: nowrap; }
+.weapon-label { font-size: 13px; font-weight: 900; text-shadow: var(--outline2); white-space: nowrap; }
+.weapon-btn:not(:disabled):active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
+.weapon-btn:disabled { opacity: .55; filter: saturate(.5); cursor: default; }
+.weapon-btn.armed { background: linear-gradient(#ffe066, #ff8c42); animation: weapon-glow .8s ease-in-out infinite alternate; }
+.weapon-btn.used { background: linear-gradient(#d6d0e0, #9d97a8); opacity: .7; }
+@keyframes weapon-glow { from { box-shadow: 0 5px 0 var(--ink), 0 0 0 0 rgba(255,209,102,.9); } to { box-shadow: 0 5px 0 var(--ink), 0 0 22px 8px rgba(255,209,102,.9); } }
+.wpn-mini { width: 22px; height: 22px; flex: none; }
+@media (max-height: 520px) {
+  .weapon-btn { width: 74px; border-radius: 16px; }
+  .weapon-btn canvas { width: 42px; height: 42px; }
+  .weapon-label { font-size: 11px; }
+  .wpn-mini { width: 18px; height: 18px; }
 }

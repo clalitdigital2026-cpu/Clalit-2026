@@ -70,6 +70,10 @@
       }
     }
 
+    ring(x, y, col) {
+      this.add({ kind: 'ring', x, y, vx: 0, vy: 0, g: 0, s: 10, life: 0.5, col });
+    }
+
     sizzle(x, y) {
       for (let i = 0; i < 12; i++) {
         this.add({ kind: 'puff', x: x + U.rand.range(-14, 14), y, vx: U.rand.range(-20, 20), vy: U.rand.range(-120, -60), g: 0, s: U.rand.range(8, 16), life: 1, col: '#bbbbbb' });
@@ -192,6 +196,14 @@
           ctx.lineWidth = 1.5;
           ctx.strokeStyle = OUT;
           ctx.stroke();
+        } else if (p.kind === 'ring') {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 10 + (1 - k) * 110, 0, U.TAU);
+          ctx.lineWidth = 8 * k;
+          ctx.strokeStyle = p.col;
+          ctx.stroke();
+        } else if (ELSTER.drawFunParticle && (p.kind === 'note' || p.kind === 'candy' || p.kind === 'paint' || p.kind === 'plane' || p.kind === 'planet')) {
+          ELSTER.drawFunParticle(ctx, p);
         } else if (p.kind === 'spark') {
           ctx.fillStyle = p.col;
           ctx.fillRect(p.x - p.s / 2, p.y - p.s / 2, p.s, p.s);

@@ -269,6 +269,43 @@
       this.tone({ type: 'triangle', f0: mtof(84), dur: 0.4, gain: 0.1, delay: 0.38, vib: 7, vibDepth: 12 });
     },
 
+    // ---------- secret weapons ----------
+    weaponArm() {
+      [72, 76, 79, 84, 88].forEach((m, i) => this.tone({ type: 'triangle', f0: mtof(m), dur: 0.18, gain: 0.09, delay: i * 0.05, vib: 8, vibDepth: 10 }));
+      this.noise({ f0: 9000, f1: 4000, dur: 0.4, gain: 0.05, filter: 'highpass' });
+    },
+    weaponFire(kind) {
+      if (kind === 'guitar') {
+        [52, 56, 59, 64, 68, 71].forEach((m, i) => this.tone({ type: 'sawtooth', f0: mtof(m), dur: 0.9, gain: 0.05, delay: i * 0.025, filter: 'lowpass', ff: 2200 }));
+      } else if (kind === 'globe') {
+        this.noise({ f0: 400, f1: 3000, dur: 0.5, gain: 0.25, filter: 'bandpass', q: 2 });
+        this.tone({ type: 'sine', f0: 300, f1: 1200, dur: 0.5, gain: 0.12 });
+      } else if (kind === 'choco') {
+        this.noise({ f0: 3000, f1: 800, dur: 0.15, gain: 0.25, filter: 'bandpass', q: 3 });
+        [0, 1, 2, 3].forEach((i) => this.tone({ type: 'sine', f0: 900 + i * 220, f1: 1600 + i * 220, dur: 0.06, gain: 0.08, delay: 0.1 + i * 0.07 }));
+      } else {
+        this.noise({ f0: 2000, f1: 6000, dur: 0.3, gain: 0.2, filter: 'bandpass', q: 1.5 });
+        this.tone({ type: 'sine', f0: 400, f1: 900, dur: 0.2, gain: 0.12, delay: 0.05 });
+      }
+      this.release(0.8);
+    },
+    weaponHit(kind) {
+      this.tone({ type: 'sine', f0: 140, f1: 40, dur: 0.4, gain: 0.45 });
+      this.noise({ f0: 2500, f1: 200, dur: 0.45, gain: 0.35, filter: 'lowpass' });
+      if (kind === 'guitar') {
+        [64, 68, 71, 76].forEach((m, i) => this.tone({ type: 'square', f0: mtof(m), dur: 0.5, gain: 0.06, delay: 0.05 + i * 0.04, vib: 7, vibDepth: 14, filter: 'lowpass', ff: 3000 }));
+        this.tone({ type: 'sawtooth', f0: mtof(40), f1: mtof(38), dur: 0.8, gain: 0.08, delay: 0.05, filter: 'lowpass', ff: 900 });
+      } else if (kind === 'globe') {
+        this.tone({ type: 'sine', f0: 220, dur: 1.0, gain: 0.2, vib: 4, vibDepth: 6 });
+        [84, 88, 91, 96].forEach((m, i) => this.tone({ type: 'triangle', f0: mtof(m), dur: 0.2, gain: 0.06, delay: 0.15 + i * 0.08 }));
+      } else if (kind === 'choco') {
+        this.tone({ type: 'triangle', f0: 500, f1: 150, dur: 0.3, gain: 0.12, vib: 25, vibDepth: 60 });
+        for (let i = 0; i < 6; i++) this.tone({ type: 'sine', f0: 1200 + Math.random() * 1200, dur: 0.05, gain: 0.07, delay: 0.1 + i * 0.06 });
+      } else {
+        [60, 64, 67, 72, 76, 79].forEach((m, i) => this.tone({ type: 'sine', f0: mtof(m), f1: mtof(m + 5), dur: 0.12, gain: 0.08, delay: 0.05 + i * 0.05 }));
+      }
+    },
+
     // ---------- music sequencer ----------
     startMusic() {
       this._wantMusic = true;

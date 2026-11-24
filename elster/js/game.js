@@ -176,6 +176,8 @@
       UI.showHud(true);
       UI.setupHud(player, enemy, n);
       UI.setScore(this.runScore || 0);
+      this.enemyShots = 0;
+      this.updateWeaponUI();
       UI.setWind(0, level.windMax);
       UI.setTurn('מתכוננים...', null);
       UI.setPower(false);
@@ -238,13 +240,25 @@
       if (who === 'player') {
         this.state = 'aim';
         this.stateT = 0;
+        this.updateWeaponUI();
         if (this.stage === 1 && this.shotsFired === 0) this.after(1.6, () => this.state === 'aim' && !this.pointer && UI.hint(true));
       } else {
         this.state = 'aiThink';
         this.stateT = 0;
         shooter.setPose('think');
         A.think();
-        this.planner = this.ai.plan(shooter, target, this);
+        this.enemyShots = (this.enemyShots || 0) + 1;
+        const wantWeapon = shooter.weaponReady && shooter.weapon &&
+          (target.hp <= 55 || shooter.hp <= 55 || this.enemyShots >= 3) && U.rand() < 0.85;
+        if (wantWeapon) {
+          shooter.armed = true;
+          this.after(0.6, () => {
+            UI.banner('נשק סודי! ' + ELSTER.WEAPONS[shooter.weapon].name, shooter.name + (GENDER[shooter.id] === 'f' ? ' שולפת אותו' : ' שולף אותו'), true);
+            A.weaponArm();
+            this.armSparkle(shooter);
+          });
+        }
+        this.planner = this.ai.plan(shooter, target, this, wantWeapon ? ELSTER.WEAPONS[shooter.weapon].hitR : undefined);
         this.plan = null;
       }
     }
@@ -379,7 +393,8 @@
         return;
       }
       const v = P.launchVelocity(dir[0], dir[1], power);
-      const r = P.simulate(anchor[0], anchor[1], v.vx, v.vy, this.physWorld(shooter), { maxT: T, record: true });
+      const hitR = shooter.armed && shooter.weapon ? ELSTER.WEAPONS[shooter.weapon].hitR : undefined;
+      const r = P.simulate(anchor[0], anchor[1], v.vx, v.vy, this.physWorld(shooter), { maxT: T, record: true, hitR });
       this.preview = r.points;
     }
 
@@ -391,8 +406,16 @@
     fire(shooter, dir, power, anchor) {
       anchor = anchor || [shooter.restAnchor.x, shooter.restAnchor.y];
       const v = P.launchVelocity(dir[0], dir[1], power);
-      this.egg = P.makeEgg(anchor[0], anchor[1], v.vx, v.vy);
+      const weapon = shooter.armed && shooter.weapon ? shooter.weapon : null;
+      this.egg = P.makeEgg(anchor[0], anchor[1], v.vx, v.vy, weapon ? ELSTER.WEAPONS[weapon].hitR : undefined);
       this.egg.shooter = shooter;
+      this.egg.weapon = weapon;
+      if (weapon) {
+        shooter.weaponReady = false;
+        shooter.armed = false;
+        A.weaponFire(weapon);
+        this.updateWeaponUI();
+      }
       this.trail = [];
       this.acc = 0;
       this.preview = null;
@@ -409,7 +432,7 @@
       A.release(power);
       A.whistleStart();
       UI.hint(false);
-      if (this.mode === 'game') UI.setTurn('הביצה באוויר!', this.turn === 'player' ? 'player' : 'enemy');
+      if (this.mode === 'game') UI.setTurn(weapon ? 'נשק סודי באוויר!' : 'הביצה באוויר!', this.turn === 'player' ? 'player' : 'enemy');
     }
 
     impact(ev) {
@@ -424,19 +447,29 @@
       if (ev.type === 'char') {
         const ch = ev.char;
         const head = ev.part === 'head';
-        const dmg = DAMAGE[ev.part];
+        const wk = egg.weapon;
+        const dmg = wk ? ELSTER.WEAPON_DAMAGE[ev.part] : DAMAGE[ev.part];
         if (this.mode === 'game') ch.hp = Math.max(0, ch.hp - dmg);
-        ch.addSplat(ev.part, ev.x, ev.y);
+        if (wk) {
+          ch.hitFx = ELSTER.WEAPONS[wk].fx;
+          this.weaponSplats(ch, wk, ev);
+          ELSTER.weaponBurst(this.particles, wk, ev.x, ev.y);
+          A.weaponHit(wk);
+        } else {
+          ch.hitFx = null;
+          ch.addSplat(ev.part, ev.x, ev.y);
+          this.particles.eggBurst(ev.x, ev.y, nx, ny, 1);
+          A.hit(head);
+        }
         ch.setPose('hit');
-        this.particles.eggBurst(ev.x, ev.y, nx, ny, 1);
         this.particles.sparks(ev.x, ev.y, '#ffd84d', head ? 14 : 8);
         if (this.mode === 'game') {
-          this.particles.text(ch.pos.x, ch.pos.y - 140, '-' + dmg, { col: head ? '#ff5d7a' : '#ffd166', size: head ? 46 : 38, sub: head ? 'בול בראש!' : 'פגיעה!' });
+          const sub = wk ? ELSTER.WEAPONS[wk].name + '!' : head ? 'בול בראש!' : 'פגיעה!';
+          this.particles.text(ch.pos.x, ch.pos.y - 140, '-' + dmg, { col: head || wk ? '#ff5d7a' : '#ffd166', size: head || wk ? 48 : 38, sub });
           UI.setHP(ch === this.player ? 'player' : 'enemy', ch.hp);
-          if (shooter === this.player && ch === this.enemy) this.addPoints(POINTS[ev.part]);
+          if (shooter === this.player && ch === this.enemy) this.addPoints(POINTS[ev.part] + (wk ? 15 : 0));
         }
-        this.cam.shake = head ? 16 : 10;
-        A.hit(head);
+        this.cam.shake = wk ? 20 : head ? 16 : 10;
         this.after(0.25, () => A.ouch());
         if (shooter && shooter !== ch && this.mode === 'game') this.after(0.35, () => {
           if (shooter.pose !== 'victory' && shooter.pose !== 'lose') {
@@ -453,19 +486,50 @@
           this.level.terrain.bakeScorch(bx, by, 26);
           this.particles.sizzle(ev.x, ev.y);
           A.sizzle();
+        } else if (egg.weapon) {
+          this.weaponGroundSplat(egg.weapon, bx, by);
         } else {
           this.level.terrain.bakeSplat(bx, by, 13, Math.atan2(n.y, n.x) + Math.PI / 2, (Math.random() * 1e6) | 0);
         }
-        this.particles.eggBurst(ev.x, ev.y, n.x, n.y, 0.9);
-        A.splat();
-        this.cam.shake = 5;
-        if (this.mode === 'game' && target) {
+        let splashed = false;
+        if (egg.weapon) {
+          ELSTER.weaponBurst(this.particles, egg.weapon, ev.x, ev.y);
+          A.weaponHit(egg.weapon);
+          this.cam.shake = 12;
+          // near misses still catch the blast
+          if (this.mode === 'game' && target && target.solid) {
+            const d = Math.hypot(ev.x - target.pos.x, ev.y - (target.pos.y - 40 * target.k));
+            if (d < ELSTER.WEAPON_SPLASH_R) {
+              splashed = true;
+              const dmg = ELSTER.WEAPON_DAMAGE.splash;
+              target.hp = Math.max(0, target.hp - dmg);
+              target.hitFx = ELSTER.WEAPONS[egg.weapon].fx;
+              target.setPose('hit');
+              this.weaponSplats(target, egg.weapon, { part: 'body', x: target.pos.x, y: target.pos.y - 40 });
+              this.particles.text(target.pos.x, target.pos.y - 140, '-' + dmg, { col: '#ffd166', size: 38, sub: 'הדף של ' + ELSTER.WEAPONS[egg.weapon].name + '!' });
+              UI.setHP(target === this.player ? 'player' : 'enemy', target.hp);
+              if (shooter === this.player) this.addPoints(10);
+              this.after(0.25, () => A.ouch());
+              killed = target.hp <= 0;
+            }
+          }
+        } else {
+          this.particles.eggBurst(ev.x, ev.y, n.x, n.y, 0.9);
+          A.splat();
+          this.cam.shake = 5;
+        }
+        if (this.mode === 'game' && target && !splashed) {
           const near = Math.hypot(ev.x - target.pos.x, ev.y - (target.pos.y - 40));
           this.particles.text(ev.x, ev.y - 50, near < 110 ? 'כמעט!' : 'פספוס!', { col: near < 110 ? '#ffd166' : '#ffffff', size: 28, life: 1.1 });
         }
         if (shooter && this.mode === 'game') this.after(0.4, () => {
-          shooter.setPose('frustrated');
-          A.grumble();
+          if (splashed) {
+            shooter.setPose('cheer');
+            A.cheer();
+          } else {
+            shooter.setPose('frustrated');
+            A.grumble();
+          }
         });
       } else {
         if (this.mode === 'game') {
@@ -488,8 +552,68 @@
       if (killed) {
         this.after(0.9, () => this.endStage(shooter));
       } else {
-        this.after(ev.type === 'char' ? 1.5 : 1.35, () => this.beginTurn(shooter === this.player ? 'enemy' : 'player'));
+        this.after(ev.type === 'char' || egg.weapon ? 1.9 : 1.35, () => this.beginTurn(shooter === this.player ? 'enemy' : 'player'));
       }
+    }
+
+    // ------------------------------------------------------------ secret weapons
+    toggleWeapon() {
+      const pl = this.player;
+      if (this.mode !== 'game' || this.paused || this.state !== 'aim' || this.turn !== 'player') return;
+      if (!pl || !pl.weaponReady || !pl.weapon || (this.pointer && this.pointer.mode === 'aim')) return;
+      pl.armed = !pl.armed;
+      if (pl.armed) {
+        A.weaponArm();
+        UI.banner('נשק סודי!', ELSTER.WEAPONS[pl.weapon].name, true);
+        this.armSparkle(pl);
+        pl.setPose('cheer');
+      } else A.click();
+      this.updateWeaponUI();
+    }
+
+    armSparkle(ch) {
+      const a = ch.restAnchor;
+      const w = ELSTER.WEAPONS[ch.weapon];
+      for (let i = 0; i < 14; i++) {
+        const ang = U.rand() * U.TAU, v = U.rand.range(60, 160);
+        this.particles.add({ kind: w.trail, x: a.x, y: a.y, vx: Math.cos(ang) * v, vy: Math.sin(ang) * v - 60, g: 80, s: U.rand.range(4, 6), rot: 0, vr: U.rand.range(-4, 4), life: 0.9, col: U.rand.pick(w.cols) });
+      }
+      this.particles.sparks(a.x, a.y, '#ffffff', 10);
+    }
+
+    updateWeaponUI() {
+      if (this.mode !== 'game' || !this.player) return;
+      const pl = this.player, en = this.enemy;
+      UI.setWeaponMini('player', pl.weapon, pl.weaponReady);
+      UI.setWeaponMini('enemy', en.weapon, en.weaponReady);
+      UI.setWeaponButton({
+        kind: pl.weapon, ready: pl.weaponReady, armed: pl.armed,
+        enabled: this.state === 'aim' && this.turn === 'player' && pl.weaponReady,
+      });
+    }
+
+    weaponSplats(ch, wk, ev) {
+      const cols = ELSTER.WEAPONS[wk].cols;
+      if (wk === 'choco') {
+        ch.addSplat(ev.part, ev.x, ev.y, 'choco', '#5a2e14');
+        ch.addSplat(ev.part === 'head' ? 'body' : 'head', ch.pos.x, ch.pos.y - 60, 'choco', '#6b3a1f');
+      } else if (wk === 'brush') {
+        for (let i = 0; i < 3; i++) ch.addSplat(i % 2 ? 'body' : 'head', ch.pos.x + U.rand.range(-14, 14), ch.pos.y - U.rand.range(30, 95), 'paint', U.rand.pick(cols));
+      }
+    }
+
+    weaponGroundSplat(wk, x, y) {
+      const T = this.level.terrain;
+      const seed = () => (Math.random() * 1e6) | 0;
+      const paint = (col, dx, dy, r) => {
+        T.ctx.save();
+        T.ctx.globalCompositeOperation = 'source-atop';
+        ELSTER.drawColorSplat(T.ctx, x + dx, y + dy, r, U.rand() * 6, seed(), col, 1);
+        T.ctx.restore();
+      };
+      if (wk === 'choco') paint('#5a2e14', 0, 0, 20);
+      else if (wk === 'brush') ELSTER.WEAPONS.brush.cols.forEach((c, i) => paint(c, Math.cos(i) * 22, Math.sin(i * 2) * 10, 11));
+      else T.bakeScorch(x, y, 34);
     }
 
     addPoints(base) {
@@ -672,6 +796,9 @@
       while (this.acc >= P.DT && this.egg) {
         this.acc -= P.DT;
         const ev = P.step(this.egg, world);
+        if (this.egg && this.egg.weapon && ((this.egg.t * 120) | 0) % 4 === 0) {
+          ELSTER.weaponTrail(this.particles, this.egg.weapon, this.egg.x, this.egg.y, this.egg.vx, this.egg.vy);
+        }
         if (this.egg && ((this.egg.t * 120) | 0) % 2 === 0) {
           this.trail.push([this.egg.x, this.egg.y]);
           if (this.trail.length > 26) this.trail.shift();
@@ -750,7 +877,8 @@
           ctx.fill();
         }
       }
-      if (this.egg) ELSTER.drawEgg(ctx, this.egg.x, this.egg.y, this.egg.rot, 0.95);
+      if (this.egg && this.egg.weapon) ELSTER.drawWeapon(ctx, this.egg.weapon, this.egg.x, this.egg.y, this.egg.rot, 1.15, this.time);
+      else if (this.egg) ELSTER.drawEgg(ctx, this.egg.x, this.egg.y, this.egg.rot, 0.95);
       this.particles.draw(ctx);
       this.particles.drawTexts(ctx);
       ctx.restore();

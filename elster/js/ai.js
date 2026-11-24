@@ -36,7 +36,7 @@
      * Generator: yields while working so the search can be spread over frames.
      * Final value: { dir:[x,y], power, ideal:{e,p,score} }
      */
-    *plan(shooter, target, game) {
+    *plan(shooter, target, game, hitR) {
       const cfg = this.cfg;
       const anchor = shooter.restAnchor;
       const hc = target.headCenter;
@@ -54,7 +54,7 @@
       const evalShot = (e, p) => {
         const rad = (e * Math.PI) / 180;
         const v = P.launchVelocity(side * Math.cos(rad), -Math.sin(rad), p);
-        const r = P.simulate(anchor.x, anchor.y, v.vx, v.vy, world, { target: aim, maxT: 7 });
+        const r = P.simulate(anchor.x, anchor.y, v.vx, v.vy, world, { target: aim, maxT: 7, hitR });
         let score = r.minD;
         if (r.event && r.event.type === 'char') {
           if (r.event.char === target) score = r.event.part === 'head' ? 0 : cfg.aimHead ? 4 : 0;

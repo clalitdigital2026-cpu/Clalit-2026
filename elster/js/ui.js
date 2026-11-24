@@ -63,6 +63,10 @@
       click('btn-pause-home', () => handlers.home());
       click('btn-home', () => handlers.home());
       click('btn-cam', () => handlers.switchCam());
+      $('btn-weapon').addEventListener('click', () => {
+        ELSTER.Audio.init();
+        handlers.weapon();
+      });
       click('btn-next', () => handlers.next());
       click('btn-retry', () => handlers.retry());
       click('btn-win-home', () => handlers.home());
@@ -248,6 +252,25 @@
       setTimeout(() => {
         try { $('name-input').focus({ preventScroll: true }); } catch (e) { /* ignore */ }
       }, 120);
+    },
+    setWeaponMini(side, kind, ready) {
+      const c = $('wmini-' + side);
+      if (!c || !kind) return;
+      ELSTER.drawWeaponIcon(c, kind, !ready);
+      c.title = ELSTER.WEAPONS[kind].name + (ready ? '' : ' (נוצל)');
+    },
+    setWeaponButton(o) {
+      const b = $('btn-weapon');
+      if (!o.kind) {
+        b.classList.add('hidden');
+        return;
+      }
+      b.classList.remove('hidden');
+      ELSTER.drawWeaponIcon($('weapon-icon'), o.kind, !o.ready);
+      b.classList.toggle('armed', !!o.armed);
+      b.classList.toggle('used', !o.ready);
+      b.disabled = !o.enabled;
+      $('weapon-label').textContent = !o.ready ? 'נוצל' : o.armed ? 'מוכן לירי!' : ELSTER.WEAPONS[o.kind].name;
     },
     setScore(n) {
       $('hud-score').textContent = n;
