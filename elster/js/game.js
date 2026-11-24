@@ -74,6 +74,7 @@
     // ------------------------------------------------------------ menu scene
     startMenu() {
       this.mode = 'menu';
+      this.menuAim = null;
       this.state = 'menu';
       this.clearTimers();
       this.paused = false;
@@ -152,6 +153,7 @@
 
     startStage(n) {
       this.mode = 'game';
+      this.menuAim = null; // a title-screen shot may have been mid-aim
       this.updateScale();
       this.clearTimers();
       this.paused = false;
@@ -964,7 +966,7 @@
       let sh = null;
       if (this.pointer && this.pointer.mode === 'aim') sh = this.player;
       else if (this.state === 'aiAim' && this.enemy) sh = this.enemy;
-      else if (this.menuAim) sh = this.menuAim.shooter;
+      else if (this.menuAim && this.mode === 'menu') sh = this.menuAim.shooter;
       if (!sh || !sh.aim) return;
       const { anchor, dir, power } = sh.aim;
       // max-stretch circle (player only)
