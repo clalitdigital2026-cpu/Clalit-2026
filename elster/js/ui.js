@@ -272,8 +272,8 @@
       b.disabled = !o.enabled;
       $('weapon-label').textContent = !o.ready ? 'נוצל' : o.armed ? 'מוכן לירי!' : ELSTER.WEAPONS[o.kind].name;
     },
-    setScore(n) {
-      $('hud-score').textContent = n;
+    setScore() {
+      // the running score is shown only on the end-of-stage screens
     },
     setPoints(id, gained, total) {
       $(id).textContent = gained > 0 ? `+${gained} נקודות · סה״כ ${total}` : `סה״כ ${total} נקודות`;
