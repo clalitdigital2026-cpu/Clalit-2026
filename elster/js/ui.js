@@ -5,6 +5,7 @@
   const $ = (id) => document.getElementById(id);
 
   const CARD_COLORS = {
+    adi: ['#c3f584', '#3fae6a'],
     roni: ['#ff8fb1', '#c44b7a'],
     shiri: ['#ffd38a', '#e58a2f'],
     yair: ['#8fd3ff', '#3a7bd5'],
@@ -204,7 +205,7 @@
         hc.loaded = false;
         const c = $('avatar-' + side), ctx = c.getContext('2d');
         ctx.clearRect(0, 0, c.width, c.height);
-        ELSTER.drawPortrait(ctx, src.id, c.width, c.height, { char: hc, scale: 2.0, bottom: -58, noShadow: true, facing: side === 'player' ? -1 : 1 });
+        ELSTER.drawPortrait(ctx, src.id, c.width, c.height, { char: hc, scale: 2.0, bottom: -58, noShadow: true, normalize: true, facing: side === 'player' ? -1 : 1 });
       });
     },
 

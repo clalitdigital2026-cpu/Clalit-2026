@@ -26,6 +26,16 @@
       sleeve: 'long', mouth: 'grin', lashes: true, liner: true,
       faceRx: 20.5, faceRy: 22.5, chin: 0.45, accent: '#ffb347',
     },
+    adi: {
+      id: 'adi', name: 'עדי אלסטר', tagline: 'קטנה אבל קולעת בול',
+      skin: '#efc19f', skinShade: '#d39a78', blush: 0.3,
+      hair: '#3a2419', hairHi: '#6e4a34', hairMid: '#2a1a12',
+      iris: '#3b2314', brow: '#2e1d14', browW: 2.7, lips: '#cf7a78',
+      top: '#e2332f', topShade: '#b4231f', topHi: '#ff5a4e',
+      pants: '#3f5f8f', shoes: '#ff8fb3', shoeTrim: '#ffffff',
+      sleeve: 'short', mouth: 'smile', lashes: true, mole: true,
+      faceRx: 20, faceRy: 21.5, chin: 0.5, accent: '#e2332f', scale: 0.84,
+    },
     yair: {
       id: 'yair', name: 'יאיר אלסטר', tagline: 'מבט רציני, יד יציבה',
       skin: '#e8b694', skinShade: '#c88f6d', blush: 0.12,
@@ -38,7 +48,7 @@
     },
   };
   ELSTER.CHAR_DEFS = DEFS;
-  ELSTER.CHAR_IDS = ['roni', 'shiri', 'yair'];
+  ELSTER.CHAR_IDS = ['roni', 'shiri', 'yair', 'adi'];
 
   // geometry (local space, feet at 0,0, facing +x)
   const HEAD_Y = -84;
@@ -606,6 +616,73 @@
 
   // ------------------------------------------------------------------ hair & per-person details
   const HAIR = {
+    adi: {
+      back(ctx, d) {
+        const y0 = HEAD_Y;
+        ctx.beginPath();
+        ctx.moveTo(0, y0 - 25);
+        ctx.bezierCurveTo(-22, y0 - 26, -28, y0 - 12, -27, y0 + 6);
+        ctx.lineTo(-29, y0 + 50);
+        ctx.quadraticCurveTo(-27, y0 + 60, -18, y0 + 58);
+        ctx.lineTo(18, y0 + 58);
+        ctx.quadraticCurveTo(27, y0 + 60, 29, y0 + 50);
+        ctx.lineTo(27, y0 + 6);
+        ctx.bezierCurveTo(28, y0 - 12, 22, y0 - 26, 0, y0 - 25);
+        ctx.closePath();
+        const g = ctx.createLinearGradient(0, y0 - 26, 0, y0 + 60);
+        g.addColorStop(0, d.hairMid);
+        g.addColorStop(1, d.hair);
+        outlineFill(ctx, g);
+      },
+      front(ctx, d) {
+        const y0 = HEAD_Y;
+        const g = ctx.createLinearGradient(0, y0 - 26, 0, y0 + 56);
+        g.addColorStop(0, d.hair);
+        g.addColorStop(0.6, U.mix(d.hair, d.hairHi, 0.35));
+        g.addColorStop(1, d.hairHi);
+        [-1, 1].forEach((s) => {
+          ctx.beginPath();
+          ctx.moveTo(s * 1, y0 - 24);
+          ctx.bezierCurveTo(s * 13, y0 - 25, s * 23, y0 - 20, s * 24, y0 - 6);
+          ctx.lineTo(s * 25.5, y0 + 54);
+          ctx.quadraticCurveTo(s * 22, y0 + 57, s * 18.5, y0 + 54);
+          ctx.lineTo(s * 18.5, y0 + 8);
+          ctx.bezierCurveTo(s * 19, y0 - 4, s * 17, y0 - 13, s * 11, y0 - 17);
+          ctx.bezierCurveTo(s * 7, y0 - 20, s * 3, y0 - 19, s * 0.5, y0 - 16);
+          ctx.closePath();
+          outlineFill(ctx, g);
+          // straight shine strands
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(s * 7, y0 - 21);
+          ctx.quadraticCurveTo(s * 18, y0 - 18, s * 21, y0 - 4);
+          ctx.lineTo(s * 22, y0 + 44);
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = U.rgba(d.hairHi, 0.9);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(s * 23.5, y0 + 8);
+          ctx.lineTo(s * 24, y0 + 40);
+          ctx.lineWidth = 1.1;
+          ctx.strokeStyle = U.rgba('#8a6048', 0.8);
+          ctx.stroke();
+        });
+        // centre part
+        ctx.beginPath();
+        ctx.moveTo(0.5, y0 - 24);
+        ctx.lineTo(0.5, y0 - 16);
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = U.rgba(d.skinShade, 0.9);
+        ctx.stroke();
+      },
+      face(ctx, d, fx) {
+        // little beauty mark on the chin, like in the photo
+        ctx.beginPath();
+        ctx.arc(fx - 6.5, HEAD_Y + 20, 0.9, 0, U.TAU);
+        ctx.fillStyle = 'rgba(90,50,35,0.85)';
+        ctx.fill();
+      },
+    },
     yair: {
       back(ctx, d) {
         // short back/sides mass
@@ -972,6 +1049,17 @@
       // chest hair hint
       ctx.fillStyle = 'rgba(60,45,40,0.35)';
       for (let i = 0; i < 6; i++) ctx.fillRect(-2 + (i % 3) * 1.6, -56 + Math.floor(i / 3) * 2.2, 0.8, 0.8);
+    } else if (d.id === 'adi') {
+      // kids' crew-neck tee
+      ctx.beginPath();
+      ctx.ellipse(0, -60, 7.5, 4.5, 0, 0, Math.PI);
+      ctx.fillStyle = d.skin;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(0, -60, 8.6, 5.6, 0, 0.05, Math.PI - 0.05);
+      ctx.lineWidth = 2.6;
+      ctx.strokeStyle = d.topShade;
+      ctx.stroke();
     } else if (d.id === 'shiri') {
       ctx.beginPath();
       ctx.ellipse(0, -60, 8.5, 4.5, 0, 0, Math.PI);
@@ -1015,7 +1103,7 @@
     outlineFill(ctx, d.skin, 2);
     ctx.fillStyle = 'rgba(0,0,0,0.12)';
     ctx.fillRect(-4, -63, 8, 3);
-    if (d.id !== 'shiri') {
+    if (d.id !== 'shiri' && d.id !== 'adi') {
       drawEar(ctx, d, -1);
       drawEar(ctx, d, 1);
     }
@@ -1089,14 +1177,16 @@
       this.isActive = false;
     }
 
-    get headCenter() { return { x: this.pos.x, y: this.pos.y + HEAD_Y }; }
-    get restAnchor() { return { x: this.pos.x + this.facing * AX, y: this.pos.y + AY }; }
+    get k() { return this.def.scale || 1; }
+    get headCenter() { return { x: this.pos.x, y: this.pos.y + HEAD_Y * this.k }; }
+    get restAnchor() { return { x: this.pos.x + this.facing * AX * this.k, y: this.pos.y + AY * this.k }; }
 
     hitTest(x, y, r) {
-      const hx = this.pos.x, hy = this.pos.y + HEAD_Y - 2;
-      if (Math.hypot(x - hx, y - hy) < r + 24) return 'head';
-      const bx = U.clamp(x, this.pos.x - 18, this.pos.x + 18);
-      const by = U.clamp(y, this.pos.y - 60, this.pos.y);
+      const k = this.k;
+      const hx = this.pos.x, hy = this.pos.y + (HEAD_Y - 2) * k;
+      if (Math.hypot(x - hx, y - hy) < r + 24 * k) return 'head';
+      const bx = U.clamp(x, this.pos.x - 18 * k, this.pos.x + 18 * k);
+      const by = U.clamp(y, this.pos.y - 60 * k, this.pos.y);
       if (Math.hypot(x - bx, y - by) < r) return 'body';
       return null;
     }
@@ -1113,7 +1203,7 @@
     }
 
     addSplat(part, wx, wy) {
-      let lx = (wx - this.pos.x) * this.facing, ly = wy - this.pos.y;
+      let lx = ((wx - this.pos.x) * this.facing) / this.k, ly = (wy - this.pos.y) / this.k;
       if (part === 'head') {
         lx = U.clamp(lx, -14, 14);
         ly = U.clamp(ly, HEAD_Y - 18, HEAD_Y + 12);
@@ -1167,7 +1257,7 @@
       S.headRot = Math.sin(t * 1.1) * 0.02;
       if (this.lookTarget) {
         const dx = (this.lookTarget.x - this.pos.x) * this.facing;
-        const dy = this.lookTarget.y - (this.pos.y + HEAD_Y);
+        const dy = this.lookTarget.y - (this.pos.y + HEAD_Y * this.k);
         const l = Math.hypot(dx, dy) || 1;
         S.lookX = U.clamp(dx / l, -1, 1);
         S.lookY = U.clamp(dy / l, -1, 1) * 0.8;
@@ -1288,7 +1378,7 @@
       // ground shadow
       if (!opts.noShadow) {
         ctx.beginPath();
-        ctx.ellipse(this.pos.x, this.pos.y, 22 + S.oy * 0.3, 5, 0, 0, U.TAU);
+        ctx.ellipse(this.pos.x, this.pos.y, (22 + S.oy * 0.3) * this.k, 5, 0, 0, U.TAU);
         ctx.fillStyle = 'rgba(0,0,0,0.22)';
         ctx.fill();
       }
@@ -1296,14 +1386,14 @@
       ctx.translate(this.pos.x + S.ox * this.facing, this.pos.y + S.oy);
       ctx.scale(this.facing, 1);
       ctx.rotate(S.rot);
-      ctx.scale(S.sx, S.sy);
+      ctx.scale(S.sx * this.k, S.sy * this.k);
       ctx.lineJoin = 'round';
 
       // ---- slingshot geometry in local space
       let A, dir, P, power = 0;
       if (S.mode === 'sling') {
         if (this.pose === 'aim' && this.aim) {
-          A = [(this.aim.anchor[0] - this.pos.x) * this.facing, this.aim.anchor[1] - this.pos.y];
+          A = [((this.aim.anchor[0] - this.pos.x) * this.facing) / this.k, (this.aim.anchor[1] - this.pos.y) / this.k];
           dir = [this.aim.dir[0] * this.facing, this.aim.dir[1]];
           power = this.aim.power;
           const pull = power * 72;
@@ -1371,7 +1461,7 @@
       ctx.restore();
 
       // overlays in world space (not flipped)
-      const hx = this.pos.x, hy = this.pos.y + HEAD_Y - 36 + S.oy;
+      const hx = this.pos.x, hy = this.pos.y + (HEAD_Y - 36) * this.k + S.oy;
       if (S.bubble != null) this.drawThought(ctx, hx + this.facing * 20, hy - 10, S.bubble);
       if (S.scribble) this.drawGrawlix(ctx, hx + this.facing * 4, hy - 8);
       if (S.stars) this.drawStars(ctx, hx, hy + 6);
@@ -1485,7 +1575,9 @@
     ctx.save();
     const s = opts.scale || h / 130;
     ctx.translate(w / 2 + (opts.dx || 0) * s, h - (opts.bottom || 6) * s);
-    ctx.scale(s, s);
+    // head-shot portraits show every character's face at the same size
+    const n = opts.normalize ? 1 / (ch.def.scale || 1) : 1;
+    ctx.scale(s * n, s * n);
     ch.draw(ctx, { noShadow: opts.noShadow });
     ctx.restore();
     return ch;

@@ -267,7 +267,10 @@ button { font-family: var(--font); cursor: pointer; border: none; touch-action: 
   .panel-title { margin-bottom: 6px; }
   .diff-btn { padding: 10px 8px; }
   .cards .card { max-width: 200px; }
-  .card canvas { aspect-ratio: 1 / 0.95; }
+  .card canvas { aspect-ratio: 1 / 0.78; }
+  .card { padding: 4px 4px 8px; border-radius: 18px; }
+  .card-tag { font-size: 11px; }
+  .card-name { font-size: 20px; }
   #power { padding: 3px 10px 5px; }
   .power-row { font-size: 12px; }
   #hint { bottom: calc(62px + var(--safe-b)); font-size: 13px; }

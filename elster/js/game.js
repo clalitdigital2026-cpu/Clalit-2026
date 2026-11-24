@@ -9,7 +9,7 @@
   const PREVIEW_T = { easy: 1.5, medium: 0.42, hard: 0 };
   const DAMAGE = { head: 35, body: 20 };
   const MAX_STAGE = 8;
-  const GENDER = { roni: 'f', shiri: 'f', yair: 'm' };
+  const GENDER = { roni: 'f', shiri: 'f', yair: 'm', adi: 'f' };
 
   class Game {
     constructor(canvas) {
@@ -79,17 +79,17 @@
       const level = ELSTER.buildLevel(1, 4242, { menu: true });
       this.setLevel(level);
       const W = level.W;
-      const xs = [W / 2 - 360, W / 2 + 10, W / 2 + 380];
-      const ids = ['roni', 'yair', 'shiri'];
+      const xs = [W / 2 - 440, W / 2 - 145, W / 2 + 150, W / 2 + 445];
+      const ids = ['roni', 'yair', 'adi', 'shiri'];
       this.chars = ids.map((id, i) => {
         const ch = new ELSTER.Character(id);
         ch.pos.x = xs[i];
         ch.pos.y = level.terrain.surfaceY(xs[i], level.hm[Math.round(xs[i] / level.hmStep)] - 40);
-        ch.facing = i === 0 ? 1 : i === 2 ? -1 : U.rand.sign();
+        ch.facing = i === 0 ? 1 : i === xs.length - 1 ? -1 : U.rand.sign();
         return ch;
       });
-      const feet = this.chars.reduce((a, c) => a + c.pos.y, 0) / 3;
-      this.cam.x = this.cam.tx = xs[1];
+      const feet = this.chars.reduce((a, c) => a + c.pos.y, 0) / this.chars.length;
+      this.cam.x = this.cam.tx = (xs[0] + xs[xs.length - 1]) / 2;
       this.cam.y = this.cam.ty = feet - (this.vh * 0.3) / this.cam.scale;
       this.cam.free = true;
       this.menuShotIn = 1.2;
@@ -125,7 +125,10 @@
       this.difficulty = diff;
       this.playerId = playerId;
       const others = ELSTER.CHAR_IDS.filter((id) => id !== playerId);
-      if (U.rand() < 0.5) others.reverse();
+      for (let i = others.length - 1; i > 0; i--) {
+        const j = Math.floor(U.rand() * (i + 1));
+        [others[i], others[j]] = [others[j], others[i]];
+      }
       this.opponents = others;
       this.progress.lastChar = playerId;
       this.progress.lastDiff = diff;
@@ -151,7 +154,7 @@
       this.stage = n;
       const level = ELSTER.buildLevel(n, 1000 + n * 7919);
       this.setLevel(level);
-      const oppId = this.opponents[(n - 1) % 2];
+      const oppId = this.opponents[(n - 1) % this.opponents.length];
       const player = (this.player = new ELSTER.Character(this.playerId));
       const enemy = (this.enemy = new ELSTER.Character(oppId));
       player.pos = { ...level.spawns.right };
