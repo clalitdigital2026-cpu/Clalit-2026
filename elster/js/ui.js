@@ -30,6 +30,12 @@
       click('btn-lose-lb', () => this.openLeaderboard('lose'));
       click('btn-final-lb', () => this.openLeaderboard('final'));
       click('btn-lb-back', () => this.closeLeaderboard());
+      document.querySelectorAll('.lb-tab').forEach((t) => t.addEventListener('click', () => {
+        ELSTER.Audio.init();
+        ELSTER.Audio.click();
+        this.lbDiff = t.dataset.diff;
+        this.renderLeaderboard();
+      }));
       $('name-input').addEventListener('input', () => $('name-error').classList.add('hidden'));
       $('name-form').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -282,6 +288,9 @@
 
     openLeaderboard(from) {
       this.lbFrom = from;
+      // open on the difficulty being played (or last played)
+      const g = ELSTER.game;
+      this.lbDiff = (g && g.mode === 'game' && g.difficulty) || (g && g.progress && g.progress.lastDiff) || this.lbDiff || 'medium';
       if (from === 'title') this.show('leaderboard');
       else {
         this.overlay(from, false);
@@ -301,7 +310,15 @@
       const list = $('lb-list'), status = $('lb-status');
       list.textContent = '';
       status.textContent = 'טוען...';
-      const res = await ELSTER.Leaderboard.top(20);
+      const diff = this.lbDiff || 'medium';
+      document.querySelectorAll('.lb-tab').forEach((t) => {
+        const on = t.dataset.diff === diff;
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', on);
+      });
+      const token = (this._lbToken = (this._lbToken || 0) + 1);
+      const res = await ELSTER.Leaderboard.top(diff, 20);
+      if (token !== this._lbToken) return; // a newer tab was picked meanwhile
       const myPrefix = ELSTER.Leaderboard.myId() + '-';
       if (res.online) status.textContent = 'כל השחקנים, השיא של כל אחד';
       else if (res.error) status.textContent = 'אין חיבור כרגע – מוצגות התוצאות מהמכשיר הזה';
@@ -309,11 +326,10 @@
       if (!res.list.length) {
         const li = document.createElement('li');
         li.className = 'lb-empty';
-        li.textContent = 'עוד אין תוצאות. נצחו שלב כדי להופיע כאן!';
+        li.textContent = 'עוד אין תוצאות ברמה הזו. נצחו שלב כדי להופיע כאן!';
         list.appendChild(li);
         return;
       }
-      const DIFF = { easy: 'קל', medium: 'בינוני', hard: 'קשה' };
       res.list.forEach((e, i) => {
         const li = document.createElement('li');
         li.className = 'lb-row' + (String(e.id).startsWith(myPrefix) ? ' me' : '');
@@ -325,7 +341,7 @@
         name.textContent = e.name;
         const meta = document.createElement('span');
         meta.className = 'lb-meta';
-        meta.textContent = `שלב ${e.stage}${DIFF[e.diff] ? ' · ' + DIFF[e.diff] : ''}`;
+        meta.textContent = `שלב ${e.stage}`;
         const score = document.createElement('span');
         score.className = 'lb-score';
         score.textContent = e.score;

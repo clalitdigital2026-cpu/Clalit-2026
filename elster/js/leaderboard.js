@@ -73,7 +73,7 @@
       let h = 5381;
       for (const ch of name) h = ((h * 33) ^ ch.codePointAt(0)) >>> 0;
       const e = {
-        id: deviceId() + '-' + h.toString(36),
+        id: deviceId() + '-' + h.toString(36) + '-' + (entry.diff || 'x'),
         name,
         score: Math.max(0, Math.round(entry.score)),
         stage: entry.stage | 0,
@@ -105,10 +105,21 @@
     },
 
     /** top players: resolves { list, online, error } */
-    async top(limit) {
+    /** top players of one difficulty: resolves { list, online, error } */
+    async top(diff, limit) {
       limit = limit || 20;
+      const pick = (rows) => {
+        // keep each player's best for this difficulty (older rows had no difficulty in their id)
+        const best = new Map();
+        rows.filter((e) => e.diff === diff).forEach((e) => {
+          const key = String(e.id).replace(/-(easy|medium|hard)$/, '');
+          const cur = best.get(key);
+          if (!cur || e.score > cur.score) best.set(key, e);
+        });
+        return [...best.values()].sort((a, b) => b.score - a.score).slice(0, limit);
+      };
       const c = cfg();
-      if (!c) return { list: localList().slice(0, limit), online: false };
+      if (!c) return { list: pick(localList()), online: false };
       try {
         const r = await withTimeout(fetch(`${base(c)}:runQuery?key=${encodeURIComponent(c.apiKey)}`, {
           method: 'POST',
@@ -117,16 +128,16 @@
             structuredQuery: {
               from: [{ collectionId: COLL }],
               orderBy: [{ field: { fieldPath: 'score' }, direction: 'DESCENDING' }],
-              limit,
+              limit: 300,
             },
           }),
         }), 8000);
         if (!r.ok) throw new Error('http ' + r.status);
         const rows = await r.json();
         const list = rows.filter((x) => x.document).map((x) => fromDoc(x.document));
-        return { list, online: true };
+        return { list: pick(list), online: true };
       } catch (err) {
-        return { list: localList().slice(0, limit), online: false, error: true };
+        return { list: pick(localList()), online: false, error: true };
       }
     },
   });
