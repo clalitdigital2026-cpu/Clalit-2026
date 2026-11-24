@@ -62,11 +62,16 @@
     play() {
       goFullscreen();
       pending.stage = 1;
-      UI.show('difficulty');
+      UI.askName(ELSTER.U.store.get('playerName', ''));
     },
     continueGame() {
       goFullscreen();
       pending.stage = game.progress.highest || 1;
+      UI.askName(ELSTER.U.store.get('playerName', ''));
+    },
+    name(n) {
+      game.playerName = n;
+      ELSTER.U.store.set('playerName', n);
       UI.show('difficulty');
     },
     difficulty(d) {

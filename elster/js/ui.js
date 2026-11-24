@@ -12,7 +12,7 @@
   };
 
   const UI = (ELSTER.UI = {
-    screens: ['title', 'difficulty', 'select', 'pause', 'win', 'lose', 'final'],
+    screens: ['title', 'name', 'difficulty', 'select', 'pause', 'win', 'lose', 'final', 'leaderboard'],
     cardChars: {},
     hudChars: {},
     selected: null,
@@ -25,6 +25,25 @@
         fn(e);
       });
       click('btn-play', () => handlers.play());
+      click('btn-leaderboard', () => this.openLeaderboard('title'));
+      click('btn-win-lb', () => this.openLeaderboard('win'));
+      click('btn-lose-lb', () => this.openLeaderboard('lose'));
+      click('btn-final-lb', () => this.openLeaderboard('final'));
+      click('btn-lb-back', () => this.closeLeaderboard());
+      $('name-input').addEventListener('input', () => $('name-error').classList.add('hidden'));
+      $('name-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = $('name-input').value.replace(/\s+/g, ' ').trim().slice(0, 16);
+        $('name-error').classList.toggle('hidden', !!name);
+        if (!name) {
+          $('name-input').focus();
+          return;
+        }
+        ELSTER.Audio.init();
+        ELSTER.Audio.click();
+        $('name-input').blur();
+        handlers.name(name);
+      });
       click('btn-continue', () => handlers.continueGame());
       document.querySelectorAll('.diff-btn').forEach((b) =>
         b.addEventListener('click', () => {
@@ -222,7 +241,79 @@
       this._bt = setTimeout(() => b.classList.add('hidden'), 1750);
     },
 
+    askName(current) {
+      $('name-input').value = current || '';
+      $('name-error').classList.add('hidden');
+      this.show('name');
+      setTimeout(() => {
+        try { $('name-input').focus({ preventScroll: true }); } catch (e) { /* ignore */ }
+      }, 120);
+    },
+    setScore(n) {
+      $('hud-score').textContent = n;
+    },
+    setPoints(id, gained, total) {
+      $(id).textContent = gained > 0 ? `+${gained} נקודות · סה״כ ${total}` : `סה״כ ${total} נקודות`;
+    },
+
+    openLeaderboard(from) {
+      this.lbFrom = from;
+      if (from === 'title') this.show('leaderboard');
+      else {
+        this.overlay(from, false);
+        this.overlay('leaderboard', true);
+      }
+      this.renderLeaderboard();
+    },
+    closeLeaderboard() {
+      const from = this.lbFrom || 'title';
+      if (from === 'title') this.show('title');
+      else {
+        this.overlay('leaderboard', false);
+        this.overlay(from, true);
+      }
+    },
+    async renderLeaderboard() {
+      const list = $('lb-list'), status = $('lb-status');
+      list.textContent = '';
+      status.textContent = 'טוען...';
+      const res = await ELSTER.Leaderboard.top(20);
+      const myPrefix = ELSTER.Leaderboard.myId() + '-';
+      if (res.online) status.textContent = 'כל השחקנים, השיא של כל אחד';
+      else if (res.error) status.textContent = 'אין חיבור כרגע – מוצגות התוצאות מהמכשיר הזה';
+      else status.textContent = 'תוצאות מהמכשיר הזה';
+      if (!res.list.length) {
+        const li = document.createElement('li');
+        li.className = 'lb-empty';
+        li.textContent = 'עוד אין תוצאות. נצחו שלב כדי להופיע כאן!';
+        list.appendChild(li);
+        return;
+      }
+      const DIFF = { easy: 'קל', medium: 'בינוני', hard: 'קשה' };
+      res.list.forEach((e, i) => {
+        const li = document.createElement('li');
+        li.className = 'lb-row' + (String(e.id).startsWith(myPrefix) ? ' me' : '');
+        const rank = document.createElement('span');
+        rank.className = 'lb-rank';
+        rank.textContent = i + 1;
+        const name = document.createElement('span');
+        name.className = 'lb-name';
+        name.textContent = e.name;
+        const meta = document.createElement('span');
+        meta.className = 'lb-meta';
+        meta.textContent = `שלב ${e.stage}${DIFF[e.diff] ? ' · ' + DIFF[e.diff] : ''}`;
+        const score = document.createElement('span');
+        score.className = 'lb-score';
+        score.textContent = e.score;
+        li.append(rank, name, meta, score);
+        list.appendChild(li);
+      });
+    },
+
     setTitleInfo(progress) {
+      const nm = ELSTER.U.store.get('playerName', '');
+      $('hello').classList.toggle('hidden', !nm);
+      $('hello-name').textContent = nm;
       const hi = progress.highest || 1;
       $('btn-continue').classList.toggle('hidden', !(hi > 1 && progress.lastChar));
       $('continue-stage').textContent = hi;

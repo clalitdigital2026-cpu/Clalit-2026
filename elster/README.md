@@ -24,3 +24,9 @@
 | `ui.js` | מסכים, HUD, כרטיסי דמויות |
 | `game.js` | מכונת מצבים, תורות, קלט, מצלמה ורינדור |
 | `main.js` | אתחול ולולאה ראשית |
+
+## לוח תוצאות משותף (Firebase)
+עד שממלאים את `js/config.js`, לוח התוצאות נשמר רק במכשיר. כדי שיהיה משותף לכולם:
+1. יוצרים פרויקט חינמי ב-console.firebase.google.com, ומוסיפים בו **Firestore Database**.
+2. בלשונית **Rules** של Firestore מדביקים את התוכן של `firestore.rules` ומפרסמים.
+3. ב-Project settings ← Your apps ← מוסיפים Web app, ומעתיקים את `apiKey` ואת `projectId` לקובץ `js/config.js`.

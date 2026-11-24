@@ -34,6 +34,7 @@
         <div class="hud-center">
           <div class="stage-chip" id="hud-stage">שלב 1</div>
           <div class="turn-chip" id="hud-turn">התור שלך!</div>
+          <div class="score-chip">ניקוד <b id="hud-score">0</b></div>
           <div class="wind" id="hud-wind">
             <span class="wind-label">רוח</span>
             <div class="wind-meter"><div class="wind-fill" id="wind-fill"></div><div class="wind-mid"></div></div>
@@ -87,6 +88,8 @@
       <div class="title-actions">
         <button class="btn btn-primary btn-huge" id="btn-play">בואו נשחק</button>
         <button class="btn btn-secondary hidden" id="btn-continue">המשך משלב <span id="continue-stage">2</span></button>
+        <button class="btn btn-secondary" id="btn-leaderboard">לוח תוצאות</button>
+        <div class="hello hidden" id="hello">שלום, <b id="hello-name"></b>!</div>
         <div class="record hidden" id="record">השיא שלך: שלב <b id="record-stage">1</b></div>
       </div>
       <div class="ios-tip hidden" id="ios-tip">למסך מלא באייפון: שיתוף ← ״הוסף למסך הבית״</div>
@@ -98,6 +101,28 @@
         <svg class="on" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
         <svg class="off" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
       </button>
+    </section>
+
+    <!-- ===================== NAME ===================== -->
+    <section id="screen-name" class="screen hidden">
+      <form class="panel small name-panel" id="name-form" autocomplete="off">
+        <h2 class="panel-title">איך קוראים לך?</h2>
+        <p class="panel-note">השם יופיע בלוח התוצאות</p>
+        <input id="name-input" class="name-input" type="text" maxlength="16" enterkeyhint="go" placeholder="השם שלך" aria-label="השם שלך">
+        <div class="form-error hidden" id="name-error">צריך לכתוב שם כדי להתחיל</div>
+        <button class="btn btn-primary btn-huge" type="submit">יאללה!</button>
+        <button class="btn btn-ghost" type="button" data-back="title">חזרה</button>
+      </form>
+    </section>
+
+    <!-- ===================== LEADERBOARD ===================== -->
+    <section id="screen-leaderboard" class="screen dim hidden">
+      <div class="panel lb-panel">
+        <h2 class="panel-title">לוח תוצאות</h2>
+        <div class="lb-status" id="lb-status">טוען...</div>
+        <ol class="lb-list" id="lb-list"></ol>
+        <button class="btn btn-ghost" id="btn-lb-back">חזרה</button>
+      </div>
     </section>
 
     <!-- ===================== DIFFICULTY ===================== -->
@@ -150,8 +175,12 @@
         <div class="result-title">ניצחת!</div>
         <div class="result-sub" id="win-sub">עברת את שלב 1</div>
         <div class="stars-row" id="win-stars"><i></i><i></i><i></i></div>
+        <div class="points-line" id="win-points"></div>
         <button class="btn btn-primary btn-huge" id="btn-next">לשלב הבא</button>
-        <button class="btn btn-ghost" id="btn-win-home">לתפריט הראשי</button>
+        <div class="btn-row">
+          <button class="btn btn-ghost" id="btn-win-lb">לוח תוצאות</button>
+          <button class="btn btn-ghost" id="btn-win-home">לתפריט הראשי</button>
+        </div>
       </div>
     </section>
 
@@ -160,8 +189,12 @@
       <div class="panel result-card lose">
         <div class="result-title">אוי, איזו חביתה!</div>
         <div class="result-sub" id="lose-sub">נפלת בשלב 1</div>
+        <div class="points-line" id="lose-points"></div>
         <button class="btn btn-primary btn-huge" id="btn-retry">ניסיון נוסף</button>
-        <button class="btn btn-ghost" id="btn-lose-home">לתפריט הראשי</button>
+        <div class="btn-row">
+          <button class="btn btn-ghost" id="btn-lose-lb">לוח תוצאות</button>
+          <button class="btn btn-ghost" id="btn-lose-home">לתפריט הראשי</button>
+        </div>
       </div>
     </section>
 
@@ -170,8 +203,12 @@
       <div class="panel result-card win">
         <div class="result-title">אלופים!</div>
         <div class="result-sub">ניצחת בכל 8 השלבים – אין עליך בזירה!</div>
+        <div class="points-line" id="final-points"></div>
         <button class="btn btn-primary btn-huge" id="btn-final-again">שחקו שוב</button>
-        <button class="btn btn-ghost" id="btn-final-home">לתפריט הראשי</button>
+        <div class="btn-row">
+          <button class="btn btn-ghost" id="btn-final-lb">לוח תוצאות</button>
+          <button class="btn btn-ghost" id="btn-final-home">לתפריט הראשי</button>
+        </div>
       </div>
     </section>
 
@@ -190,6 +227,8 @@
   <script src="js/background.js"></script>
   <script src="js/particles.js"></script>
   <script src="js/ai.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/leaderboard.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/game.js"></script>
   <script src="js/main.js"></script>

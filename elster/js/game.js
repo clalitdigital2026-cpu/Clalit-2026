@@ -9,6 +9,8 @@
   const PREVIEW_T = { easy: 1.5, medium: 0.42, hard: 0 };
   const DAMAGE = { head: 35, body: 20 };
   const MAX_STAGE = 8;
+  const POINTS = { body: 10, head: 25, win: 100 };
+  const MULT = { easy: 1, medium: 1.5, hard: 2 };
   const GENDER = { roni: 'f', shiri: 'f', yair: 'm', adi: 'f' };
 
   class Game {
@@ -133,6 +135,8 @@
       this.progress.lastChar = playerId;
       this.progress.lastDiff = diff;
       this.saveProgress();
+      this.playerName = this.playerName || U.store.get('playerName', '') || 'שחקן';
+      this.runScore = 0;
       this.startStage(stage || 1);
     }
 
@@ -167,9 +171,11 @@
       this.ai = new ELSTER.AIBrain(this.difficulty);
       this.wind = 0;
       this.shotsFired = 0;
+      this.stageStartScore = this.runScore || 0;
       UI.hideScreens();
       UI.showHud(true);
       UI.setupHud(player, enemy, n);
+      UI.setScore(this.runScore || 0);
       UI.setWind(0, level.windMax);
       UI.setTurn('מתכוננים...', null);
       UI.setPower(false);
@@ -427,6 +433,7 @@
         if (this.mode === 'game') {
           this.particles.text(ch.pos.x, ch.pos.y - 140, '-' + dmg, { col: head ? '#ff5d7a' : '#ffd166', size: head ? 46 : 38, sub: head ? 'בול בראש!' : 'פגיעה!' });
           UI.setHP(ch === this.player ? 'player' : 'enemy', ch.hp);
+          if (shooter === this.player && ch === this.enemy) this.addPoints(POINTS[ev.part]);
         }
         this.cam.shake = head ? 16 : 10;
         A.hit(head);
@@ -485,6 +492,20 @@
       }
     }
 
+    addPoints(base) {
+      const pts = Math.round(base * (MULT[this.difficulty] || 1));
+      this.runScore = (this.runScore || 0) + pts;
+      UI.setScore(this.runScore);
+      return pts;
+    }
+
+    submitScore() {
+      if (!this.runScore) return;
+      ELSTER.Leaderboard.submit({
+        name: this.playerName, score: this.runScore, stage: this.stage, diff: this.difficulty, char: this.playerId,
+      });
+    }
+
     endStage(winner) {
       const loser = this.other(winner);
       this.state = 'ending';
@@ -510,6 +531,10 @@
       });
       this.after(3.3, () => {
         if (winner === this.player) {
+          this.addPoints(POINTS.win + this.player.hp);
+          const gained = this.runScore - this.stageStartScore;
+          ['win-points', 'final-points'].forEach((id) => UI.setPoints(id, gained, this.runScore));
+          this.submitScore();
           A.win();
           this.particles.burstConfetti(this.vw, this.vh);
           this.after(1.2, () => this.particles.burstConfetti(this.vw, this.vh));
@@ -520,6 +545,9 @@
           if (this.stage >= MAX_STAGE) UI.overlay('final', true);
           else UI.showWin(this.stage, this.player.hp);
         } else {
+          UI.setPoints('lose-points', this.runScore - this.stageStartScore, this.runScore);
+          this.submitScore();
+          this.runScore = this.stageStartScore; // a retry replays the stage from its starting score
           A.lose();
           const verb = GENDER[winner.id] === 'f' ? 'ניצחה' : 'ניצח';
           UI.showLose(this.stage, winner.name + ' ' + verb);

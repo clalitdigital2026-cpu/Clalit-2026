@@ -280,3 +280,47 @@ button { font-family: var(--font); cursor: pointer; border: none; touch-action: 
   .hud-side { flex-basis: 220px; }
   .you-tag, .cpu-tag { display: none; }
 }
+
+/* ---------------- name entry ---------------- */
+.name-panel { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.panel-note { margin: -4px 0 4px; font-weight: 700; font-size: 15px; opacity: .75; }
+.name-input {
+  width: min(320px, 80vw); font-family: var(--font); font-size: clamp(20px, 3vh, 26px); font-weight: 800; text-align: center;
+  padding: 10px 14px; border: 4px solid var(--ink); border-radius: 16px; background: #fff; color: var(--ink);
+  box-shadow: inset 0 4px 0 rgba(0,0,0,0.08); user-select: text; -webkit-user-select: text; outline: none;
+}
+.name-input:focus { box-shadow: inset 0 4px 0 rgba(0,0,0,0.08), 0 0 0 4px #ffd166; }
+.form-error { color: #c1121f; font-weight: 800; font-size: 15px; }
+.name-panel .btn { margin-top: 2px; }
+.hello { margin-top: 8px; font-weight: 800; color: #fff; background: rgba(42,27,38,0.7); border-radius: 999px; padding: 4px 14px; font-size: 16px; display: flex; gap: 6px; align-items: center; }
+.link-btn { background: none; color: #ffd166; font-weight: 800; font-size: 14px; text-decoration: underline; padding: 0 2px; }
+.title-actions .btn-secondary { margin-top: 10px; }
+
+/* ---------------- score ---------------- */
+.score-chip { font-weight: 900; font-size: 14px; background: #fff6e0; border: 3px solid var(--ink); border-radius: 999px; padding: 1px 12px; box-shadow: 0 3px 0 var(--ink); }
+.score-chip b { font-family: var(--pixel); font-size: 11px; }
+.points-line { font-weight: 900; font-size: clamp(16px, 2.6vh, 22px); color: var(--purple); margin: 2px 0 4px; }
+.points-line:empty { display: none; }
+.btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn-row .btn { margin-left: 0; margin-right: 0; min-width: 150px; }
+
+/* ---------------- leaderboard ---------------- */
+.lb-panel { width: min(560px, 94vw); display: flex; flex-direction: column; align-items: stretch; }
+.lb-status { font-weight: 700; font-size: 14px; opacity: .75; margin-bottom: 8px; }
+.lb-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; max-height: 52vh; text-align: right; }
+.lb-row { display: grid; grid-template-columns: 40px 1fr auto auto; align-items: center; gap: 10px; background: #fff; border: 3px solid var(--ink); border-radius: 14px; padding: 6px 10px; font-weight: 800; }
+.lb-row.me { background: #fff1b8; box-shadow: 0 0 0 3px #ffd166; }
+.lb-rank { font-family: var(--pixel); font-size: 13px; text-align: center; }
+.lb-row:nth-child(1) .lb-rank { color: #d4a000; font-size: 18px; }
+.lb-row:nth-child(2) .lb-rank { color: #8a8f99; font-size: 16px; }
+.lb-row:nth-child(3) .lb-rank { color: #b5651d; font-size: 15px; }
+.lb-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 17px; }
+.lb-meta { font-size: 12px; font-weight: 700; opacity: .65; white-space: nowrap; }
+.lb-score { font-family: var(--pixel); font-size: 13px; color: var(--purple); }
+.lb-empty { text-align: center; font-weight: 800; padding: 16px; opacity: .7; }
+@media (max-height: 520px) {
+  .lb-list { max-height: 48vh; }
+  .lb-row { padding: 3px 8px; }
+  .name-input { padding: 6px 10px; }
+  .panel-note { display: none; }
+}
