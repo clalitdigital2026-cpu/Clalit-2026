@@ -779,9 +779,11 @@
     const rnd = U.rng(seed);
     const dist = opts.boss ? 1150 + (s - 1) * 25 : Math.round(U.clamp(1050 + (s - 1) * 185, 1050, 2900));
     const margin = 640;
-    const W = dist + margin * 2;
+    // boss fights frame the player left of the corner buttons, so the ground continues further right
+    const marginR = opts.boss ? 1700 : margin;
+    const W = dist + margin + marginR;
     const H = 1200;
-    const xL = margin, xR = W - margin;
+    const xL = margin, xR = W - marginR;
     const hdiff = opts.boss ? rnd.range(-40, 40) : (s - 1) * 38 * rnd.range(0.7, 1.15) * rnd.sign();
     const yR = 840 + rnd.range(-30, 30);
     const yL = U.clamp(yR + hdiff, 560, 960);

@@ -84,14 +84,8 @@
     UI.setPower(false);
     UI.hint(false);
     // a fixed camera that frames both fighters
-    const left = this.bossZone[0] - 170, right = player.pos.x + 380;
-    this.bossFit = { w: right - left, h: 760 };
-    this.updateScale();
-    const ground = (player.pos.y + boss.pos.y) / 2;
-    this.cam.x = this.cam.tx = (left + right) / 2;
-    this.cam.y = this.cam.ty = ground - (this.vh / this.cam.scale) * 0.24;
-    this.cam.free = true;
-    this.clampCam();
+    this.bossFit = { h: 760 };
+    this.fitBossCamera();
     // dramatic entrance
     boss.pos.y = this.bossGround - 900;
     this.state = 'bossIntro';
@@ -108,6 +102,23 @@
       this.updateWeaponUI();
       this.updateMomUI();
     });
+  };
+
+  /** frame the boss and the player, keeping the player left of the corner buttons
+      with a full slingshot pull of free space to their right */
+  G.fitBossCamera = function () {
+    const pl = this.player, vw = this.vw, vh = this.vh;
+    const small = vh < 520;
+    const buttons = small ? 175 : 205; // weapon + mom buttons in the bottom-right corner
+    const playerSX = vw - buttons - this.maxDrag() - 24; // where the player stands on screen
+    const left = this.bossZone[0] - 170; // left edge of the view in the world
+    const span = Math.max(200, pl.pos.x - left);
+    this.cam.scale = Math.min(vh / this.bossFit.h, (playerSX - 10) / span);
+    const s = this.cam.scale;
+    this.cam.x = this.cam.tx = pl.pos.x - (playerSX - vw / 2) / s;
+    const ground = (pl.pos.y + this.bossGround) / 2;
+    this.cam.y = this.cam.ty = ground - (vh / s) * 0.24;
+    this.cam.free = true;
   };
 
   G.bossFire = function (shooter, dir, power, anchor) {

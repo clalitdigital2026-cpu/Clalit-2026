@@ -60,9 +60,9 @@
       const small = this.vh < 520;
       const viewH = this.mode === 'menu' ? 640 : small ? 540 : 700;
       this.cam.scale = Math.min(this.vh / viewH, this.vw / (small ? 760 : 1080));
-      if (this.bossFit && this.mode === 'game') {
-        // boss fights keep both fighters on screen
-        this.cam.scale = Math.min(this.vh / this.bossFit.h, this.vw / this.bossFit.w);
+      if (this.bossFit && this.mode === 'game' && this.bossMode && this.fitBossCamera) {
+        // boss fights keep both fighters on screen and the player clear of the corner buttons
+        this.fitBossCamera();
       }
     }
 

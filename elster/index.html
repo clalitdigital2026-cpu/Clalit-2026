@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=21">
+  <link rel="stylesheet" href="css/style.css?v=22">
 </head>
 <body>
   <div id="app">
@@ -38,17 +38,6 @@
             <span class="wind-label">רוח</span>
             <div class="wind-meter"><div class="wind-fill" id="wind-fill"></div><div class="wind-mid"></div></div>
             <svg class="wind-arrow" id="wind-arrow" viewBox="0 0 24 24"><path d="M3 12h14M12 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="powerups" id="powerups">
-      <button class="mom-btn hidden" id="btn-mom" aria-label="קרא לאמא רוחי">
-        <canvas id="mom-icon" width="104" height="104"></canvas>
-        <span class="mom-label">קרא לאמא רוחי</span>
-      </button>
-      <button class="weapon-btn hidden" id="btn-weapon" aria-label="נשק סודי">
-        <span class="weapon-tag">נשק סודי</span>
-        <canvas id="weapon-icon" width="104" height="104"></canvas>
-        <span class="weapon-label" id="weapon-label">גיטרה</span>
-      </button>
           </div>
         </div>
         <div class="hud-side enemy" id="hud-enemy">
@@ -82,6 +71,18 @@
 
 
 
+      <div class="powerups" id="powerups">
+      <button class="mom-btn hidden" id="btn-mom" aria-label="קרא לאמא רוחי">
+        <canvas id="mom-icon" width="104" height="104"></canvas>
+        <span class="mom-label">קרא לאמא רוחי</span>
+      </button>
+      <button class="weapon-btn hidden" id="btn-weapon" aria-label="נשק סודי">
+        <span class="weapon-tag">נשק סודי</span>
+        <canvas id="weapon-icon" width="104" height="104"></canvas>
+        <span class="weapon-label" id="weapon-label">גיטרה</span>
+      </button>
+      </div>
+
       <div id="power" class="hidden">
         <div class="power-row"><span>עוצמה</span><b id="power-val">0%</b><span class="sep">|</span><span>זווית</span><b id="angle-val">0°</b></div>
         <div class="power-bar"><div class="power-fill" id="power-fill"></div><div class="power-ticks"></div></div>
@@ -104,7 +105,7 @@
         <div class="hello hidden" id="hello">שלום, <b id="hello-name"></b>!</div>
         <div class="record hidden" id="record">השיא שלך: שלב <b id="record-stage">1</b></div>
       </div>
-      <div class="version-tag">גרסה 21</div>
+      <div class="version-tag">גרסה 22</div>
       <div class="ios-tip hidden" id="ios-tip">למסך מלא באייפון: שיתוף ← ״הוסף למסך הבית״</div>
       <button class="icon-btn corner2 fs-btn" id="btn-fs-title" title="מסך מלא" aria-label="מסך מלא">
           <svg class="fs-on" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -237,20 +238,20 @@
     <div id="fade"></div>
   </div>
 
-  <script src="js/utils.js?v=21"></script>
-  <script src="js/audio.js?v=21"></script>
-  <script src="js/physics.js?v=21"></script>
-  <script src="js/characters.js?v=21"></script>
-  <script src="js/weapons.js?v=21"></script>
-  <script src="js/levels.js?v=21"></script>
-  <script src="js/background.js?v=21"></script>
-  <script src="js/particles.js?v=21"></script>
-  <script src="js/ai.js?v=21"></script>
-  <script src="js/config.js?v=21"></script>
-  <script src="js/leaderboard.js?v=21"></script>
-  <script src="js/ui.js?v=21"></script>
-  <script src="js/game.js?v=21"></script>
-  <script src="js/boss.js?v=21"></script>
-  <script src="js/main.js?v=21"></script>
+  <script src="js/utils.js?v=22"></script>
+  <script src="js/audio.js?v=22"></script>
+  <script src="js/physics.js?v=22"></script>
+  <script src="js/characters.js?v=22"></script>
+  <script src="js/weapons.js?v=22"></script>
+  <script src="js/levels.js?v=22"></script>
+  <script src="js/background.js?v=22"></script>
+  <script src="js/particles.js?v=22"></script>
+  <script src="js/ai.js?v=22"></script>
+  <script src="js/config.js?v=22"></script>
+  <script src="js/leaderboard.js?v=22"></script>
+  <script src="js/ui.js?v=22"></script>
+  <script src="js/game.js?v=22"></script>
+  <script src="js/boss.js?v=22"></script>
+  <script src="js/main.js?v=22"></script>
 </body>
 </html>
