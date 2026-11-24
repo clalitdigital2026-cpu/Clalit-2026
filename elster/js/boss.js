@@ -81,7 +81,7 @@
     UI.setPower(false);
     UI.hint(false);
     // a fixed camera that frames both fighters
-    const left = this.bossZone[0] - 170, right = player.pos.x + 160;
+    const left = this.bossZone[0] - 170, right = player.pos.x + 380;
     this.bossFit = { w: right - left, h: 760 };
     this.updateScale();
     const ground = (player.pos.y + boss.pos.y) / 2;
@@ -336,7 +336,7 @@
     this.submitScore();
     this.after(1.0, () => {
       pl.setPose('victory');
-      UI.banner('חיסלת את אבא גולי!', '+' + KILL_BONUS + ' נקודות', true);
+      UI.banner('ניצחת את אבא גולי!', '+' + KILL_BONUS + ' נקודות', true);
     });
     this.after(2.15, () => {
       for (let i = 0; i < 3; i++) this.particles.poof(boss.pos.x + (i - 1) * 60, boss.pos.y - 100 - i * 60);

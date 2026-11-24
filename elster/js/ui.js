@@ -372,8 +372,8 @@
 
     showWin(stage, hpLeft, mode) {
       const boss = mode === 'boss';
-      $('win-title').textContent = boss ? 'חיסלת את אבא גולי!' : 'ניצחת!';
-      $('win-sub').textContent = boss ? 'הבוס הובס! כולל בונוס חיסול של 100' : `עברת את שלב ${stage}! עכשיו – הבוס`;
+      $('win-title').textContent = boss ? 'ניצחת את אבא גולי!' : 'ניצחת!';
+      $('win-sub').textContent = boss ? 'כולל בונוס ניצחון של 100 נקודות' : `עברת את שלב ${stage}! עכשיו – הבוס`;
       $('btn-next').textContent = boss ? 'לשלב הבא' : 'לקרב הבוס!';
       const stars = hpLeft >= 80 ? 3 : hpLeft >= 40 ? 2 : 1;
       document.querySelectorAll('#win-stars i').forEach((s, i) => s.classList.toggle('off', i >= stars));
