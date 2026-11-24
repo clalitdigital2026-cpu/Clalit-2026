@@ -777,7 +777,7 @@
     const loop = Math.floor((stage - 1) / THEMES.length);
     const s = Math.min(12, stage + loop * 2); // effective difficulty
     const rnd = U.rng(seed);
-    const dist = opts.boss ? 1150 + (s - 1) * 25 : Math.round(U.clamp(1050 + (s - 1) * 185, 1050, 2900));
+    const dist = opts.boss ? 760 + (s - 1) * 15 : Math.round(U.clamp(1050 + (s - 1) * 185, 1050, 2900));
     const margin = 640;
     // boss fights frame the player left of the corner buttons, so the ground continues further right
     const marginR = opts.boss ? 1700 : margin;

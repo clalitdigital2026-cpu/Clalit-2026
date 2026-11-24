@@ -59,14 +59,14 @@
     this.gushes = [];
     // tougher, faster and angrier every stage
     const dm = { easy: 0.75, medium: 1, hard: 1.3 }[this.difficulty] || 1;
-    this.bossMax = Math.round((80 + n * 11) * dm); // toughness grows a little; the real challenge is the firing
+    this.bossMax = Math.round((85 + n * 19) * dm); // toughness grows a little; the real challenge is the firing
     this.bossHp = this.bossMax;
     this.bossSpeed = (40 + n * 14) * (0.8 + 0.2 * dm);
-    this.bossInterval = Math.max(1.2, 2.4 - n * 0.15) / dm;
+    this.bossInterval = Math.max(1.05, 2.3 - n * 0.16) / dm;
     // more fire every stage: single shots, then double, then triple volleys
     this.bossVolley = n <= 2 ? 1 : n <= 5 ? 2 : 3;
-    this.bossAimErr = Math.max(0.05, 0.14 - n * 0.008);
-    this.bossZone = [level.spawns.left.x - 240, level.spawns.left.x + 240];
+    this.bossAimErr = Math.max(0.035, 0.12 - n * 0.009);
+    this.bossZone = [level.spawns.left.x - 170, level.spawns.left.x + 170];
     this.bossDir = 1;
     this.bossThrowIn = 2.2;
     this.bossGround = boss.pos.y;
@@ -84,7 +84,7 @@
     UI.setPower(false);
     UI.hint(false);
     // a fixed camera that frames both fighters
-    this.bossFit = { h: 760 };
+    this.bossFit = { h: 640 };
     this.fitBossCamera();
     // dramatic entrance
     boss.pos.y = this.bossGround - 900;
@@ -111,7 +111,7 @@
     const small = vh < 520;
     const buttons = small ? 175 : 205; // weapon + mom buttons in the bottom-right corner
     const playerSX = vw - buttons - this.maxDrag() - 24; // where the player stands on screen
-    const left = this.bossZone[0] - 170; // left edge of the view in the world
+    const left = this.bossZone[0] - 120; // left edge of the view in the world
     const span = Math.max(200, pl.pos.x - left);
     this.cam.scale = Math.min(vh / this.bossFit.h, (playerSX - 10) / span);
     const s = this.cam.scale;
