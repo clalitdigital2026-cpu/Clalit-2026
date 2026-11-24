@@ -157,7 +157,7 @@
       $('name-player').textContent = player.name;
       $('name-enemy').textContent = enemy.name;
       this.hudChars.player = new ELSTER.Character(player.id);
-      this.hudChars.enemy = new ELSTER.Character(enemy.id);
+      this.hudChars.enemy = new ELSTER.Character(enemy.id, { def: enemy.def });
       this.hudSrc = { player, enemy };
       this.setStage(stage);
       this.setHP('player', 100, true);
@@ -261,7 +261,9 @@
     },
     setWeaponMini(side, kind, ready) {
       const c = $('wmini-' + side);
-      if (!c || !kind) return;
+      if (!c) return;
+      c.style.visibility = kind ? '' : 'hidden';
+      if (!kind) return;
       ELSTER.drawWeaponIcon(c, kind, !ready);
       c.title = ELSTER.WEAPONS[kind].name + (ready ? '' : ' (נוצל)');
     },
@@ -368,8 +370,11 @@
       $('music-state').textContent = on ? 'פועלת' : 'כבויה';
     },
 
-    showWin(stage, hpLeft) {
-      $('win-sub').textContent = `עברת את שלב ${stage}!`;
+    showWin(stage, hpLeft, mode) {
+      const boss = mode === 'boss';
+      $('win-title').textContent = boss ? 'חיסלת את אבא גולי!' : 'ניצחת!';
+      $('win-sub').textContent = boss ? 'הבוס הובס! כולל בונוס חיסול של 100' : `עברת את שלב ${stage}! עכשיו – הבוס`;
+      $('btn-next').textContent = boss ? 'לשלב הבא' : 'לקרב הבוס!';
       const stars = hpLeft >= 80 ? 3 : hpLeft >= 40 ? 2 : 1;
       document.querySelectorAll('#win-stars i').forEach((s, i) => s.classList.toggle('off', i >= stars));
       this.overlay('win', true);

@@ -94,11 +94,11 @@
     next() {
       UI.overlay('win', false);
       A.stage();
-      transition(() => game.startStage(game.stage + 1));
+      transition(() => game.nextFromWin());
     },
     retry() {
       UI.overlay('lose', false);
-      transition(() => game.startStage(game.stage));
+      transition(() => game.retryLast());
     },
     again() {
       UI.overlay('final', false);

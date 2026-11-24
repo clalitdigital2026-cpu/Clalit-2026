@@ -60,6 +60,10 @@
       const small = this.vh < 520;
       const viewH = this.mode === 'menu' ? 640 : small ? 540 : 700;
       this.cam.scale = Math.min(this.vh / viewH, this.vw / (small ? 760 : 1080));
+      if (this.bossFit && this.mode === 'game') {
+        // boss fights keep both fighters on screen
+        this.cam.scale = Math.min(this.vh / this.bossFit.h, this.vw / this.bossFit.w);
+      }
     }
 
     after(sec, fn) {
@@ -77,6 +81,11 @@
     startMenu() {
       this.mode = 'menu';
       this.menuAim = null;
+      this.bossMode = false;
+      this.bossFit = null;
+      this.fireballs = [];
+      this.bossEggs = [];
+      A._tempo = 138;
       this.state = 'menu';
       this.clearTimers();
       this.paused = false;
@@ -156,6 +165,12 @@
     startStage(n) {
       this.mode = 'game';
       this.menuAim = null; // a title-screen shot may have been mid-aim
+      this.bossMode = false;
+      this.bossFit = null;
+      this.fireballs = [];
+      this.bossEggs = [];
+      this.lastResult = null;
+      A._tempo = 138;
       this.updateScale();
       this.clearTimers();
       this.paused = false;
@@ -316,7 +331,7 @@
       A.init();
       if (this.mode !== 'game' || this.paused || this.pointer) return;
       const pl = this.player;
-      if (this.state === 'aim' && this.turn === 'player') {
+      if ((this.state === 'aim' && this.turn === 'player') || (this.state === 'boss' && pl.loaded)) {
         const a = pl.restAnchor;
         const sp = this.toScreen(a.x, a.y);
         const d = Math.hypot(e.clientX - sp.x, e.clientY - sp.y);
@@ -363,7 +378,7 @@
         const pl = this.player;
         A.stretchStop();
         UI.setPower(false);
-        if (!cancel && pl.aim && pl.aim.power >= P.MIN_POWER && this.state === 'aim') {
+        if (!cancel && pl.aim && pl.aim.power >= P.MIN_POWER && (this.state === 'aim' || this.state === 'boss')) {
           this.fire(pl, pl.aim.dir, pl.aim.power, pl.aim.anchor);
         } else {
           pl.aim = null;
@@ -409,6 +424,7 @@
     // ------------------------------------------------------------ shooting
     fire(shooter, dir, power, anchor) {
       anchor = anchor || [shooter.restAnchor.x, shooter.restAnchor.y];
+      if (this.bossMode && this.state === 'boss') return this.bossFire(shooter, dir, power, anchor);
       const v = P.launchVelocity(dir[0], dir[1], power);
       const weapon = shooter.armed && shooter.weapon ? shooter.weapon : null;
       this.egg = P.makeEgg(anchor[0], anchor[1], v.vx, v.vy, weapon ? ELSTER.WEAPONS[weapon].hitR : undefined);
@@ -630,7 +646,8 @@
     // ------------------------------------------------------------ secret weapons
     toggleWeapon() {
       const pl = this.player;
-      if (this.mode !== 'game' || this.paused || this.state !== 'aim' || this.turn !== 'player') return;
+      if (this.mode !== 'game' || this.paused) return;
+      if (!((this.state === 'aim' && this.turn === 'player') || this.state === 'boss')) return;
       if (!pl || !pl.weaponReady || !pl.weapon || (this.pointer && this.pointer.mode === 'aim')) return;
       pl.armed = !pl.armed;
       if (pl.armed) {
@@ -656,10 +673,11 @@
       if (this.mode !== 'game' || !this.player) return;
       const pl = this.player, en = this.enemy;
       UI.setWeaponMini('player', pl.weapon, pl.weaponReady);
-      UI.setWeaponMini('enemy', en.weapon, en.weaponReady);
+      if (en.weapon) UI.setWeaponMini('enemy', en.weapon, en.weaponReady);
+      else UI.setWeaponMini('enemy', null);
       UI.setWeaponButton({
         kind: pl.weapon, ready: pl.weaponReady, armed: pl.armed,
-        enabled: this.state === 'aim' && this.turn === 'player' && pl.weaponReady,
+        enabled: ((this.state === 'aim' && this.turn === 'player') || this.state === 'boss') && pl.weaponReady,
       });
     }
 
@@ -737,12 +755,14 @@
           this.progress.highest = Math.max(this.progress.highest || 1, next);
           this.progress.best = Math.max(this.progress.best || 0, this.stage);
           this.saveProgress();
-          if (this.stage >= MAX_STAGE) UI.overlay('final', true);
-          else UI.showWin(this.stage, this.player.hp);
+          // every stage win leads to a boss fight
+          this.lastResult = 'stage';
+          UI.showWin(this.stage, this.player.hp, 'stage');
         } else {
           UI.setPoints('lose-points', this.runScore - this.stageStartScore, this.runScore);
           this.submitScore();
           this.runScore = this.stageStartScore; // a retry replays the stage from its starting score
+          this.lastResult = 'stageLose';
           A.lose();
           const verb = GENDER[winner.id] === 'f' ? 'ניצחה' : 'ניצח';
           UI.showLose(this.stage, winner.name + ' ' + verb);
@@ -835,6 +855,7 @@
       }
 
       if (this.egg) this.updateEgg(dt);
+      if (this.bossMode) this.updateBoss(dt);
       this.updateCamera(dt);
       UI.updateHudAvatars(dt);
     }
@@ -951,6 +972,7 @@
       }
       if (this.egg && this.egg.weapon) ELSTER.drawWeapon(ctx, this.egg.weapon, this.egg.x, this.egg.y, this.egg.rot, 1.15, this.time);
       else if (this.egg) ELSTER.drawEgg(ctx, this.egg.x, this.egg.y, this.egg.rot, 0.95);
+      if (this.bossMode) this.drawBossLayer(ctx);
       this.particles.draw(ctx);
       this.particles.drawTexts(ctx);
       ctx.restore();
@@ -1002,6 +1024,21 @@
 
     drawTurnMarker(ctx) {
       if (this.mode !== 'game') return;
+      if (this.state === 'boss') {
+        // show where to grab the egg whenever the slingshot is loaded
+        const pl = this.player;
+        if (!pl.loaded || (this.pointer && this.pointer.mode === 'aim')) return;
+        const a = pl.restAnchor;
+        const k = (this.time * 1.6) % 1;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, 16 + k * 22, 0, U.TAU);
+        ctx.lineWidth = 3.5 * (1 - k);
+        ctx.strokeStyle = `rgba(255,255,255,${0.9 * (1 - k)})`;
+        ctx.stroke();
+        ctx.restore();
+        return;
+      }
       if (!(this.state === 'aim' || this.state === 'aiThink')) return;
       const ch = this.shooter;
       if (!ch || (this.pointer && this.pointer.mode === 'aim')) return;

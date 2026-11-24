@@ -43,9 +43,20 @@
       iris: '#3b2416', brow: '#221813', browW: 3.6, lips: '#b8796b',
       top: '#1d1e23', topShade: '#111216', topHi: '#353741',
       pants: '#40506a', shoes: '#2e2e33', shoeTrim: '#d8d8d8',
-      sleeve: 'short', mouth: 'smirk', armW: 1.4, muscular: true,
+      sleeve: 'short', mouth: 'smirk', armW: 1.4, muscular: true, male: true,
       faceRx: 21, faceRy: 23, chin: 0.5, accent: '#4fc3f7',
     },
+  };
+  DEFS.gooli = {
+    id: 'gooli', name: 'אבא גולי', tagline: 'הבוס של הרוקנרול',
+    skin: '#d9a27c', skinShade: '#b9805c', blush: 0.1,
+    hair: '#26211e', hairHi: '#5e5853', hairMid: '#36302c', gray: '#bdb7b0',
+    iris: '#2e1d14', brow: '#1d1612', browW: 3.8, lips: '#b8796b',
+    top: '#1c1c22', topShade: '#0e0e12', topHi: '#3a3a46', shirt: '#c1121f', print: '#ffd166',
+    pants: '#22252e', shoes: '#141418', shoeTrim: '#8a8f99',
+    sleeve: 'long', mouth: 'grin', male: true, bags: true, stubble: true, glasses: '#1f3fd1',
+    rocker: true, noSling: true, studs: '#d8dde3',
+    faceRx: 21, faceRy: 24, chin: 0.55, accent: '#ff5d8f', scale: 3,
   };
   ELSTER.CHAR_DEFS = DEFS;
   ELSTER.CHAR_IDS = ['roni', 'shiri', 'yair', 'adi'];
@@ -313,7 +324,7 @@
   }
 
   function drawEye(ctx, d, x, y, type, look, side) {
-    const big = d.id !== 'yair';
+    const big = !d.male;
     const rx = big ? 4.9 : 4.4, ry = big ? 5.9 : 4.9;
     ctx.save();
     ctx.lineCap = 'round';
@@ -458,7 +469,7 @@
   function drawBrow(ctx, d, x, y, side, mode) {
     // inner point near center, outer point to the side
     let ix = x - side * 4.5, iy = y + 1, ox = x + side * 5.5, oy = y + 0.5;
-    let arch = d.id === 'yair' ? -1.2 : -3;
+    let arch = d.male ? -1.2 : -3;
     if (mode === 'angry' || mode === 'focus') { iy += mode === 'angry' ? 3 : 1.8; oy -= 1; arch = -0.5; }
     if (mode === 'worried') { iy -= 3; oy += 1.5; }
     if (mode === 'raised') { iy -= 3; oy -= 3; arch -= 1; }
@@ -469,7 +480,7 @@
     ctx.lineWidth = d.browW;
     ctx.strokeStyle = d.brow;
     ctx.stroke();
-    if (d.id === 'yair') {
+    if (d.male) {
       // bushier: a second offset stroke
       ctx.beginPath();
       ctx.moveTo(ix, iy + 1.2);
@@ -481,7 +492,7 @@
 
   function drawNose(ctx, d, x, y) {
     ctx.lineCap = 'round';
-    if (d.id === 'yair') {
+    if (d.male) {
       ctx.beginPath();
       ctx.moveTo(x + 0.5, y - 8);
       ctx.quadraticCurveTo(x + 3.2, y - 1, x + 2.6, y + 1.5);
@@ -515,7 +526,7 @@
     const lip = d.lips;
     switch (type) {
       case 'grin': {
-        const w = d.id === 'yair' ? 7 : 8.2;
+        const w = d.male ? 7 : 8.2;
         ctx.beginPath();
         ctx.moveTo(x - w, y - 1.5);
         ctx.quadraticCurveTo(x, y + 0.5, x + w, y - 1.5);
@@ -638,6 +649,46 @@
 
   // ------------------------------------------------------------------ hair & per-person details
   const HAIR = {
+    gooli: {
+      back(ctx, d) {
+        HAIR.yair.back(ctx, d);
+      },
+      front(ctx, d) {
+        HAIR.yair.front(ctx, d);
+        const y0 = HEAD_Y;
+        // messy tufts sticking up
+        [[-16, -26, -21, -36], [-8, -31, -10, -42], [1, -33, 2, -45], [10, -32, 14, -43], [18, -27, 25, -35]].forEach(([x, y, tx, ty], i) => {
+          ctx.beginPath();
+          ctx.moveTo(x - 5, y0 + y + 3);
+          ctx.quadraticCurveTo(x, y0 + y - 2, tx, y0 + ty);
+          ctx.quadraticCurveTo(x + 2, y0 + y - 1, x + 6, y0 + y + 3);
+          ctx.closePath();
+          ctx.fillStyle = i % 2 ? d.hairMid : d.hair;
+          ctx.fill();
+          ctx.lineWidth = 1.6;
+          ctx.strokeStyle = OUT;
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(x, y0 + y);
+          ctx.lineTo(tx - (tx - x) * 0.3, y0 + ty + 4);
+          ctx.lineWidth = 1.1;
+          ctx.strokeStyle = d.gray;
+          ctx.stroke();
+        });
+        // extra grey streaks
+        ctx.strokeStyle = U.rgba(d.gray, 0.9);
+        ctx.lineWidth = 1;
+        [[-12, -22, 0, -30], [-4, -20, 10, -27], [6, -19, 20, -22], [-18, -15, -8, -25]].forEach(([a, b, c, e]) => {
+          ctx.beginPath();
+          ctx.moveTo(a, y0 + b);
+          ctx.quadraticCurveTo((a + c) / 2, y0 + (b + e) / 2 - 3, c, y0 + e);
+          ctx.stroke();
+        });
+      },
+      face(ctx, d, fx) {
+        HAIR.yair.face(ctx, d, fx);
+      },
+    },
     adi: {
       back(ctx, d) {
         const y0 = HEAD_Y;
@@ -1012,7 +1063,7 @@
   }
 
   function drawTorso(ctx, d) {
-    const fem = d.id !== 'yair';
+    const fem = !d.male;
     const sw = d.muscular ? 23 : fem ? 17 : 19;
     const ww = d.muscular ? 14.5 : fem ? 13.5 : 16;
     ctx.beginPath();
@@ -1059,6 +1110,61 @@
       ctx.lineTo(0, -30);
       ctx.stroke();
     }
+    if (d.rocker) {
+      // band tee in the middle of the open jacket
+      ctx.beginPath();
+      ctx.moveTo(-7.5, -60);
+      ctx.lineTo(7.5, -60);
+      ctx.lineTo(9, -24);
+      ctx.lineTo(-9, -24);
+      ctx.closePath();
+      ctx.fillStyle = d.shirt;
+      ctx.fill();
+      // lightning-bolt print
+      ctx.beginPath();
+      ctx.moveTo(1.5, -52);
+      ctx.lineTo(-3.5, -42);
+      ctx.lineTo(0.5, -42);
+      ctx.lineTo(-2, -33);
+      ctx.lineTo(4, -45);
+      ctx.lineTo(0, -45);
+      ctx.closePath();
+      ctx.fillStyle = d.print;
+      ctx.fill();
+      // lapels
+      ctx.beginPath();
+      ctx.moveTo(-7.5, -60);
+      ctx.lineTo(-12, -46);
+      ctx.lineTo(-8.5, -24);
+      ctx.moveTo(7.5, -60);
+      ctx.lineTo(12, -46);
+      ctx.lineTo(8.5, -24);
+      ctx.lineWidth = 1.6;
+      ctx.strokeStyle = OUT;
+      ctx.stroke();
+      // studs on the shoulders
+      ctx.fillStyle = d.studs;
+      [[-15, -56], [-11, -57.5], [11, -57.5], [15, -56], [-16, -52], [16, -52]].forEach(([x, y]) => {
+        ctx.beginPath();
+        ctx.arc(x, y, 1.1, 0, U.TAU);
+        ctx.fill();
+      });
+      // belt + buckle
+      ctx.fillStyle = '#141418';
+      ctx.fillRect(-16, -27, 32, 4);
+      ctx.fillStyle = '#e9c46a';
+      ctx.fillRect(-2.5, -27.5, 5, 5);
+      if (d.chain) {
+        ctx.beginPath();
+        ctx.moveTo(4, -25);
+        ctx.quadraticCurveTo(10, -18, 15, -24);
+        ctx.setLineDash([1.5, 1.2]);
+        ctx.lineWidth = 1.4;
+        ctx.strokeStyle = d.chain;
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
     if (d.id === 'yair') {
       // subtle tee folds
       ctx.strokeStyle = 'rgba(255,255,255,0.08)';
@@ -1070,7 +1176,12 @@
     }
     ctx.restore();
     // neckline
-    if (d.id === 'yair') {
+    if (d.rocker) {
+      ctx.beginPath();
+      ctx.ellipse(0, -60, 6.5, 4, 0, 0, Math.PI);
+      ctx.fillStyle = d.skin;
+      ctx.fill();
+    } else if (d.id === 'yair') {
       ctx.beginPath();
       ctx.moveTo(-7.5, -60.5);
       ctx.lineTo(0, -47);
@@ -1166,10 +1277,44 @@
     const ey = HEAD_Y + 1;
     [-1, 1].forEach((s) => drawEye(ctx, d, fx + s * 8.8, ey, S.eyes, [S.lookX, S.lookY], s));
     // brows
-    [-1, 1].forEach((s) => drawBrow(ctx, d, fx + s * 9, HEAD_Y - 9 - (d.id === 'yair' ? -1.4 : 0), s, S.brow));
+    [-1, 1].forEach((s) => drawBrow(ctx, d, fx + s * 9, HEAD_Y - 9 - (d.male ? -1.4 : 0), s, S.brow));
     drawNose(ctx, d, fx + 0.5, HEAD_Y + 7);
     drawMouth(ctx, d, fx + 0.3, HEAD_Y + 13.5, S.mouth);
     H.front(ctx, d);
+    if (d.glasses) {
+      // rectangular blue frames
+      const gy = HEAD_Y + 1;
+      ctx.lineJoin = 'round';
+      [-1, 1].forEach((sd) => {
+        U.rr(ctx, fx + sd * 9 - 7.5, gy - 5.5, 15, 10.5, 2.2);
+        ctx.fillStyle = 'rgba(200,225,255,0.18)';
+        ctx.fill();
+        ctx.lineWidth = 3.4;
+        ctx.strokeStyle = OUT;
+        ctx.stroke();
+        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = d.glasses;
+        ctx.stroke();
+      });
+      ctx.beginPath();
+      ctx.moveTo(fx - 1.5, gy - 2);
+      ctx.lineTo(fx + 1.5, gy - 2);
+      ctx.moveTo(fx - 16.5, gy - 3);
+      ctx.lineTo(-d.faceRx - 0.5, gy - 4);
+      ctx.moveTo(fx + 16.5, gy - 3);
+      ctx.lineTo(d.faceRx + 0.5, gy - 4);
+      ctx.lineWidth = 2.2;
+      ctx.strokeStyle = d.glasses;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(fx - 13, gy - 3.5);
+      ctx.lineTo(fx - 10, gy - 4.5);
+      ctx.moveTo(fx + 5, gy - 3.5);
+      ctx.lineTo(fx + 8, gy - 4.5);
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+      ctx.stroke();
+    }
     if (H.earrings) H.earrings(ctx, d);
     // sweat drop (frustration)
     if (S.sweat) {
@@ -1190,7 +1335,7 @@
     constructor(id, opts) {
       opts = opts || {};
       this.id = id;
-      this.def = DEFS[id];
+      this.def = opts.def || DEFS[id];
       this.name = this.def.name;
       this.pos = { x: opts.x || 0, y: opts.y || 0 };
       this.facing = opts.facing || 1;
@@ -1268,7 +1413,7 @@
       this.recoil = Math.max(0, this.recoil - dt * 4);
       this.dispHp += (this.hp - this.dispHp) * Math.min(1, dt * 6);
       this.splats.forEach((s) => (s.a = Math.min(1, s.a + dt * 8)));
-      const transient = { shoot: 0.55, hit: 1.1, frustrated: 1.6, cheer: 1.2 };
+      const transient = { shoot: 0.55, hit: 1.1, frustrated: 1.6, cheer: 1.2, bossThrow: 0.75 };
       if (this.hitFx) transient.hit = 1.8;
       if (transient[this.pose] && this.poseT > transient[this.pose]) {
         if (this.pose === 'hit') this.hitFx = null;
@@ -1424,10 +1569,29 @@
           S.ox = pt < 0.35 ? Math.sin(pt * 40) * 2 : 0;
           break;
         }
+        case 'bossThrow': {
+          const k = U.clamp(pt / 0.75, 0, 1);
+          S.mode = 'free';
+          S.eyes = k < 0.5 ? 'squint' : 'wide';
+          S.brow = 'angry';
+          S.mouth = k < 0.5 ? 'grit' : 'bigO';
+          S.front = k < 0.5 ? [-4, -104] : [38, -68];
+          S.back = [-26, -42];
+          S.rot = k < 0.5 ? -0.08 : 0.08;
+          break;
+        }
         default: {
           // idle
           if (this.isActive) S.brow = 'normal';
         }
+      }
+      if (d.noSling && S.mode === 'sling') {
+        // the boss rocks out instead of holding a slingshot
+        S.mode = 'free';
+        S.front = [36, -86 + Math.sin(t * 5) * 6];
+        S.back = [-25, -42];
+        S.mouth = 'grin';
+        S.brow = 'angry';
       }
       if (this.blinkT > 0 && (S.eyes === 'open' || S.eyes === 'sad')) S.eyes = 'closed';
       return S;
@@ -1484,6 +1648,7 @@
         P = [A[0] - dir[0] * 2 - u[0] * -4, A[1] - dir[1] * 2 + 4];
       }
       const g = slingGeom(A, dir);
+      const sling = !d.noSling;
       const front = S.mode === 'sling' ? g.G : S.front;
       const back = S.mode === 'sling' ? (this.loaded || this.pose === 'aim' ? P : [P[0] - 6, P[1] + 8]) : S.back;
 
@@ -1524,15 +1689,29 @@
 
       // bands + egg + fork
       const stretch = power;
-      drawBand(ctx, g.T2, P, stretch);
-      if (this.loaded || this.pose === 'aim') {
+      if (sling) drawBand(ctx, g.T2, P, stretch);
+      if (sling && (this.loaded || this.pose === 'aim')) {
         drawPouch(ctx, P, dir);
         const es = this.loadT < 1 ? U.easeOutBack(this.loadT) : 1;
         if (this.armed && this.weapon) ELSTER.drawWeapon(ctx, this.weapon, P[0], P[1], Math.atan2(dir[1], dir[0]) + Math.PI / 2, 0.8 * es, this.t);
         else drawEgg(ctx, P[0], P[1], Math.atan2(dir[1], dir[0]) + Math.PI / 2, 0.92 * es);
       }
-      drawBand(ctx, g.T1, P, stretch);
-      drawFork(ctx, g);
+      if (sling) {
+        drawBand(ctx, g.T1, P, stretch);
+        drawFork(ctx, g);
+      } else if (this.fireCol && (this.pose === 'bossThrow' ? this.poseT < 0.375 : true)) {
+        // a fireball burning in the boss's hand
+        const fx = front[0], fy = front[1] - 8;
+        const fl = 1 + Math.sin(this.t * 25) * 0.12;
+        const gr = ctx.createRadialGradient(fx, fy, 1, fx, fy, 13 * fl);
+        gr.addColorStop(0, '#ffffff');
+        gr.addColorStop(0.35, this.fireCol);
+        gr.addColorStop(1, U.rgba(this.fireCol, 0));
+        ctx.fillStyle = gr;
+        ctx.beginPath();
+        ctx.arc(fx, fy, 13 * fl, 0, U.TAU);
+        ctx.fill();
+      }
       drawArm(ctx, d, d.muscular ? SH_F_M : SH_F, front, true);
       ctx.restore();
 

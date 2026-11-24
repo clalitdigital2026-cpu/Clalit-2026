@@ -306,6 +306,22 @@
       }
     },
 
+    // ---------- boss ----------
+    bossRoar() {
+      this.tone({ type: 'sawtooth', f0: 90, f1: 55, dur: 1.2, gain: 0.25, filter: 'lowpass', ff: 700, vib: 6, vibDepth: 8 });
+      this.noise({ f0: 900, f1: 200, dur: 1.0, gain: 0.3, filter: 'lowpass' });
+      // power chord
+      [40, 47, 52].forEach((m) => this.tone({ type: 'sawtooth', f0: mtof(m), dur: 1.4, gain: 0.07, delay: 0.15, filter: 'lowpass', ff: 1800 }));
+    },
+    fireball() {
+      this.noise({ f0: 600, f1: 2500, dur: 0.35, gain: 0.18, filter: 'bandpass', q: 1.2 });
+      this.tone({ type: 'sawtooth', f0: 120, f1: 220, dur: 0.3, gain: 0.06, filter: 'lowpass', ff: 600 });
+    },
+    fireHit() {
+      this.noise({ f0: 1500, f1: 150, dur: 0.4, gain: 0.3, filter: 'lowpass' });
+      this.tone({ type: 'sine', f0: 110, f1: 40, dur: 0.3, gain: 0.3 });
+    },
+
     // ---------- music sequencer ----------
     startMusic() {
       this._wantMusic = true;

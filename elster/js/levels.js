@@ -770,12 +770,12 @@
     const loop = Math.floor((stage - 1) / THEMES.length);
     const s = Math.min(12, stage + loop * 2); // effective difficulty
     const rnd = U.rng(seed);
-    const dist = Math.round(U.clamp(1050 + (s - 1) * 185, 1050, 2900));
+    const dist = opts.boss ? 1150 + (s - 1) * 25 : Math.round(U.clamp(1050 + (s - 1) * 185, 1050, 2900));
     const margin = 640;
     const W = dist + margin * 2;
     const H = 1200;
     const xL = margin, xR = W - margin;
-    const hdiff = (s - 1) * 38 * rnd.range(0.7, 1.15) * rnd.sign();
+    const hdiff = opts.boss ? rnd.range(-40, 40) : (s - 1) * 38 * rnd.range(0.7, 1.15) * rnd.sign();
     const yR = 840 + rnd.range(-30, 30);
     const yL = U.clamp(yR + hdiff, 560, 960);
     const terrain = new Terrain(W, H);
@@ -784,9 +784,9 @@
     let lavaY = null;
     const level = { theme, W, H, terrain, stage, seed, glows, s, dist };
 
-    if (theme.islands) {
+    if (theme.islands && !opts.boss) {
       buildIslands(level, rnd, xL, xR, yL, yR);
-    } else if (theme.city) {
+    } else if (theme.city && !opts.boss) {
       buildCity(level, rnd, xL, xR, yL, yR);
     } else {
       // ---------------- heightmap
@@ -794,10 +794,10 @@
       const n = Math.ceil(W / STEP) + 1;
       const hm = new Float32Array(n);
       const ridgeX = (xL + xR) / 2 + rnd.range(-0.12, 0.12) * dist;
-      const ridgeH = opts.menu ? 25 : 70 + s * 32 + rnd.range(0, 40);
+      const ridgeH = opts.menu ? 25 : opts.boss ? 40 + s * 6 : 70 + s * 32 + rnd.range(0, 40);
       const ridgeW = dist * rnd.range(0.16, 0.24);
       const bumps = [];
-      const nb = opts.menu ? 0 : 1 + Math.floor(s / 2);
+      const nb = opts.menu || opts.boss ? 0 : 1 + Math.floor(s / 2);
       for (let i = 0; i < nb; i++) {
         bumps.push({ x: rnd.range(xL + 200, xR - 200), h: rnd.range(-1, 1) * (40 + s * 14), w: rnd.range(80, 220) });
       }
@@ -829,8 +829,10 @@
       [[xL, yL], [xR, yR]].forEach(([sx, sy]) => {
         for (let i = 0; i < n; i++) {
           const dx = Math.abs(i * STEP - sx);
-          if (dx < 90) hm[i] = sy;
-          else if (dx < 230) hm[i] = U.lerp(sy, hm[i], U.smooth((dx - 90) / 140));
+          // the boss gets a wide stage on the left to walk around on
+          const flat = opts.boss && sx === xL ? 300 : 90;
+          if (dx < flat) hm[i] = sy;
+          else if (dx < flat + 140) hm[i] = U.lerp(sy, hm[i], U.smooth((dx - flat) / 140));
         }
       });
       for (let i = 0; i < n; i++) hm[i] = U.clamp(hm[i], 240, H - 70);
@@ -841,19 +843,20 @@
 
       // lava pools in the valleys
       if (theme.lava) {
+        const lx0 = xL + (opts.boss ? 460 : 200), lx1 = xR - 200;
         let maxY = 0;
         for (let i = 0; i < n; i++) {
           const x = i * STEP;
-          if (x > xL + 200 && x < xR - 200) maxY = Math.max(maxY, hm[i]);
+          if (x > lx0 && x < lx1) maxY = Math.max(maxY, hm[i]);
         }
         lavaY = maxY - 45;
-        paintLava(ctx, hm, STEP, xL + 200, xR - 200, lavaY);
+        paintLava(ctx, hm, STEP, lx0, lx1, lavaY);
         level.lavaY = lavaY;
-        level.lavaX = [xL + 200, xR - 200]; // lava only fills valleys between the spawns
+        level.lavaX = [lx0, lx1]; // lava only fills valleys between the spawns
       }
 
       // obstacles
-      const count = opts.menu ? 0 : Math.min(7, 1 + Math.floor(s * 0.7));
+      const count = opts.menu || opts.boss ? 0 : Math.min(7, 1 + Math.floor(s * 0.7));
       const placed = [];
       const zone0 = xL + 210, zone1 = xR - 210;
       for (let k = 0, tries = 0; k < count && tries < 200; tries++) {

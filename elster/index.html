@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=14">
+  <link rel="stylesheet" href="css/style.css?v=16">
 </head>
 <body>
   <div id="app">
@@ -97,7 +97,7 @@
         <div class="hello hidden" id="hello">שלום, <b id="hello-name"></b>!</div>
         <div class="record hidden" id="record">השיא שלך: שלב <b id="record-stage">1</b></div>
       </div>
-      <div class="version-tag">גרסה 14</div>
+      <div class="version-tag">גרסה 16</div>
       <div class="ios-tip hidden" id="ios-tip">למסך מלא באייפון: שיתוף ← ״הוסף למסך הבית״</div>
       <button class="icon-btn corner2 fs-btn" id="btn-fs-title" title="מסך מלא" aria-label="מסך מלא">
           <svg class="fs-on" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -183,7 +183,7 @@
     <!-- ===================== WIN ===================== -->
     <section id="screen-win" class="screen result hidden">
       <div class="panel result-card win">
-        <div class="result-title">ניצחת!</div>
+        <div class="result-title" id="win-title">ניצחת!</div>
         <div class="result-sub" id="win-sub">עברת את שלב 1</div>
         <div class="stars-row" id="win-stars"><i></i><i></i><i></i></div>
         <div class="points-line" id="win-points"></div>
@@ -230,19 +230,20 @@
     <div id="fade"></div>
   </div>
 
-  <script src="js/utils.js?v=14"></script>
-  <script src="js/audio.js?v=14"></script>
-  <script src="js/physics.js?v=14"></script>
-  <script src="js/characters.js?v=14"></script>
-  <script src="js/weapons.js?v=14"></script>
-  <script src="js/levels.js?v=14"></script>
-  <script src="js/background.js?v=14"></script>
-  <script src="js/particles.js?v=14"></script>
-  <script src="js/ai.js?v=14"></script>
-  <script src="js/config.js?v=14"></script>
-  <script src="js/leaderboard.js?v=14"></script>
-  <script src="js/ui.js?v=14"></script>
-  <script src="js/game.js?v=14"></script>
-  <script src="js/main.js?v=14"></script>
+  <script src="js/utils.js?v=16"></script>
+  <script src="js/audio.js?v=16"></script>
+  <script src="js/physics.js?v=16"></script>
+  <script src="js/characters.js?v=16"></script>
+  <script src="js/weapons.js?v=16"></script>
+  <script src="js/levels.js?v=16"></script>
+  <script src="js/background.js?v=16"></script>
+  <script src="js/particles.js?v=16"></script>
+  <script src="js/ai.js?v=16"></script>
+  <script src="js/config.js?v=16"></script>
+  <script src="js/leaderboard.js?v=16"></script>
+  <script src="js/ui.js?v=16"></script>
+  <script src="js/game.js?v=16"></script>
+  <script src="js/boss.js?v=16"></script>
+  <script src="js/main.js?v=16"></script>
 </body>
 </html>
