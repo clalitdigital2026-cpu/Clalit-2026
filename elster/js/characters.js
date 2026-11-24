@@ -63,7 +63,7 @@
     hair: '#1d1512', hairHi: '#4a3a33', hairMid: '#2a201c', gray: '#a8a29c',
     iris: '#3a2416', brow: '#1d1512', browW: 2.5, lips: '#c06a6a',
     top: '#1c1c22', topShade: '#0f0f13', topHi: '#34343e',
-    pants: '#2b2b33', shoes: '#f4f1ea', shoeTrim: '#e63946', skirt: '#3a4a7a',
+    pants: '#e3ab86', shoes: '#f4f1ea', shoeTrim: '#e63946', skirt: '#3a4a7a',
     sleeve: 'long', mouth: 'grin', lashes: true, noSling: true, bow: '#e63946',
     faceRx: 20, faceRy: 23, chin: 0.45, accent: '#e63946',
   };
@@ -1220,9 +1220,9 @@
     ctx.beginPath();
     ctx.moveTo(-13, -30);
     ctx.lineTo(13, -30);
-    ctx.quadraticCurveTo(18 + f, -16, 20 + f, -5);
-    ctx.quadraticCurveTo(0, -1, -20 - f * 0.3, -5);
-    ctx.quadraticCurveTo(-18, -16, -13, -30);
+    ctx.quadraticCurveTo(16 + f, -21, 18 + f, -15);
+    ctx.quadraticCurveTo(0, -11.5, -18 - f * 0.3, -15);
+    ctx.quadraticCurveTo(-16, -21, -13, -30);
     ctx.closePath();
     const g = ctx.createLinearGradient(-19, 0, 19, 0);
     g.addColorStop(0, U.shade(d.skirt, -0.25));
@@ -1232,7 +1232,7 @@
     ctx.beginPath();
     [-9, -3, 3, 9].forEach((x) => {
       ctx.moveTo(x * 0.75, -28);
-      ctx.lineTo(x * 1.3 + f * 0.2, -5);
+      ctx.lineTo(x * 1.2 + f * 0.2, -15);
     });
     ctx.lineWidth = 1.1;
     ctx.strokeStyle = U.rgba('#000000', 0.25);
@@ -1281,7 +1281,7 @@
     [-1, 1].forEach((s, i) => {
       const lx = s * 7 + (i ? kick : -kick) * 0.5;
       const lift = i ? Math.max(0, kick) : Math.max(0, -kick);
-      if (d.skirt) U.rr(ctx, lx - 4, -16, 8, 14 - lift, 3.5);
+      if (d.skirt) U.rr(ctx, lx - 4, -18, 8, 16 - lift, 3.5);
       else U.rr(ctx, lx - 5.2, -26, 10.4, 24 - lift, 4);
       outlineFill(ctx, d.pants, 2.2);
       // shoe
