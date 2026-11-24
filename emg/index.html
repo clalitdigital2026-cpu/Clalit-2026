@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1b1033">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>EMG – Retro Egg Battle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <canvas id="game" aria-label="זירת המשחק"></canvas>
+
+    <!-- ===================== HUD ===================== -->
+    <div id="hud" class="hidden">
+      <div class="hud-top">
+        <div class="hud-side" id="hud-player">
+          <canvas class="avatar" id="avatar-player" width="128" height="128"></canvas>
+          <div class="hud-info">
+            <div class="hud-name"><span id="name-player"></span><span class="you-tag">אני</span></div>
+            <div class="hpbar"><div class="hp-ghost" id="hpg-player"></div><div class="hp-fill" id="hp-player"></div><span class="hp-text" id="hpt-player">100</span></div>
+          </div>
+        </div>
+        <div class="hud-center">
+          <div class="stage-chip" id="hud-stage">שלב 1</div>
+          <div class="turn-chip" id="hud-turn">התור שלך!</div>
+          <div class="wind" id="hud-wind">
+            <span class="wind-label">רוח</span>
+            <div class="wind-meter"><div class="wind-fill" id="wind-fill"></div><div class="wind-mid"></div></div>
+            <svg class="wind-arrow" id="wind-arrow" viewBox="0 0 24 24"><path d="M3 12h14M12 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="hud-side enemy" id="hud-enemy">
+          <canvas class="avatar" id="avatar-enemy" width="128" height="128"></canvas>
+          <div class="hud-info">
+            <div class="hud-name"><span id="name-enemy"></span><span class="cpu-tag">מחשב</span></div>
+            <div class="hpbar"><div class="hp-ghost" id="hpg-enemy"></div><div class="hp-fill" id="hp-enemy"></div><span class="hp-text" id="hpt-enemy">100</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-buttons">
+        <button class="icon-btn big" id="btn-cam" title="מעבר בין הדמויות" aria-label="מעבר בין הדמויות">
+          <svg viewBox="0 0 24 24"><path d="M4 9h13l-4-4M20 15H7l4 4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-pause" title="השהיה" aria-label="השהיה">
+          <svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1.2" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1.2" fill="currentColor"/></svg>
+        </button>
+        <button class="icon-btn sound-btn" id="btn-sound" title="סאונד" aria-label="סאונד">
+          <svg class="on" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <svg class="off" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-home" title="לתפריט הראשי" aria-label="לתפריט הראשי">
+          <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5M6 10v9h4.5v-5h3v5H18v-9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <div id="power" class="hidden">
+        <div class="power-row"><span>עוצמה</span><b id="power-val">0%</b><span class="sep">|</span><span>זווית</span><b id="angle-val">0°</b></div>
+        <div class="power-bar"><div class="power-fill" id="power-fill"></div><div class="power-ticks"></div></div>
+      </div>
+      <div id="hint" class="hidden">לחצו על הביצה, משכו אחורה וכוונו – שחררו כדי לירות!</div>
+    </div>
+
+    <div id="banner" class="hidden"><div class="banner-main" id="banner-main"></div><div class="banner-sub" id="banner-sub"></div></div>
+
+    <!-- ===================== TITLE ===================== -->
+    <section id="screen-title" class="screen">
+      <div class="logo-wrap">
+        <h1 class="logo" aria-label="EMG"><span class="l l1">E</span><span class="l l2">M</span><span class="l l3">G</span></h1>
+        <div class="logo-sub">קרב ביצים רטרו</div>
+      </div>
+      <div class="title-actions">
+        <button class="btn btn-primary btn-huge" id="btn-play">בואו נשחק</button>
+        <button class="btn btn-secondary hidden" id="btn-continue">המשך משלב <span id="continue-stage">2</span></button>
+        <div class="record hidden" id="record">השיא שלך: שלב <b id="record-stage">1</b></div>
+      </div>
+      <button class="icon-btn corner sound-btn" id="btn-sound-title" aria-label="סאונד">
+        <svg class="on" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <svg class="off" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+    </section>
+
+    <!-- ===================== DIFFICULTY ===================== -->
+    <section id="screen-difficulty" class="screen hidden">
+      <div class="panel">
+        <h2 class="panel-title">בחרו רמת קושי</h2>
+        <div class="diff-list">
+          <button class="diff-btn easy" data-diff="easy">
+            <span class="diff-name">קל</span>
+            <span class="diff-desc">היריב מפספס הרבה · קו כיוון ארוך</span>
+            <span class="diff-eggs"><i></i></span>
+          </button>
+          <button class="diff-btn medium" data-diff="medium">
+            <span class="diff-name">בינוני</span>
+            <span class="diff-desc">היריב לומד מטעויות · קו כיוון קצר</span>
+            <span class="diff-eggs"><i></i><i></i></span>
+          </button>
+          <button class="diff-btn hard" data-diff="hard">
+            <span class="diff-name">קשה</span>
+            <span class="diff-desc">יריב חד ומדויק · בלי קו כיוון</span>
+            <span class="diff-eggs"><i></i><i></i><i></i></span>
+          </button>
+        </div>
+        <button class="btn btn-ghost" data-back="title">חזרה</button>
+      </div>
+    </section>
+
+    <!-- ===================== CHARACTER SELECT ===================== -->
+    <section id="screen-select" class="screen hidden">
+      <div class="panel wide">
+        <h2 class="panel-title">בחרו דמות</h2>
+        <div class="cards" id="cards"></div>
+        <button class="btn btn-ghost" data-back="difficulty">חזרה</button>
+      </div>
+    </section>
+
+    <!-- ===================== PAUSE ===================== -->
+    <section id="screen-pause" class="screen dim hidden">
+      <div class="panel small">
+        <h2 class="panel-title">הפסקה</h2>
+        <button class="btn btn-primary" id="btn-resume">המשך לשחק</button>
+        <button class="btn btn-secondary" id="btn-music">מוזיקה: <span id="music-state">פועלת</span></button>
+        <button class="btn btn-ghost" id="btn-pause-home">לתפריט הראשי</button>
+      </div>
+    </section>
+
+    <!-- ===================== WIN ===================== -->
+    <section id="screen-win" class="screen result hidden">
+      <div class="panel result-card win">
+        <div class="result-title">ניצחת!</div>
+        <div class="result-sub" id="win-sub">עברת את שלב 1</div>
+        <div class="stars-row" id="win-stars"><i></i><i></i><i></i></div>
+        <button class="btn btn-primary btn-huge" id="btn-next">לשלב הבא</button>
+        <button class="btn btn-ghost" id="btn-win-home">לתפריט הראשי</button>
+      </div>
+    </section>
+
+    <!-- ===================== LOSE ===================== -->
+    <section id="screen-lose" class="screen result hidden">
+      <div class="panel result-card lose">
+        <div class="result-title">אוי, איזו חביתה!</div>
+        <div class="result-sub" id="lose-sub">נפלת בשלב 1</div>
+        <button class="btn btn-primary btn-huge" id="btn-retry">ניסיון נוסף</button>
+        <button class="btn btn-ghost" id="btn-lose-home">לתפריט הראשי</button>
+      </div>
+    </section>
+
+    <!-- ===================== FINAL ===================== -->
+    <section id="screen-final" class="screen result hidden">
+      <div class="panel result-card win">
+        <div class="result-title">אלופים!</div>
+        <div class="result-sub">ניצחת בכל 8 השלבים – אין עליך בזירה!</div>
+        <button class="btn btn-primary btn-huge" id="btn-final-again">שחקו שוב</button>
+        <button class="btn btn-ghost" id="btn-final-home">לתפריט הראשי</button>
+      </div>
+    </section>
+
+    <div id="rotate" class="hidden">
+      <div class="rotate-phone"></div>
+      <div>סובבו את המכשיר לרוחב</div>
+    </div>
+    <div id="fade"></div>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/characters.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/background.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
