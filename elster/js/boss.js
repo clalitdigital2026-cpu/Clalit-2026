@@ -54,6 +54,9 @@
     this.fireballs = [];
     this.bossEggs = [];
     this.bossAcc = 0;
+    this.momUsed = false;
+    this.mom = null;
+    this.gushes = [];
     // tougher, faster and angrier every stage
     const dm = { easy: 0.75, medium: 1, hard: 1.3 }[this.difficulty] || 1;
     this.bossMax = Math.round((80 + n * 11) * dm); // toughness grows a little; the real challenge is the firing
@@ -103,6 +106,7 @@
       UI.setTurn('ירו מהר!', 'player');
       UI.banner('ירו מהר!', null, true);
       this.updateWeaponUI();
+      this.updateMomUI();
     });
   };
 
@@ -169,6 +173,7 @@
     }
     this.updateFireballs(dt);
     this.updateBossEggs(dt);
+    this.updateMom(dt);
   };
 
   G.spawnFireball = function (idx) {
@@ -322,6 +327,7 @@
   G.bossWin = function () {
     const boss = this.boss, pl = this.player;
     this.state = 'ending';
+    this.updateMomUI();
     this.stateT = 0;
     this.clearTimers();
     this.fireballs.length = 0;
@@ -362,6 +368,7 @@
   G.bossLose = function () {
     const boss = this.boss, pl = this.player;
     this.state = 'ending';
+    this.updateMomUI();
     this.stateT = 0;
     this.clearTimers();
     this.fireballs.length = 0;
@@ -391,6 +398,7 @@
   };
 
   G.drawBossLayer = function (ctx) {
+    this.drawGushes(ctx);
     this.bossEggs.forEach((egg) => {
       if (egg.weapon) ELSTER.drawWeapon(ctx, egg.weapon, egg.x, egg.y, egg.rot, 1.15, this.time);
       else ELSTER.drawEgg(ctx, egg.x, egg.y, egg.rot, 0.95);
@@ -418,5 +426,226 @@
   G.retryLast = function () {
     if (this.lastResult === 'bossLose') this.startBoss(this.stage);
     else this.startStage(this.stage);
+  };
+})();
+
+/* ---------------- "קרא לאמא": mom helps in boss fights ---------------- */
+(function () {
+  'use strict';
+  const U = ELSTER.U;
+  const P = ELSTER.Physics;
+  const A = ELSTER.Audio;
+  const UI = ELSTER.UI;
+  const G = ELSTER.Game.prototype;
+  const OUT = '#2a1b26';
+  const HELP_TIME = 7;
+
+  /** an illustrated triangular גושגידז׳ה pastry */
+  ELSTER.drawGush = function (ctx, x, y, rot, s) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot || 0);
+    ctx.scale(s || 1, s || 1);
+    const r = 11;
+    const pts = [0, 1, 2].map((i) => [Math.cos(-Math.PI / 2 + (i * U.TAU) / 3) * r, Math.sin(-Math.PI / 2 + (i * U.TAU) / 3) * r]);
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      const n = pts[(i + 1) % 3];
+      const mx = (p[0] + n[0]) / 2, my = (p[1] + n[1]) / 2;
+      if (!i) ctx.moveTo(mx, my);
+      ctx.quadraticCurveTo(n[0], n[1], (n[0] + pts[(i + 2) % 3][0]) / 2, (n[1] + pts[(i + 2) % 3][1]) / 2);
+    });
+    ctx.closePath();
+    const g = ctx.createRadialGradient(-2, -2, 1, 0, 0, r + 2);
+    g.addColorStop(0, '#ffe29a');
+    g.addColorStop(0.7, '#f2b24c');
+    g.addColorStop(1, '#c97b1e');
+    ctx.fillStyle = g;
+    ctx.fill();
+    ctx.lineWidth = 2.2;
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = OUT;
+    ctx.stroke();
+    // folded edges + filling peeking out
+    ctx.beginPath();
+    pts.forEach((p) => {
+      ctx.moveTo(p[0] * 0.55, p[1] * 0.55);
+      ctx.lineTo(p[0] * 0.2, p[1] * 0.2);
+    });
+    ctx.lineWidth = 1.3;
+    ctx.strokeStyle = 'rgba(150,80,20,0.7)';
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 0, 2.6, 0, U.TAU);
+    ctx.fillStyle = '#d64550';
+    ctx.fill();
+    ctx.fillStyle = '#fff6dc';
+    [[-4, 3], [4, 3], [0, -5], [-1, 5]].forEach(([a, b]) => ctx.fillRect(a, b, 1.6, 0.9));
+    ctx.restore();
+  };
+
+  G.resetMom = function () {
+    this.momUsed = false;
+    this.mom = null;
+    this.gushes = [];
+    this.updateMomUI();
+  };
+
+  G.updateMomUI = function () {
+    UI.setMomButton(!!(this.bossMode && this.state === 'boss' && !this.momUsed));
+  };
+
+  G.callMom = function () {
+    if (!this.bossMode || this.state !== 'boss' || this.momUsed || this.paused) return;
+    this.momUsed = true;
+    this.updateMomUI();
+    const n = this.stage;
+    const dm = { easy: 0.75, medium: 1, hard: 1.3 }[this.difficulty] || 1;
+    // the tougher the boss, the better mom's help
+    const interval = Math.max(0.28, 0.5 - n * 0.025);
+    const throws = HELP_TIME / interval;
+    const share = 0.28 + n * 0.02; // of the boss's health, on average (≈30% at stage 1, ≈45% at stage 8)
+    const mom = (this.mom = new ELSTER.Character('ima'));
+    mom.solid = false;
+    mom.facing = -1;
+    const landX = this.player.pos.x - 150;
+    const landY = this.level.terrain.surfaceY(landX, this.player.pos.y - 200);
+    const halfW = this.vw / 2 / this.cam.scale;
+    const startX = this.cam.x + halfW + 120;
+    mom.pos = { x: startX, y: landY - 260 };
+    mom.setPose('karate');
+    this.momState = {
+      phase: 'enter', t: 0, x0: startX, y0: landY - 260, landX, landY,
+      zone: [landX - 120, landX + 30], dir: -1, throwIn: 0.3, interval,
+      dmg: Math.max(1, Math.round((this.bossMax * share) / (throws * 1.1))),
+      err: Math.max(0.035, 0.11 - n * 0.008 - (dm - 1) * 0.02),
+    };
+    this.chars.push(mom);
+    this.gushes = this.gushes || [];
+    UI.banner('אמא באה לעזור!', 'קיאי!', true);
+    A.momKiai();
+  };
+
+  G.updateMom = function (dt) {
+    const mom = this.mom, st = this.momState;
+    if (this.gushes && this.gushes.length) this.updateGushes(dt);
+    if (!mom) return;
+    st.t += dt;
+    const T = this.level.terrain;
+    if (st.phase === 'enter') {
+      // flying karate kick in from the right
+      const k = U.clamp(st.t / 0.8, 0, 1);
+      mom.pos.x = U.lerp(st.x0, st.landX, U.easeOutCubic(k));
+      mom.pos.y = U.lerp(st.y0, st.landY, k) - Math.sin(k * Math.PI) * 120;
+      if (k >= 1) {
+        st.phase = 'fight';
+        st.t = 0;
+        mom.pos.y = st.landY;
+        mom.setPose('cheer');
+        this.particles.dust(mom.pos.x, st.landY, 8, this.level.theme.ground.hi);
+        this.cam.shake = 6;
+      }
+      return;
+    }
+    if (st.phase === 'fight') {
+      if (this.state !== 'boss' || st.t >= HELP_TIME) {
+        st.phase = 'exit';
+        st.t = 0;
+        mom.setPose(this.state === 'ending' && this.bossHp <= 0 ? 'victory' : 'karate');
+        mom.facing = 1;
+        st.x0 = mom.pos.x;
+        st.y0 = mom.pos.y;
+        if (!(this.bossHp <= 0)) UI.banner('אמא יוצאת!', null, true);
+        return;
+      }
+      // shuffle around and keep throwing
+      if (mom.pose !== 'momThrow') {
+        mom.pos.x += st.dir * 70 * dt;
+        if (mom.pos.x < st.zone[0]) st.dir = 1;
+        if (mom.pos.x > st.zone[1]) st.dir = -1;
+        mom.pos.y = Math.min(T.surfaceY(mom.pos.x, mom.pos.y - 40), mom.pos.y + 400 * dt);
+      }
+      mom.facing = -1;
+      st.throwIn -= dt;
+      if (st.throwIn <= 0) {
+        st.throwIn = st.interval * U.rand.range(0.8, 1.2);
+        mom.setPose('momThrow');
+        this.after(0.18, () => this.mom && this.state === 'boss' && this.throwGush());
+      }
+      return;
+    }
+    if (st.phase === 'exit') {
+      if (this.bossHp <= 0 && st.t < 2.2) return; // celebrate a moment first
+      const k = U.clamp((st.t - (this.bossHp <= 0 ? 2.2 : 0)) / 0.8, 0, 1);
+      if (mom.pose !== 'karate') {
+        mom.setPose('karate');
+        mom.facing = 1;
+      }
+      const halfW = this.vw / 2 / this.cam.scale;
+      mom.pos.x = U.lerp(st.x0, this.cam.x + halfW + 160, U.easeInOutCubic(k));
+      mom.pos.y = st.y0 - Math.sin(k * Math.PI) * 140;
+      if (k >= 1) {
+        this.chars = this.chars.filter((c) => c !== mom);
+        this.mom = null;
+      }
+    }
+  };
+
+  G.throwGush = function () {
+    const mom = this.mom, boss = this.boss, st = this.momState;
+    const sx = mom.pos.x + mom.facing * 30, sy = mom.pos.y - 72;
+    const head = U.rand() < 0.4;
+    const tx = boss.pos.x, ty = boss.pos.y - (head ? 250 : 120);
+    const th = U.rand.range(22, 42) * (Math.PI / 180);
+    const d = Math.abs(tx - sx), h = sy - ty;
+    let denom = 2 * Math.cos(th) ** 2 * (d * Math.tan(th) - h);
+    if (denom <= 0) denom = 1;
+    const v = U.clamp(Math.sqrt((P.G * d * d) / denom) * (1 + U.gauss() * st.err), 300, 2200);
+    const dir = Math.sign(tx - sx) || -1;
+    this.gushes.push({ x: sx, y: sy, vx: dir * v * Math.cos(th), vy: -v * Math.sin(th), t: 0, rot: 0, dmg: st.dmg });
+    A.momThrow();
+  };
+
+  G.updateGushes = function (dt) {
+    const boss = this.boss, T = this.level.terrain;
+    for (let i = this.gushes.length - 1; i >= 0; i--) {
+      const g = this.gushes[i];
+      g.t += dt;
+      g.rot += dt * 14;
+      let gone = false;
+      for (let s = 0; s < 4 && !gone; s++) {
+        const h = dt / 4;
+        g.vy += P.G * h;
+        g.x += g.vx * h;
+        g.y += g.vy * h;
+        const part = this.state === 'boss' && boss.solid ? boss.hitTest(g.x, g.y, 10) : null;
+        if (part) {
+          gone = true;
+          const dmg = part === 'head' ? Math.round(g.dmg * 1.5) : g.dmg;
+          this.gushCrumbs(g.x, g.y);
+          A.momHit();
+          if (boss.pose !== 'bossThrow' && boss.pose !== 'hit' && U.rand() < 0.35) {
+            boss.hitFx = null;
+            boss.setPose('hit');
+          }
+          this.damageBoss(dmg, g.x, g.y - 40, null);
+        } else if (T.isSolid(g.x, g.y)) {
+          gone = true;
+          this.gushCrumbs(g.x, g.y);
+        } else if (g.y > this.level.H + 100 || g.t > 6) gone = true;
+      }
+      if (gone) this.gushes.splice(i, 1);
+    }
+  };
+
+  G.gushCrumbs = function (x, y) {
+    for (let i = 0; i < 8; i++) {
+      const a = U.rand() * U.TAU, v = U.rand.range(60, 200);
+      this.particles.add({ kind: 'spark', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 80, g: 600, s: U.rand.range(2.5, 4.5), life: U.rand.range(0.4, 0.7), col: U.rand() < 0.7 ? '#f2b24c' : '#d64550' });
+    }
+  };
+
+  G.drawGushes = function (ctx) {
+    (this.gushes || []).forEach((g) => ELSTER.drawGush(ctx, g.x, g.y, g.rot, 1.7));
   };
 })();

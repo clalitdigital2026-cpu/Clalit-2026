@@ -69,6 +69,10 @@
       click('btn-pause-home', () => handlers.home());
       click('btn-home', () => handlers.home());
       click('btn-cam', () => handlers.switchCam());
+      $('btn-mom').addEventListener('click', () => {
+        ELSTER.Audio.init();
+        ELSTER.game.callMom();
+      });
       $('btn-weapon').addEventListener('click', () => {
         ELSTER.Audio.init();
         handlers.weapon();
@@ -258,6 +262,17 @@
       setTimeout(() => {
         try { $('name-input').focus({ preventScroll: true }); } catch (e) { /* ignore */ }
       }, 120);
+    },
+    setMomButton(on) {
+      const b = $('btn-mom');
+      if (!b) return;
+      if (on && !this._momIcon) {
+        this._momIcon = true;
+        const c = $('mom-icon'), ctx = c.getContext('2d');
+        ctx.clearRect(0, 0, c.width, c.height);
+        ELSTER.drawPortrait(ctx, 'ima', c.width, c.height, { scale: 1.45, bottom: -52, noShadow: true, facing: -1 });
+      }
+      b.classList.toggle('hidden', !on);
     },
     setWeaponMini(side, kind, ready) {
       const c = $('wmini-' + side);

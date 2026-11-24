@@ -306,6 +306,19 @@
       }
     },
 
+    // ---------- mom ----------
+    momKiai() {
+      this.tone({ type: 'square', f0: 500, f1: 1100, dur: 0.25, gain: 0.12, slide: 0.12, filter: 'lowpass', ff: 2400 });
+      this.tone({ type: 'square', f0: 1100, f1: 700, dur: 0.3, gain: 0.1, delay: 0.22, filter: 'lowpass', ff: 2400 });
+      this.noise({ f0: 4000, f1: 1500, dur: 0.3, gain: 0.12, filter: 'bandpass', q: 1.5 });
+      [72, 76, 79].forEach((m, i) => this.tone({ type: 'triangle', f0: mtof(m), dur: 0.15, gain: 0.07, delay: 0.5 + i * 0.07 }));
+    },
+    momThrow() { this.noise({ f0: 3000, f1: 6000, dur: 0.12, gain: 0.08, filter: 'bandpass', q: 2 }); },
+    momHit() {
+      this.noise({ f0: 2500, f1: 600, dur: 0.15, gain: 0.18, filter: 'bandpass', q: 1.2 });
+      this.tone({ type: 'triangle', f0: 700, f1: 300, dur: 0.12, gain: 0.08 });
+    },
+
     // ---------- boss ----------
     bossRoar() {
       this.tone({ type: 'sawtooth', f0: 90, f1: 55, dur: 1.2, gain: 0.25, filter: 'lowpass', ff: 700, vib: 6, vibDepth: 8 });

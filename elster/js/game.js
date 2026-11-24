@@ -86,6 +86,7 @@
       this.fireballs = [];
       this.bossEggs = [];
       A._tempo = 138;
+      UI.setMomButton(false);
       this.state = 'menu';
       this.clearTimers();
       this.paused = false;
@@ -171,6 +172,7 @@
       this.bossEggs = [];
       this.lastResult = null;
       A._tempo = 138;
+      UI.setMomButton(false);
       this.updateScale();
       this.clearTimers();
       this.paused = false;

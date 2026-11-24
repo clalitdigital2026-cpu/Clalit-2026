@@ -47,6 +47,16 @@
       faceRx: 21, faceRy: 23, chin: 0.5, accent: '#4fc3f7',
     },
   };
+  DEFS.ima = {
+    id: 'ima', name: 'אמא', tagline: 'באה לעזור עם גושגידז׳ה',
+    skin: '#e8b48f', skinShade: '#c98f6c', blush: 0.25,
+    hair: '#1d1512', hairHi: '#4a3a33', hairMid: '#2a201c', gray: '#a8a29c',
+    iris: '#3a2416', brow: '#1d1512', browW: 2.5, lips: '#c06a6a',
+    top: '#1c1c22', topShade: '#0f0f13', topHi: '#34343e',
+    pants: '#2a2f3a', shoes: '#f4f1ea', shoeTrim: '#e63946',
+    sleeve: 'long', mouth: 'grin', lashes: true, noSling: true, bow: '#e63946',
+    faceRx: 20, faceRy: 23, chin: 0.45, accent: '#e63946',
+  };
   DEFS.gooli = {
     id: 'gooli', name: 'אבא גולי', tagline: 'הבוס של הרוקנרול',
     skin: '#d9a27c', skinShade: '#b9805c', blush: 0.1,
@@ -649,6 +659,86 @@
 
   // ------------------------------------------------------------------ hair & per-person details
   const HAIR = {
+    ima: {
+      back(ctx, d) {
+        const y0 = HEAD_Y;
+        // hair gathered at the back of the head
+        ctx.beginPath();
+        ctx.ellipse(-4, y0 - 6, 24, 25, -0.1, 0, U.TAU);
+        outlineFill(ctx, d.hair);
+        ctx.beginPath();
+        ctx.ellipse(-22, y0 + 4, 9, 11, 0.3, 0, U.TAU);
+        outlineFill(ctx, d.hairMid);
+      },
+      front(ctx, d) {
+        const y0 = HEAD_Y;
+        // pulled back from a high forehead
+        ctx.beginPath();
+        ctx.moveTo(-21, y0 - 2);
+        ctx.bezierCurveTo(-23, y0 - 18, -15, y0 - 30, 0, y0 - 30.5);
+        ctx.bezierCurveTo(15, y0 - 30, 23, y0 - 18, 21, y0 - 2);
+        ctx.bezierCurveTo(19, y0 - 11, 16.5, y0 - 16, 11, y0 - 18);
+        ctx.bezierCurveTo(5, y0 - 20.5, -5, y0 - 20.5, -11, y0 - 18);
+        ctx.bezierCurveTo(-16.5, y0 - 16, -19, y0 - 11, -21, y0 - 2);
+        ctx.closePath();
+        const g = ctx.createLinearGradient(0, y0 - 31, 0, y0 - 14);
+        g.addColorStop(0, d.hairHi);
+        g.addColorStop(1, d.hair);
+        outlineFill(ctx, g);
+        // a touch of grey at the hairline
+        ctx.beginPath();
+        ctx.moveTo(4, y0 - 20);
+        ctx.quadraticCurveTo(6, y0 - 25, 3, y0 - 29);
+        ctx.lineWidth = 1.6;
+        ctx.strokeStyle = d.gray;
+        ctx.stroke();
+        // red headband with a big bow – her signature
+        ctx.beginPath();
+        ctx.moveTo(-21.5, y0 - 10);
+        ctx.bezierCurveTo(-20, y0 - 27, 20, y0 - 27, 21.5, y0 - 10);
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 7.5;
+        ctx.strokeStyle = OUT;
+        ctx.stroke();
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = d.bow;
+        ctx.stroke();
+        const bx = 9, by = y0 - 27;
+        [[-1, -0.35], [1, 0.35]].forEach(([sd, a]) => {
+          ctx.save();
+          ctx.translate(bx, by);
+          ctx.rotate(a);
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.bezierCurveTo(sd * 6, -9, sd * 15, -6, sd * 13, 1);
+          ctx.bezierCurveTo(sd * 15, 7, sd * 6, 8, 0, 0);
+          ctx.closePath();
+          outlineFill(ctx, d.bow, 2);
+          ctx.beginPath();
+          ctx.moveTo(sd * 3, -1);
+          ctx.quadraticCurveTo(sd * 8, -4, sd * 10, 0);
+          ctx.lineWidth = 1.2;
+          ctx.strokeStyle = U.shade(d.bow, -0.3);
+          ctx.stroke();
+          ctx.restore();
+        });
+        ctx.beginPath();
+        ctx.ellipse(bx, by, 3.6, 4.2, 0, 0, U.TAU);
+        outlineFill(ctx, U.shade(d.bow, -0.15), 2);
+      },
+      face() {},
+      earrings(ctx, d) {
+        [-1, 1].forEach((sd) => {
+          ctx.beginPath();
+          ctx.arc(sd * (d.faceRx + 0.4), HEAD_Y + 5, 1.6, 0, U.TAU);
+          ctx.fillStyle = '#e9c46a';
+          ctx.fill();
+          ctx.lineWidth = 0.7;
+          ctx.strokeStyle = '#8a6d1f';
+          ctx.stroke();
+        });
+      },
+    },
     gooli: {
       back(ctx, d) {
         HAIR.yair.back(ctx, d);
@@ -1043,6 +1133,24 @@
 
   // ------------------------------------------------------------------ body
   function drawLegs(ctx, d, S) {
+    if (S.flyKick) {
+      // back leg tucked, front leg shooting forward
+      U.rr(ctx, -12, -26, 10.4, 15, 4);
+      outlineFill(ctx, d.pants, 2.2);
+      ctx.beginPath();
+      ctx.ellipse(-8, -10, 8, 4.4, 0.4, 0, U.TAU);
+      outlineFill(ctx, d.shoes, 2.2);
+      ctx.save();
+      ctx.translate(5, -22);
+      ctx.rotate(-1.35);
+      U.rr(ctx, -5.2, 0, 10.4, 26, 4);
+      outlineFill(ctx, d.pants, 2.2);
+      ctx.beginPath();
+      ctx.ellipse(1, 27, 4.6, 8.4, 0, 0, U.TAU);
+      outlineFill(ctx, d.shoes, 2.2);
+      ctx.restore();
+      return;
+    }
     const kick = S.legKick || 0;
     [-1, 1].forEach((s, i) => {
       const lx = s * 7 + (i ? kick : -kick) * 0.5;
@@ -1413,7 +1521,7 @@
       this.recoil = Math.max(0, this.recoil - dt * 4);
       this.dispHp += (this.hp - this.dispHp) * Math.min(1, dt * 6);
       this.splats.forEach((s) => (s.a = Math.min(1, s.a + dt * 8)));
-      const transient = { shoot: 0.55, hit: 1.1, frustrated: 1.6, cheer: 1.2, bossThrow: 0.75 };
+      const transient = { shoot: 0.55, hit: 1.1, frustrated: 1.6, cheer: 1.2, bossThrow: 0.75, momThrow: 0.4 };
       if (this.hitFx) transient.hit = 1.8;
       if (transient[this.pose] && this.poseT > transient[this.pose]) {
         if (this.pose === 'hit') this.hitFx = null;
@@ -1569,6 +1677,26 @@
           S.ox = pt < 0.35 ? Math.sin(pt * 40) * 2 : 0;
           break;
         }
+        case 'karate':
+          S.mode = 'free';
+          S.flyKick = true;
+          S.rot = -0.3;
+          S.eyes = 'squint';
+          S.brow = 'angry';
+          S.mouth = 'bigO';
+          S.front = [30, -66];
+          S.back = [-26, -84];
+          break;
+        case 'momThrow': {
+          const k = U.clamp(pt / 0.4, 0, 1);
+          S.mode = 'free';
+          S.eyes = 'happy';
+          S.mouth = 'grin';
+          S.front = k < 0.45 ? [-6, -92] : [34, -66];
+          S.back = [-20, -46];
+          S.rot = k < 0.45 ? -0.06 : 0.06;
+          break;
+        }
         case 'bossThrow': {
           const k = U.clamp(pt / 0.75, 0, 1);
           S.mode = 'free';
@@ -1586,12 +1714,19 @@
         }
       }
       if (d.noSling && S.mode === 'sling') {
-        // the boss rocks out instead of holding a slingshot
         S.mode = 'free';
-        S.front = [36, -86 + Math.sin(t * 5) * 6];
-        S.back = [-25, -42];
-        S.mouth = 'grin';
-        S.brow = 'angry';
+        if (d.id === 'ima') {
+          // karate ready stance
+          S.front = [24, -48 + Math.sin(t * 6) * 2];
+          S.back = [-12, -52];
+          S.brow = 'raised';
+        } else {
+          // the boss rocks out instead of holding a slingshot
+          S.front = [36, -86 + Math.sin(t * 5) * 6];
+          S.back = [-25, -42];
+          S.mouth = 'grin';
+          S.brow = 'angry';
+        }
       }
       if (this.blinkT > 0 && (S.eyes === 'open' || S.eyes === 'sad')) S.eyes = 'closed';
       return S;
@@ -1699,6 +1834,8 @@
       if (sling) {
         drawBand(ctx, g.T1, P, stretch);
         drawFork(ctx, g);
+      } else if (d.id === 'ima' && ELSTER.drawGush && (this.pose !== 'momThrow' || this.poseT < 0.18) && this.pose !== 'karate') {
+        ELSTER.drawGush(ctx, front[0] + 2, front[1] - 6, 0.3, 0.75);
       } else if (this.fireCol && (this.pose === 'bossThrow' ? this.poseT < 0.375 : true)) {
         // a fireball burning in the boss's hand
         const fx = front[0], fy = front[1] - 8;
