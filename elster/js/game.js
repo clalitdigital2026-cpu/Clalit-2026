@@ -869,7 +869,7 @@
     }
 
     drawEggIndicator(ctx) {
-      if (!this.egg) return;
+      if (!this.egg || this.mode !== 'game') return;
       const p = this.toScreen(this.egg.x, this.egg.y);
       const m = 30;
       if (p.x > m && p.x < this.vw - m && p.y > m && p.y < this.vh - m) return;
