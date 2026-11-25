@@ -3,247 +3,382 @@
 <head>
 <meta charset="utf-8">
 <style>
-@font-face{font-family:Heebo;src:url(../fonts/Heebo%255Bwght%255D.ttf) format("truetype");font-weight:100 900}
-@font-face{font-family:Rubik;src:url(../fonts/Rubik%255Bwght%255D.ttf) format("truetype");font-weight:300 900}
-:root{--navy:#0b4a6f;--teal:#0e8fa3;--teal2:#14b3c4;--green:#2fae4e;--gold:#f2b632;--ink:#163a52}
+@font-face{font-family:Heebo;src:url(fonts/Heebo%255Bwght%255D.ttf) format("truetype");font-weight:100 900}
+@font-face{font-family:Rubik;src:url(fonts/Rubik%255Bwght%255D.ttf) format("truetype");font-weight:300 900}
+:root{--navy:#0a3f60;--teal:#0e8fa3;--aqua:#22c3d1;--green:#2fae4e;--lime:#a8e05f;--gold:#f2b632;--ink:#163a52;
+  --out:cubic-bezier(.16,1,.3,1);--spring:cubic-bezier(.34,1.56,.64,1);--io:cubic-bezier(.75,0,.25,1)}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:1920px;height:1080px;overflow:hidden;background:#dff4f7}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#e6f7f9}
 body{font-family:Heebo,sans-serif;color:var(--ink);position:relative}
 .ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+svg{overflow:visible}
 
-/* ---------- background ---------- */
-#bg{position:absolute;inset:0;background:
-  radial-gradient(1200px 800px at 85% 30%,#bff0f2 0%,transparent 60%),
-  radial-gradient(900px 700px at 95% 95%,#dff5b8 0%,transparent 60%),
-  radial-gradient(1000px 800px at 10% 90%,#bfe2f7 0%,transparent 60%),
-  linear-gradient(135deg,#f3fbfd 0%,#d9f1f6 50%,#e6f7e6 100%)}
-#bgshift{position:absolute;inset:-200px;background:radial-gradient(600px 600px at 50% 50%,rgba(20,179,196,.18),transparent 70%);animation:drift 13s ease-in-out infinite alternate}
-@keyframes drift{from{transform:translate(-400px,-150px)}to{transform:translate(500px,200px)}}
-.wave{position:absolute;left:-10%;width:120%;height:300px;top:560px;opacity:.5;animation:wave 6s linear infinite}
-@keyframes wave{from{transform:translateX(0)}to{transform:translateX(-230px)}}
-.spark{position:absolute;width:var(--s);height:var(--s);animation:twinkle var(--d) ease-in-out infinite;animation-delay:var(--dl)}
-.spark svg{width:100%;height:100%}
-@keyframes twinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0)}50%{opacity:1;transform:scale(1) rotate(45deg)}}
-.dot{position:absolute;border-radius:50%;background:#fff;box-shadow:0 0 12px 4px rgba(255,255,255,.8);animation:floatup var(--d) linear infinite;animation-delay:var(--dl);opacity:0}
-@keyframes floatup{0%{transform:translateY(0);opacity:0}15%{opacity:.9}85%{opacity:.9}100%{transform:translateY(-700px);opacity:0}}
+/* ===== scene shell + backgrounds ===== */
+.scene{position:absolute;inset:0;overflow:hidden}
+.sbg{position:absolute;inset:0;background:linear-gradient(135deg,var(--b1),var(--b2))}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.75;animation:blob var(--d) ease-in-out infinite alternate}
+@keyframes blob{from{transform:translate(0,0) scale(1)}to{transform:translate(var(--x),var(--y)) scale(1.25)}}
+.rev{animation:rev 1s var(--io) var(--t) both}
+@keyframes rev{from{clip-path:circle(0% at var(--cx) var(--cy))}to{clip-path:circle(140% at var(--cx) var(--cy))}}
+.ripple{position:absolute;z-index:60;width:200px;height:200px;margin:-100px 0 0 -100px;border-radius:50%;border:6px solid rgba(255,255,255,.9);animation:ripple 1s var(--out) var(--t) both;opacity:0}
+@keyframes ripple{0%{opacity:0;transform:scale(.2)}10%{opacity:1}100%{opacity:0;transform:scale(14)}}
 
-/* ---------- scenes ---------- */
-.scene{position:absolute;inset:0}
-.anim{animation-fill-mode:both!important}
+/* overlay fx */
+#fx{position:absolute;inset:0;z-index:40;pointer-events:none}
+.spark{position:absolute;width:var(--s);height:var(--s);animation:twinkle var(--d) ease-in-out var(--dl) infinite}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.2) rotate(0)}50%{opacity:.9;transform:scale(1) rotate(90deg)}}
+.bokeh{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.9),rgba(255,255,255,0) 70%);animation:floatup var(--d) linear var(--dl) infinite}
+@keyframes floatup{0%{transform:translateY(0);opacity:0}20%,80%{opacity:.8}100%{transform:translateY(-600px);opacity:0}}
 
-/* logo */
-.logo{position:absolute;mix-blend-mode:multiply;border-radius:22px;-webkit-mask-image:radial-gradient(ellipse 62% 80% at 50% 50%,#000 86%,transparent 100%);mask-image:radial-gradient(ellipse 62% 80% at 50% 50%,#000 86%,transparent 100%)}
+/* ===== text motion ===== */
+.rv{display:inline-block;overflow:hidden;vertical-align:bottom;padding:.06em .04em .14em;margin:-.06em 0 -.14em}
+.rv>i{font-style:normal;display:inline-block;animation:rvUp 1s var(--out) var(--dl) both}
+@keyframes rvUp{from{transform:translateY(120%) rotate(6deg)}to{transform:none}}
+.blurIn{animation:blurIn .9s var(--out) var(--dl) both}
+@keyframes blurIn{from{opacity:0;filter:blur(14px);transform:translateY(24px)}to{opacity:1;filter:none;transform:none}}
+.popIn{animation:popIn .7s var(--spring) var(--dl) both}
+@keyframes popIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+.grad{color:var(--teal)}
 
-/* scene 1 */
-#s1{animation:s1out .5s ease-in 7.75s both}
-@keyframes s1out{to{opacity:0;transform:translateX(-120px) scale(.96);filter:blur(8px)}}
-#s1 .logo{left:350px;top:40px;width:430px;animation:drop .7s cubic-bezier(.3,1.6,.5,1) .2s both}
-@keyframes drop{from{opacity:0;transform:translateY(-80px) scale(.6)}to{opacity:1;transform:none}}
-.menorahWrap{position:absolute;width:900px;height:880px}
-.menorahWrap img{width:100%;height:100%;-webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 62%,transparent 100%);mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 62%,transparent 100%)}
-#s1 .menorahWrap{left:1010px;top:110px;animation:rise 1.1s cubic-bezier(.2,1.3,.4,1) .35s both}
-@keyframes rise{from{opacity:0;transform:translateY(160px) scale(.85)}to{opacity:1;transform:none}}
-.menorahWrap .float{position:absolute;inset:0;animation:bob 2s ease-in-out infinite alternate}
-@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-14px)}}
-.glow{position:absolute;width:64px;height:84px;margin:-30px 0 0 -32px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,236,170,.9) 0%,rgba(255,190,60,.45) 35%,rgba(255,180,40,0) 70%);mix-blend-mode:screen;
-  animation:ignite .6s cubic-bezier(.2,1.8,.5,1) var(--dl) both, flicker .37s ease-in-out calc(var(--dl) + .6s) infinite alternate}
-@keyframes ignite{0%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(2.2)}100%{opacity:.85;transform:scale(1)}}
-@keyframes flicker{from{opacity:.65;transform:scale(.9)}to{opacity:1;transform:scale(1.12)}}
-.burst{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;border:3px solid #ffd35a;animation:ring .7s ease-out var(--dl) both}
-@keyframes ring{0%{opacity:0;transform:scale(1)}10%{opacity:1}100%{opacity:0;transform:scale(14)}}
+/* ===== menorah ===== */
+.menorah .ign{transform-box:fill-box;transform-origin:50% 100%;animation:ign .55s var(--spring) var(--dl) both}
+@keyframes ign{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.menorah .flk{transform-box:fill-box;transform-origin:50% 100%;animation:flk var(--fd) ease-in-out infinite alternate}
+@keyframes flk{0%{transform:scale(1,1) skewX(0)}33%{transform:scale(.94,1.08) skewX(3deg)}66%{transform:scale(1.04,.95) skewX(-3deg)}100%{transform:scale(.97,1.05) skewX(1.5deg)}}
+.menorah .halo{animation:halo .6s ease-out var(--dl) both,haloP 1.1s ease-in-out calc(var(--dl) + .6s) infinite alternate}
+@keyframes halo{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:scale(1)}}
+@keyframes haloP{from{opacity:.75}to{opacity:1}}
+.menorah .halo{transform-box:fill-box;transform-origin:50% 50%}
+.menorah .ring{transform-box:fill-box;transform-origin:50% 50%;animation:ringx .8s var(--out) var(--dl) both}
+@keyframes ringx{0%{opacity:0;transform:scale(.3)}15%{opacity:1}100%{opacity:0;transform:scale(3.2)}}
+.bob{animation:bob 2.4s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-16px)}}
 
-.titleBlock{position:absolute;right:930px;width:900px;text-align:center}
-#t1{top:150px}
-.t1line{white-space:nowrap;font-weight:900;font-size:96px;line-height:1.08;color:var(--navy);text-shadow:0 6px 0 rgba(255,255,255,.7),0 14px 30px rgba(11,74,111,.18)}
-.word{display:inline-block;animation:pop .55s cubic-bezier(.3,1.7,.5,1) var(--dl) both}
-@keyframes pop{0%{opacity:0;transform:translateY(60px) scale(.4) rotate(-6deg)}100%{opacity:1;transform:none}}
-#sub1{top:405px;font-weight:800;font-size:62px;color:var(--teal);animation:slideL .6s cubic-bezier(.2,1.4,.4,1) 4s both}
-@keyframes slideL{from{opacity:0;transform:translateX(-200px)}to{opacity:1;transform:none}}
-#inv1{top:520px;font-weight:400;font-size:46px;line-height:1.35;color:#24465c}
-#inv1 .ln{display:block;animation:fadeUp .6s ease-out var(--dl) both}
-@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
-#teaser{top:720px;font-size:44px;font-weight:700;color:var(--navy);animation:fadeUp .5s ease-out 6s both}
-#teaser .pill{display:inline-block;padding:14px 34px;border-radius:999px;background:linear-gradient(90deg,var(--teal),var(--green));color:#fff;box-shadow:0 10px 30px rgba(14,143,163,.35);animation:pulse .5s ease-in-out 6.5s infinite alternate}
-@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.06)}}
+/* ===== sufganiya / dreidel ===== */
+.drop{transform-origin:50% 100%;animation:drop 1s linear var(--dl) both}
+@keyframes drop{
+ 0%{transform:translateY(-1000px) scale(.92,1.12);animation-timing-function:cubic-bezier(.55,0,1,.45)}
+ 45%{transform:translateY(0) scale(1.18,.8);animation-timing-function:ease-out}
+ 62%{transform:translateY(-60px) scale(.96,1.05);animation-timing-function:ease-in}
+ 76%{transform:translateY(0) scale(1.06,.94)}
+ 88%{transform:scale(.99,1.02)}100%{transform:none}}
+.idle{animation:idle 1s ease-in-out var(--dl) infinite alternate;transform-origin:50% 100%}
+@keyframes idle{from{transform:scale(1,1)}to{transform:scale(1.03,.97)}}
+.sugar{position:absolute;width:var(--s);height:var(--s);border-radius:50%;background:#fff;box-shadow:0 0 4px rgba(255,255,255,.9);animation:snow var(--d) linear var(--dl) infinite;opacity:0}
+@keyframes snow{0%{transform:translate(0,0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translate(var(--x),360px);opacity:0}}
+.spin .letters{animation:letters .5s linear infinite}
+@keyframes letters{to{transform:translateX(-480px)}}
+.spin{transform-origin:50% 95%;animation:wobble .9s ease-in-out infinite alternate}
+@keyframes wobble{from{transform:rotate(-9deg)}to{transform:rotate(9deg)}}
+.enterSpin{animation:enterSpin 1s var(--out) var(--dl) both}
+@keyframes enterSpin{from{opacity:0;transform:translateY(-300px) rotate(-200deg) scale(.4)}to{opacity:1;transform:none}}
+.note{position:absolute;font-size:var(--s);font-weight:900;color:var(--c);animation:note var(--d) ease-out var(--dl) infinite;opacity:0}
+@keyframes note{0%{opacity:0;transform:translate(0,0) rotate(0) scale(.5)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x),-420px) rotate(var(--r)) scale(1.1)}}
 
-/* wipe */
-.wipe{position:absolute;inset:0;z-index:50;pointer-events:none;background:linear-gradient(90deg,var(--teal2),var(--teal) 50%,var(--green));transform:translateX(-100%);animation:wipe .9s cubic-bezier(.7,0,.3,1) var(--t) both}
-@keyframes wipe{0%{transform:translateX(-105%)}45%,55%{transform:translateX(0)}100%{transform:translateX(105%)}}
+/* ===== scene 1 ===== */
+#s1 .logo{position:absolute;left:345px;top:48px;width:450px}
+#s1 .titleBlock{position:absolute;right:950px;width:880px;text-align:center}
+#t1{top:155px;font-weight:900;font-size:90px;line-height:1.12;color:var(--navy);white-space:nowrap}
+#sub1{top:410px;font-weight:800;font-size:60px;color:var(--teal)}
+#inv1{top:525px;font-weight:400;font-size:46px;line-height:1.4;color:#2a4c62}
+#teaser{top:730px}
+.pill{display:inline-flex;align-items:center;gap:18px;padding:16px 40px;border-radius:999px;font-size:44px;font-weight:700;color:#fff;
+ background:linear-gradient(90deg,var(--teal),var(--green));box-shadow:0 16px 40px rgba(14,143,163,.35),inset 0 2px 0 rgba(255,255,255,.35)}
+.pill.breathe{animation:breathe 1s ease-in-out 7s infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+#m1{position:absolute;left:1120px;top:120px;width:700px}
 
-/* date scenes */
-.dateScene{opacity:0}
-#s2{animation:sin .01s linear 8.4s both, sout .5s ease-in 12.7s forwards}
-#s3{animation:sin .01s linear 13.4s both, sout .5s ease-in 17.7s forwards}
-@keyframes sin{to{opacity:1}}
-@keyframes sout{from{opacity:1}to{opacity:0;transform:scale(1.08);filter:blur(10px)}}
-.kicker{position:absolute;top:95px;right:140px;font-size:46px;font-weight:700;color:var(--teal);animation:slideL .5s cubic-bezier(.2,1.4,.4,1) var(--dl) both}
-.loc{position:absolute;top:150px;right:130px;display:flex;align-items:center;gap:26px;font-size:150px;font-weight:900;color:var(--navy);line-height:1.1;animation:pop .6s cubic-bezier(.3,1.7,.5,1) var(--dl) both}
-.loc svg{width:110px;height:140px;animation:pinbounce .5s ease-in-out calc(var(--dl) + .6s) infinite alternate}
-@keyframes pinbounce{from{transform:translateY(0)}to{transform:translateY(-22px)}}
-.cal{position:absolute;top:360px;right:140px;width:520px;height:470px;border-radius:44px;background:#fff;box-shadow:0 30px 70px rgba(11,74,111,.25),0 0 0 8px rgba(255,255,255,.6);overflow:hidden;animation:slam .7s cubic-bezier(.3,1.9,.5,1) var(--dl) both;transform-origin:50% 0}
-@keyframes slam{0%{opacity:0;transform:translateY(-500px) rotate(-12deg) scale(.7)}100%{opacity:1;transform:none}}
-.cal .hd{height:120px;background:linear-gradient(90deg,var(--teal),var(--green));color:#fff;font-size:62px;font-weight:800;display:flex;align-items:center;justify-content:center;position:relative}
-.cal .hd:before,.cal .hd:after{content:"";position:absolute;top:-18px;width:26px;height:60px;border-radius:13px;background:#cfe7ec;box-shadow:inset 0 -6px 0 rgba(0,0,0,.08)}
-.cal .hd:before{right:120px}.cal .hd:after{left:120px}
-.cal .day{font-family:Rubik,Heebo;font-size:230px;font-weight:900;line-height:1;text-align:center;margin-top:20px;background:linear-gradient(180deg,var(--navy),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}
-.cal .wd{text-align:center;font-size:50px;font-weight:700;color:#557385;margin-top:-6px}
-.shine{position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.85) 50%,transparent 65%);transform:translateX(120%);animation:shine 1.1s ease-in-out var(--dl) both}
-@keyframes shine{to{transform:translateX(-120%)}}
-.bigdate{position:absolute;top:350px;right:720px;font-family:Rubik,Heebo;font-weight:900;font-size:230px;line-height:1;color:var(--navy);text-shadow:0 10px 0 rgba(255,255,255,.8),0 24px 50px rgba(11,74,111,.25);animation:zoomIn .6s cubic-bezier(.3,1.8,.5,1) var(--dl) both, beat .5s ease-in-out calc(var(--dl) + .6s) infinite}
-@keyframes zoomIn{0%{opacity:0;transform:scale(3);filter:blur(12px)}100%{opacity:1;transform:none;filter:none}}
-@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.07)}}
-.time{position:absolute;top:610px;right:720px;display:flex;align-items:center;gap:24px;font-family:Rubik,Heebo;font-size:120px;font-weight:800;color:var(--teal);animation:slideL .55s cubic-bezier(.2,1.5,.4,1) var(--dl) both}
-.time svg{width:110px;height:110px}
-.time .hand{transform-origin:50px 50px;animation:spin 2s linear calc(var(--dl)) infinite}
+/* ===== date scenes ===== */
+.kicker{position:absolute;top:100px;right:140px;font-size:40px;font-weight:700;color:#fff;padding:8px 30px;border-radius:999px;background:linear-gradient(90deg,var(--teal),var(--aqua))}
+.loc{position:absolute;top:175px;right:130px;display:flex;align-items:center;gap:24px;font-size:140px;font-weight:900;line-height:1.05;color:var(--navy)}
+.loc svg{width:96px;height:124px;animation:pinb .5s ease-in-out infinite alternate}
+@keyframes pinb{from{transform:translateY(0)}to{transform:translateY(-16px)}}
+.big{position:absolute;top:340px;right:140px;font-family:Rubik,Heebo;font-weight:900;font-size:250px;line-height:1}
+.roller{display:inline-flex;align-items:flex-end;filter:drop-shadow(0 16px 30px rgba(10,63,96,.22))}
+.col{display:inline-block;height:1.05em;overflow:hidden;-webkit-mask-image:linear-gradient(transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(transparent,#000 12%,#000 88%,transparent)}
+.strip{display:block;animation:roll 1.3s cubic-bezier(.2,.75,.15,1) var(--dl) both}
+.strip b{display:block;height:1.05em;line-height:1.05em;font-weight:900;background:linear-gradient(180deg,var(--navy) 20%,var(--teal) 75%,var(--aqua));-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes roll{from{transform:translateY(0)}to{transform:translateY(calc(-19 * 1.05em))}}
+.dotc{display:inline-block;color:var(--teal);animation:popIn .5s var(--spring) var(--dl) both}
+.landed{animation:land .5s ease-in-out var(--dl) infinite}
+@keyframes land{0%,100%{transform:scale(1)}12%{transform:scale(1.05)}}
+.dlabel{position:absolute;top:625px;right:150px;font-size:54px;font-weight:700;color:#3c6176}
+.dlabel b{color:var(--teal)}
+.time{position:absolute;top:705px;right:140px;display:flex;align-items:center;gap:26px;font-family:Rubik,Heebo;font-size:110px;font-weight:800;color:var(--navy)}
+.time svg{width:100px;height:100px}
+.time .hand{transform-origin:50px 50px;animation:spin 1.5s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.chips{position:absolute;top:860px;right:140px;display:flex;gap:26px;flex-wrap:wrap;width:1700px}
-.chip{font-size:50px;font-weight:700;padding:16px 40px;border-radius:999px;background:rgba(255,255,255,.85);border:4px solid var(--teal2);color:var(--navy);box-shadow:0 12px 30px rgba(11,74,111,.15);animation:chipPop .45s cubic-bezier(.3,2,.5,1) var(--dl) both}
-.chip.hot{background:linear-gradient(90deg,var(--gold),#ffd667);border-color:#e9a51c}
-@keyframes chipPop{0%{opacity:0;transform:scale(0) translateY(40px)}100%{opacity:1;transform:none}}
-.sideArt{position:absolute;left:40px;top:120px;width:720px;height:760px}
-.donut{position:absolute;width:560px;height:425px;-webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 70%,transparent 100%);mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 70%,transparent 100%)}
-.bounceIn{animation:bounceIn .8s cubic-bezier(.3,1.8,.5,1) var(--dl) both}
-@keyframes bounceIn{0%{opacity:0;transform:translateY(400px) rotate(25deg) scale(.5)}100%{opacity:1;transform:none}}
-.jiggle{animation:jiggle .5s ease-in-out infinite alternate;animation-delay:var(--dl)}
-@keyframes jiggle{from{transform:rotate(-4deg) translateY(0)}to{transform:rotate(4deg) translateY(-20px)}}
-.raybox{position:absolute;width:1100px;height:1100px;left:-140px;top:-120px;animation:rot 20s linear infinite;opacity:.55}
-@keyframes rot{to{transform:rotate(360deg)}}
+.chips{position:absolute;top:880px;right:140px;display:flex;gap:22px;width:1700px}
+.chip{display:flex;align-items:center;gap:16px;font-size:44px;font-weight:700;padding:10px 34px 10px 12px;border-radius:999px;color:var(--navy);
+ background:rgba(255,255,255,.75);border:2px solid rgba(255,255,255,.95);box-shadow:0 14px 34px rgba(10,63,96,.14);backdrop-filter:blur(12px)}
+.chip .ic{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--teal),var(--green))}
+.chip .ic.g{background:linear-gradient(135deg,#f7c548,#ef8f2e)}
+.chip .ic svg{width:38px;height:38px}
+.art{position:absolute;left:0;top:0;width:800px;height:1080px}
+.glowdisc{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,255,255,0) 70%)}
 
-/* scene 4 */
-#s4{opacity:0;animation:sin .01s linear 18.4s both, sout .5s ease-in 21.75s forwards}
-#s4 h2{position:absolute;top:90px;width:100%;text-align:center;font-size:110px;font-weight:900;color:var(--navy);animation:pop .6s cubic-bezier(.3,1.7,.5,1) 18.5s both}
-#s4 h2 span{color:var(--teal)}
-.card{position:absolute;top:300px;width:720px;height:600px;border-radius:50px;background:rgba(255,255,255,.72);border:4px solid rgba(255,255,255,.95);box-shadow:0 30px 80px rgba(11,74,111,.22);text-align:center;padding-top:40px;animation:cardIn .7s cubic-bezier(.3,1.6,.5,1) var(--dl) both}
-@keyframes cardIn{0%{opacity:0;transform:translateY(300px) rotate(var(--r))}100%{opacity:1;transform:none}}
-.card .ring{position:absolute;inset:-14px;border-radius:62px;border:10px solid var(--gold);opacity:0;animation:hl 1.5s ease-in-out var(--hl) infinite}
-@keyframes hl{0%,100%{opacity:0;transform:scale(1)}20%,50%{opacity:1;transform:scale(1.02)}}
-.card .cn{font-size:92px;font-weight:900;color:var(--navy)}
-.card .cd{font-family:Rubik,Heebo;font-size:200px;font-weight:900;line-height:1.05;background:linear-gradient(180deg,var(--teal),var(--green));-webkit-background-clip:text;background-clip:text;color:transparent}
-.card .ct{font-size:62px;font-weight:700;color:#355a70}
-.card .cx{font-size:44px;color:#4a6b7e;margin-top:10px}
-#c1{right:170px;--dl:18.9s;--r:6deg;--hl:19.7s}
-#c2{left:170px;--dl:19.15s;--r:-6deg;--hl:20.45s}
+/* ===== scene 4 ===== */
+#s4 h2{position:absolute;top:95px;width:100%;text-align:center;font-size:110px;font-weight:900;color:var(--navy)}
+.card{position:absolute;top:290px;width:700px;height:620px;border-radius:56px;text-align:center;padding-top:44px;
+ background:linear-gradient(160deg,rgba(255,255,255,.85),rgba(255,255,255,.55));border:2px solid #fff;
+ box-shadow:0 40px 90px rgba(10,63,96,.2),inset 0 2px 0 #fff;backdrop-filter:blur(18px);animation:cardIn .9s var(--out) var(--dl) both}
+@keyframes cardIn{from{opacity:0;transform:translateY(240px) rotate(var(--r)) scale(.9)}to{opacity:1;transform:none}}
+.card .hl{position:absolute;inset:-12px;border-radius:66px;padding:6px;background:conic-gradient(from var(--a,0deg),var(--gold),var(--aqua),var(--green),var(--gold));
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;animation:hl 1.5s ease-in-out var(--hl) infinite}
+@keyframes hl{0%,100%{opacity:0}25%,60%{opacity:1}}
+.card .cn{display:flex;justify-content:center;align-items:center;gap:16px;font-size:84px;font-weight:900;color:var(--navy)}
+.card .cn svg{width:56px;height:72px}
+.card .big2{font-family:Rubik,Heebo;font-weight:900;font-size:190px;line-height:1;margin-top:18px}
+.card .ct{font-size:58px;font-weight:700;color:#355a70;margin-top:20px}
+.card .cx{font-size:42px;color:#4a6b7e;margin-top:8px}
+#c1{right:190px;--dl:18.9s;--r:5deg;--hl:19.7s}
+#c2{left:190px;--dl:19.15s;--r:-5deg;--hl:20.45s}
 
-/* scene 5 */
-#s5{opacity:0;animation:sin .01s linear 22.4s both}
-#s5 .menorahWrap{left:780px;top:20px;transform-origin:50% 100%;animation:rise 1s cubic-bezier(.2,1.3,.4,1) 22.45s both}
-#s5 .msg{position:absolute;top:680px;width:100%;text-align:center}
-#s5 .m1{font-size:62px;font-weight:500;color:#24465c;animation:fadeUp .6s ease-out 23.2s both}
-#s5 .m2{font-size:140px;font-weight:900;line-height:1.1;color:var(--navy);text-shadow:0 8px 0 rgba(255,255,255,.8),0 20px 50px rgba(14,143,163,.35)}
-#s5 .logo{left:50%;top:965px;width:380px;margin-left:-190px;animation:fadeUp .6s ease-out 24.6s both}
-.conf{position:absolute;top:-40px;width:var(--w);height:calc(var(--w)*.45);background:var(--c);border-radius:4px;animation:fall var(--d) linear var(--dl) both}
-@keyframes fall{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(1200px) rotate(var(--rot))}}
-.sdonut{position:absolute;width:280px;height:212px}
+/* ===== scene 5 ===== */
+#s5 .msg{position:absolute;top:690px;width:100%;text-align:center}
+#s5 .m1{font-size:60px;font-weight:500;color:#2a4c62}
+#s5 .m2{font-size:150px;font-weight:900;line-height:1.1}
+#s5 .logo{position:absolute;left:50%;top:980px;width:400px;margin-left:-200px}
+.conf{position:absolute;top:-40px;width:var(--w);height:calc(var(--w)*.42);background:var(--c);border-radius:3px;animation:fall var(--d) linear var(--dl) both}
+@keyframes fall{0%{transform:translate(0,0) rotate(0) rotateX(0)}100%{transform:translate(var(--x),1200px) rotate(var(--rot)) rotateX(720deg)}}
 </style>
 </head>
 <body>
-<div id="bg"><div id="bgshift"></div>
-<svg class="wave" viewBox="0 0 2300 300" preserveAspectRatio="none"><path d="M0 150 Q 115 40 230 150 T 460 150 T 690 150 T 920 150 T 1150 150 T 1380 150 T 1610 150 T 1840 150 T 2070 150 T 2300 150" fill="none" stroke="#fff" stroke-width="4"/><path d="M0 170 Q 115 80 230 170 T 460 170 T 690 170 T 920 170 T 1150 170 T 1380 170 T 1610 170 T 1840 170 T 2070 170 T 2300 170" fill="none" stroke="#9fe3ea" stroke-width="2"/></svg>
-<div id="fx"></div>
-</div>
 
-<!-- ===== Scene 1: intro ===== -->
+<!-- ============ SCENE 1 ============ -->
 <section class="scene" id="s1">
-  <img class="logo" src="logo.png" alt="">
-  <div class="menorahWrap"><div class="float"><img src="menorah.png" alt=""><div id="glows1"></div></div></div>
+  <div class="sbg" style="--b1:#f2fbfd;--b2:#e2f6ee"></div>
+  <div id="m1"><div class="bob"></div></div>
+  <img class="logo popIn" style="--dl:.2s" src="logo.png" alt="">
   <div class="titleBlock" id="t1">
-    <div class="t1line"><span class="word" style="--dl:1.9s">חנוכה</span> <span class="word" style="--dl:2.15s">בחטיבת</span></div>
-    <div class="t1line"><span class="word" style="--dl:2.65s">מערכות</span> <span class="word" style="--dl:2.9s">מידע</span> <span class="word" style="--dl:3.15s">ודיגיטל</span></div>
+    <div><span class="rv"><i style="--dl:1.9s">חנוכה</i></span> <span class="rv"><i style="--dl:2.15s">בחטיבת</i></span></div>
+    <div><span class="rv"><i class="grad" style="--dl:2.65s">מערכות</i></span> <span class="rv"><i class="grad" style="--dl:2.9s">מידע</i></span> <span class="rv"><i class="grad" style="--dl:3.15s">ודיגיטל</i></span></div>
   </div>
-  <div class="titleBlock" id="sub1">✨ חוגגים וחוגגות חנוכה ביחד ✨</div>
+  <div class="titleBlock blurIn" id="sub1" style="--dl:4s">חוגגים וחוגגות חנוכה ביחד</div>
   <div class="titleBlock" id="inv1">
-    <span class="ln" style="--dl:4.7s">לרגל חג החנוכה, אתם.ן מוזמנים.ות לקחת</span>
-    <span class="ln" style="--dl:5.1s">חלק בהדלקת הנרות החטיבתית</span>
+    <div class="blurIn" style="--dl:4.7s">לרגל חג החנוכה, אתם.ן מוזמנים.ות לקחת</div>
+    <div class="blurIn" style="--dl:5.1s">חלק בהדלקת הנרות החטיבתית</div>
   </div>
-  <div class="titleBlock" id="teaser"><span class="pill">🕎 שני מועדים · שני בניינים</span></div>
+  <div class="titleBlock popIn" id="teaser" style="--dl:6s"><span class="pill breathe">שני מועדים · שני בניינים</span></div>
 </section>
-<div class="wipe" style="--t:7.95s"></div>
 
-<!-- ===== Scene 2: Arlozorov ===== -->
-<section class="scene dateScene" id="s2">
-  <div class="kicker" style="--dl:8.5s">מועד ראשון</div>
-  <div class="loc" style="--dl:8.6s"><svg viewBox="0 0 110 140"><path d="M55 4C27 4 6 25 6 52c0 36 49 84 49 84s49-48 49-84C104 25 83 4 55 4z" fill="#0e8fa3"/><circle cx="55" cy="52" r="20" fill="#fff"/></svg>ארלוזורוב</div>
-  <div class="cal" style="--dl:9.0s"><div class="hd">דצמבר</div><div class="day"><span class="ltr">6</span></div><div class="wd">יום ראשון</div><div class="shine" style="--dl:9.7s"></div></div>
-  <div class="time" style="--dl:9.5s"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#fff" stroke="#0e8fa3" stroke-width="8"/><line x1="50" y1="50" x2="50" y2="24" stroke="#0b4a6f" stroke-width="7" stroke-linecap="round"/><line class="hand" style="--dl:9.5s" x1="50" y1="50" x2="70" y2="50" stroke="#2fae4e" stroke-width="6" stroke-linecap="round"/></svg><span class="ltr">10:00</span></div>
-  <div class="bigdate" style="--dl:9.3s"><span class="ltr">6.12</span></div>
+<!-- ============ SCENE 2 : ARLOZOROV ============ -->
+<section class="scene rev" id="s2" style="--t:7.9s;--cx:30%;--cy:55%">
+  <div class="sbg" style="--b1:#eaf9fb;--b2:#d4f1f5"></div>
+  <div class="art" id="art2"></div>
+  <div class="kicker popIn" style="--dl:8.45s">מועד ראשון</div>
+  <div class="loc"><span class="rv"><i style="--dl:8.6s"><svg viewBox="0 0 96 124"><defs><linearGradient id="pg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22c3d1"/><stop offset="1" stop-color="#0a6f86"/></linearGradient></defs><path d="M48 4C24 4 6 22 6 46c0 31 42 74 42 74s42-43 42-74C90 22 72 4 48 4z" fill="url(#pg1)"/><circle cx="48" cy="46" r="17" fill="#fff"/></svg></i></span><span class="rv"><i style="--dl:8.7s">ארלוזורוב</i></span></div>
+  <div class="big" data-roll="6.12" data-t="7.75"></div>
+  <div class="dlabel blurIn" style="--dl:9.1s">דצמבר · <b>יום ראשון</b></div>
+  <div class="time blurIn" style="--dl:9.5s"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#fff" stroke="#0e8fa3" stroke-width="7"/><line x1="50" y1="50" x2="50" y2="25" stroke="#0a3f60" stroke-width="7" stroke-linecap="round"/><line class="hand" x1="50" y1="50" x2="70" y2="50" stroke="#2fae4e" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="50" r="5" fill="#0a3f60"/></svg><span class="ltr">10:00</span></div>
   <div class="chips">
-    <div class="chip" style="--dl:10.5s">📍 אולמות 7ב ו־7ג׳</div>
-    <div class="chip hot" style="--dl:11.0s">🕎 הדלקת נרות</div>
-    <div class="chip hot" style="--dl:11.5s">🍩 סופגניות</div>
+    <div class="chip popIn" style="--dl:10.5s"><span class="ic" data-ic="pin"></span>אולמות 7ב ו־7ג׳</div>
+    <div class="chip popIn" style="--dl:11.0s"><span class="ic g" data-ic="candle"></span>הדלקת נרות</div>
+    <div class="chip popIn" style="--dl:11.5s"><span class="ic g" data-ic="donut"></span>סופגניות</div>
   </div>
 </section>
-<div class="wipe" style="--t:12.95s"></div>
 
-<!-- ===== Scene 3: Art ===== -->
-<section class="scene dateScene" id="s3">
-  <div class="kicker" style="--dl:13.5s">מועד שני</div>
-  <div class="loc" style="--dl:13.6s"><svg viewBox="0 0 110 140"><path d="M55 4C27 4 6 25 6 52c0 36 49 84 49 84s49-48 49-84C104 25 83 4 55 4z" fill="#2fae4e"/><circle cx="55" cy="52" r="20" fill="#fff"/></svg>בניין ארט</div>
-  <div class="cal" style="--dl:14.0s"><div class="hd">דצמבר</div><div class="day"><span class="ltr">7</span></div><div class="wd">יום שני</div><div class="shine" style="--dl:14.7s"></div></div>
-  <div class="time" style="--dl:14.5s"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#fff" stroke="#2fae4e" stroke-width="8"/><line x1="50" y1="50" x2="50" y2="24" stroke="#0b4a6f" stroke-width="7" stroke-linecap="round"/><line class="hand" style="--dl:14.5s" x1="50" y1="50" x2="70" y2="50" stroke="#0e8fa3" stroke-width="6" stroke-linecap="round"/></svg><span class="ltr">10:00</span></div>
-  <div class="bigdate" style="--dl:14.3s"><span class="ltr">7.12</span></div>
+<!-- ============ SCENE 3 : ART ============ -->
+<section class="scene rev" id="s3" style="--t:12.9s;--cx:75%;--cy:40%">
+  <div class="sbg" style="--b1:#f1fbec;--b2:#d9f2f4"></div>
+  <div class="art" id="art3"></div>
+  <div class="kicker popIn" style="--dl:13.45s;background:linear-gradient(90deg,#2fae4e,#7cc95a)">מועד שני</div>
+  <div class="loc"><span class="rv"><i style="--dl:13.6s"><svg viewBox="0 0 96 124"><defs><linearGradient id="pg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fd66b"/><stop offset="1" stop-color="#1f8a3c"/></linearGradient></defs><path d="M48 4C24 4 6 22 6 46c0 31 42 74 42 74s42-43 42-74C90 22 72 4 48 4z" fill="url(#pg2)"/><circle cx="48" cy="46" r="17" fill="#fff"/></svg></i></span><span class="rv"><i style="--dl:13.7s">בניין ארט</i></span></div>
+  <div class="big" data-roll="7.12" data-t="12.75"></div>
+  <div class="dlabel blurIn" style="--dl:14.1s">דצמבר · <b>יום שני</b></div>
+  <div class="time blurIn" style="--dl:14.5s"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#fff" stroke="#2fae4e" stroke-width="7"/><line x1="50" y1="50" x2="50" y2="25" stroke="#0a3f60" stroke-width="7" stroke-linecap="round"/><line class="hand" x1="50" y1="50" x2="70" y2="50" stroke="#0e8fa3" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="50" r="5" fill="#0a3f60"/></svg><span class="ltr">10:00</span></div>
   <div class="chips">
-    <div class="chip" style="--dl:15.3s">🏢 קומה 15</div>
-    <div class="chip hot" style="--dl:15.75s">🕎 הדלקת נרות</div>
-    <div class="chip hot" style="--dl:16.2s">🍩 סופגניות</div>
-    <div class="chip hot" style="--dl:16.65s">🎤 שירה בציבור</div>
+    <div class="chip popIn" style="--dl:15.3s"><span class="ic" data-ic="building"></span>קומה 15</div>
+    <div class="chip popIn" style="--dl:15.75s"><span class="ic g" data-ic="candle"></span>הדלקת נרות</div>
+    <div class="chip popIn" style="--dl:16.2s"><span class="ic g" data-ic="donut"></span>סופגניות</div>
+    <div class="chip popIn" style="--dl:16.65s"><span class="ic g" data-ic="mic"></span>שירה בציבור</div>
   </div>
 </section>
-<div class="wipe" style="--t:17.95s"></div>
 
-<!-- ===== Scene 4: both dates ===== -->
-<section class="scene" id="s4">
-  <h2>שריינו <span>ביומן!</span> 🗓️</h2>
-  <div class="card" id="c1"><div class="ring"></div><div class="cn">ארלוזורוב</div><div class="cd"><span class="ltr">6.12</span></div><div class="ct">יום ראשון · <span class="ltr">10:00</span></div><div class="cx">אולמות 7ב ו־7ג׳</div></div>
-  <div class="card" id="c2"><div class="ring"></div><div class="cn">ארט</div><div class="cd"><span class="ltr">7.12</span></div><div class="ct">יום שני · <span class="ltr">10:00</span></div><div class="cx">קומה 15</div></div>
+<!-- ============ SCENE 4 : BOTH ============ -->
+<section class="scene rev" id="s4" style="--t:17.9s;--cx:50%;--cy:100%">
+  <div class="sbg" style="--b1:#eef9fc;--b2:#e3f5e6"></div>
+  <h2><span class="rv"><i style="--dl:18.4s">שריינו</i></span> <span class="rv"><i class="grad" style="--dl:18.55s">ביומן!</i></span></h2>
+  <div class="card" id="c1"><div class="hl"></div><div class="cn"><svg viewBox="0 0 96 124"><path d="M48 4C24 4 6 22 6 46c0 31 42 74 42 74s42-43 42-74C90 22 72 4 48 4z" fill="#0e8fa3"/><circle cx="48" cy="46" r="17" fill="#fff"/></svg>ארלוזורוב</div>
+    <div class="big2" data-roll="6.12" data-t="17.75"></div><div class="ct">יום ראשון · <span class="ltr">10:00</span></div><div class="cx">אולמות 7ב ו־7ג׳</div></div>
+  <div class="card" id="c2"><div class="hl"></div><div class="cn"><svg viewBox="0 0 96 124"><path d="M48 4C24 4 6 22 6 46c0 31 42 74 42 74s42-43 42-74C90 22 72 4 48 4z" fill="#2fae4e"/><circle cx="48" cy="46" r="17" fill="#fff"/></svg>ארט</div>
+    <div class="big2" data-roll="7.12" data-t="18.0"></div><div class="ct">יום שני · <span class="ltr">10:00</span></div><div class="cx">קומה 15</div></div>
 </section>
-<div class="wipe" style="--t:21.95s"></div>
 
-<!-- ===== Scene 5: outro ===== -->
-<section class="scene" id="s5">
+<!-- ============ SCENE 5 : OUTRO ============ -->
+<section class="scene rev" id="s5" style="--t:21.9s;--cx:50%;--cy:30%">
+  <div class="sbg" style="--b1:#f3fbfd;--b2:#e5f7ea"></div>
+  <div id="m5" style="position:absolute;left:690px;top:25px;width:540px"><div class="bob"></div></div>
   <div id="conf"></div>
-  <div style="zoom:.78;position:absolute;inset:0"><div class="menorahWrap"><div class="float"><img src="menorah.png" alt=""><div id="glows5"></div></div></div></div>
   <div class="msg">
-    <div class="m1">נשמח לראותכן ולראותכם</div>
-    <div class="m2"><span class="word" style="--dl:23.7s">חג</span> <span class="word" style="--dl:23.95s">חנוכה</span> <span class="word" style="--dl:24.2s">שמח!</span></div>
+    <div class="m1 blurIn" style="--dl:23.2s">נשמח לראותכן ולראותכם</div>
+    <div class="m2"><span class="rv"><i style="--dl:23.7s;color:var(--navy)">חג</i></span> <span class="rv"><i style="--dl:23.95s;color:var(--navy)">חנוכה</i></span> <span class="rv"><i class="grad" style="--dl:24.2s">שמח!</i></span></div>
   </div>
-  <img class="logo" src="logo.png" alt="">
+  <img class="logo blurIn" style="--dl:24.6s" src="logo.png" alt="">
 </section>
+
+<div class="ripple" style="--t:7.9s;left:30%;top:55%"></div>
+<div class="ripple" style="--t:12.9s;left:75%;top:40%"></div>
+<div class="ripple" style="--t:17.9s;left:50%;top:100%"></div>
+<div class="ripple" style="--t:21.9s;left:50%;top:30%"></div>
+<div id="fx"></div>
 
 <script>
-// deterministic RNG
-let seed=7;const R=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646};
-const star='<svg viewBox="0 0 40 40"><path d="M20 0 C22 14 26 18 40 20 C26 22 22 26 20 40 C18 26 14 22 0 20 C14 18 18 14 20 0Z" fill="COL"/></svg>';
+let seed=11;const R=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646};
+let uid=0;
+
+/* ---------- MENORAH (vector) ---------- */
+function menorah(t0,step){
+  const u='m'+(uid++);const X=[60,120,180,240,300,360,420,480,540];
+  // lighting order: shamash first, then candles
+  const order=[4,0,1,2,3,5,6,7,8];const time={};order.forEach((ci,k)=>time[ci]=t0+k*step);
+  let arms='',hi='';
+  for(const d of [240,180,120,60]){
+    arms+=`<path d="M${300-d} 206 A${d} ${d} 0 0 0 ${300+d} 206" fill="none" stroke="url(#${u}arm)" stroke-width="17" stroke-linecap="round"/>`;
+    hi+=`<path d="M${300-d+4} 206 A${d-4} ${d-4} 0 0 0 ${300+d-4} 206" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${Math.PI*d*.55} 2000"/>`;
+  }
+  let cups='',candles='',flames='';
+  X.forEach((x,i)=>{
+    const sh=i===4,top=sh?36:78,cupY=sh?150:190,gold=sh||i===0||i===8;
+    cups+=`<path d="M${x-22} ${cupY} h44 l-6 18 h-32z" fill="url(#${u}${gold?'gold':'glass'})"/><ellipse cx="${x}" cy="${cupY}" rx="22" ry="6" fill="${gold?'#fff2c2':'#d9fbfd'}"/>`;
+    candles+=`<rect x="${x-11}" y="${top}" width="22" height="${cupY-top}" rx="6" fill="url(#${u}cand)"/>
+      <rect x="${x-6}" y="${top+6}" width="5" height="${(cupY-top)*.7}" rx="2.5" fill="rgba(255,255,255,.55)"/>
+      <path d="M${x+11} ${top+4} q-3 14 -1 22 q2 6 -2 9 v-31z" fill="#fff" opacity=".9"/>
+      <ellipse cx="${x}" cy="${top}" rx="11" ry="3.5" fill="#fffdf6"/>
+      <line x1="${x}" y1="${top}" x2="${x}" y2="${top-8}" stroke="#3b2f2a" stroke-width="2.5" stroke-linecap="round"/>`;
+    const dl=time[i].toFixed(3)+'s',fd=(.28+R()*.2).toFixed(2)+'s';
+    flames+=`<g style="--dl:${dl}">
+      <circle class="halo" cx="${x}" cy="${top-30}" r="34" fill="url(#${u}halo)"/>
+      <circle class="ring" cx="${x}" cy="${top-26}" r="14" fill="none" stroke="#ffd35a" stroke-width="3"/>
+      <g class="ign"><g class="flk" style="--fd:${fd}">
+        <path d="M${x} ${top-58} C${x+15} ${top-34} ${x+15} ${top-12} ${x} ${top-6} C${x-15} ${top-12} ${x-15} ${top-34} ${x} ${top-58}Z" fill="url(#${u}fl)"/>
+        <path d="M${x} ${top-30} C${x+6} ${top-20} ${x+6} ${top-11} ${x} ${top-8} C${x-6} ${top-11} ${x-6} ${top-20} ${x} ${top-30}Z" fill="#fff" opacity=".9"/>
+        <ellipse cx="${x}" cy="${top-9}" rx="4" ry="3" fill="#6ec9ff" opacity=".8"/>
+      </g></g></g>`;
+  });
+  return `<svg class="menorah" viewBox="0 -40 600 660" width="100%">
+  <defs>
+    <linearGradient id="${u}arm" x1="0" y1="200" x2="0" y2="450" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8ef0f4"/><stop offset=".5" stop-color="#2cc0cf"/><stop offset="1" stop-color="#0f8fa4"/></linearGradient>
+    <linearGradient id="${u}glass" x1="0" x2="1"><stop offset="0" stop-color="#18a6b8"/><stop offset=".45" stop-color="#b8f6f8"/><stop offset="1" stop-color="#2bb6c6"/></linearGradient>
+    <linearGradient id="${u}gold" x1="0" x2="1"><stop offset="0" stop-color="#d9951c"/><stop offset=".45" stop-color="#fff0b8"/><stop offset="1" stop-color="#e6a52a"/></linearGradient>
+    <linearGradient id="${u}cand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffaf0"/><stop offset=".3" stop-color="#e8fbfc"/><stop offset=".62" stop-color="#3cc6d3"/><stop offset="1" stop-color="#0d7a8f"/></linearGradient>
+    <radialGradient id="${u}fl" cx=".5" cy=".75" r=".6"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#fff2a8"/><stop offset=".7" stop-color="#ffbd3a"/><stop offset="1" stop-color="#ff8a1c"/></radialGradient>
+    <radialGradient id="${u}halo"><stop offset="0" stop-color="#ffe9a0" stop-opacity=".95"/><stop offset=".45" stop-color="#ffd36a" stop-opacity=".45"/><stop offset="1" stop-color="#ffd36a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="${u}base" cx=".5" cy=".3"><stop offset="0" stop-color="#d6fbfc"/><stop offset="1" stop-color="#1aa3b6"/></radialGradient>
+  </defs>
+  <ellipse cx="300" cy="598" rx="210" ry="22" fill="rgba(10,63,96,.16)"/>
+  <ellipse cx="300" cy="572" rx="185" ry="36" fill="url(#${u}base)" opacity=".95"/>
+  <ellipse cx="300" cy="560" rx="185" ry="34" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="3"/>
+  <ellipse cx="300" cy="552" rx="125" ry="22" fill="url(#${u}gold)"/>
+  <ellipse cx="300" cy="540" rx="72" ry="14" fill="url(#${u}glass)"/>
+  ${arms}${hi}
+  <rect x="288" y="160" width="24" height="390" rx="12" fill="url(#${u}glass)"/>
+  <rect x="293" y="170" width="6" height="370" rx="3" fill="rgba(255,255,255,.6)"/>
+  ${[262,330,398].map(y=>`<circle cx="300" cy="${y}" r="19" fill="url(#${u}glass)"/><ellipse cx="294" cy="${y-7}" rx="7" ry="4" fill="rgba(255,255,255,.8)"/>`).join('')}
+  <ellipse cx="300" cy="446" rx="30" ry="15" fill="url(#${u}gold)"/>
+  <circle cx="300" cy="500" r="24" fill="url(#${u}glass)"/><ellipse cx="293" cy="491" rx="8" ry="5" fill="rgba(255,255,255,.8)"/>
+  ${candles}${cups}${flames}
+  </svg>`;
+}
+
+/* ---------- SUFGANIYA ---------- */
+function donut(){
+  const u='d'+(uid++);let sug='';
+  for(let i=0;i<110;i++){const a=R()*Math.PI*2,r=Math.sqrt(R());const x=150+Math.cos(a)*r*112,y=104+Math.sin(a)*r*44;
+    sug+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1.2+R()*2.6).toFixed(1)}" fill="#fff" opacity="${(.7+R()*.3).toFixed(2)}"/>`}
+  return `<svg viewBox="0 0 300 230" width="100%"><defs>
+   <radialGradient id="${u}b" cx=".5" cy=".25" r=".8"><stop offset="0" stop-color="#fbcf8c"/><stop offset=".55" stop-color="#e4924a"/><stop offset="1" stop-color="#a9561b"/></radialGradient>
+   <radialGradient id="${u}t" cx=".45" cy=".3" r=".75"><stop offset="0" stop-color="#f8bd70"/><stop offset=".7" stop-color="#d9823a"/><stop offset="1" stop-color="#b8631f"/></radialGradient>
+   <linearGradient id="${u}band" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff4d6"/><stop offset="1" stop-color="#f2cf8e"/></linearGradient>
+   <radialGradient id="${u}j" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#ff6a78"/><stop offset=".6" stop-color="#e0142f"/><stop offset="1" stop-color="#9c0018"/></radialGradient>
+   <filter id="${u}bl"><feGaussianBlur stdDeviation="8"/></filter>
+   <clipPath id="${u}c"><ellipse cx="150" cy="135" rx="134" ry="76"/></clipPath></defs>
+   <ellipse cx="150" cy="212" rx="125" ry="14" fill="rgba(10,63,96,.22)" filter="url(#${u}bl)"/>
+   <ellipse cx="150" cy="135" rx="134" ry="76" fill="url(#${u}b)"/>
+   <g clip-path="url(#${u}c)"><ellipse cx="150" cy="158" rx="136" ry="42" fill="url(#${u}band)"/>
+   <ellipse cx="150" cy="120" rx="131" ry="66" fill="url(#${u}t)"/></g>
+   <ellipse cx="150" cy="96" rx="100" ry="30" fill="#fff" opacity=".35" filter="url(#${u}bl)"/>
+   ${sug}
+   <path d="M116 76 C112 50 130 36 150 36 C170 36 188 50 184 76 C172 88 128 88 116 76Z" fill="url(#${u}j)"/>
+   <ellipse cx="137" cy="52" rx="10" ry="5" fill="#fff" opacity=".85" transform="rotate(-25 137 52)"/>
+   <circle cx="165" cy="70" r="3" fill="#fff" opacity=".6"/>
+  </svg>`;
+}
+
+/* ---------- DREIDEL ---------- */
+function dreidel(){
+  const u='s'+(uid++);const L=['נ','ג','ה','פ','נ','ג','ה','פ'];
+  return `<svg viewBox="0 0 200 300" width="100%"><defs>
+   <linearGradient id="${u}g" x1="0" x2="1"><stop offset="0" stop-color="#0b6f86"/><stop offset=".35" stop-color="#3fd0dc"/><stop offset=".55" stop-color="#9ef0f4"/><stop offset="1" stop-color="#0c7d92"/></linearGradient>
+   <linearGradient id="${u}h" x1="0" x2="1"><stop offset="0" stop-color="#d9951c"/><stop offset=".5" stop-color="#fff0b8"/><stop offset="1" stop-color="#d9951c"/></linearGradient>
+   <clipPath id="${u}c"><rect x="34" y="72" width="132" height="100" rx="10"/></clipPath></defs>
+   <ellipse cx="100" cy="292" rx="60" ry="8" fill="rgba(10,63,96,.2)"/>
+   <rect x="90" y="0" width="20" height="66" rx="10" fill="url(#${u}h)"/>
+   <path d="M28 76 Q28 56 48 56 H152 Q172 56 172 76 V168 L108 282 Q100 294 92 282 L28 168Z" fill="url(#${u}g)"/>
+   <path d="M44 62 H70 V170 L58 190 Z" fill="rgba(255,255,255,.18)"/>
+   <g clip-path="url(#${u}c)"><g class="letters">${L.map((l,i)=>`<text x="${100+i*120}" y="150" text-anchor="middle" font-family="Heebo" font-weight="900" font-size="84" fill="#fff">${l}</text>`).join('')}</g></g>
+  </svg>`;
+}
+
+/* ---------- small icons ---------- */
+const ICON={
+ pin:'<svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="#fff"/></svg>',
+ candle:'<svg viewBox="0 0 24 24"><path d="M12 1.5c2 2.5 2.2 4.2 0 6-2.2-1.8-2-3.5 0-6z" fill="#fff"/><rect x="9" y="9" width="6" height="12" rx="1.5" fill="#fff"/></svg>',
+ donut:'<svg viewBox="0 0 24 24"><ellipse cx="12" cy="14" rx="9.5" ry="6.5" fill="#fff"/><path d="M9 9.5c0-2 1.3-3 3-3s3 1 3 3c-1 .9-5 .9-6 0z" fill="#ffd0d6"/></svg>',
+ building:'<svg viewBox="0 0 24 24"><path d="M5 22V3h14v19h-5v-4h-4v4z" fill="#fff"/><g fill="#1aa0b4"><rect x="8" y="6" width="2.5" height="2.5"/><rect x="13.5" y="6" width="2.5" height="2.5"/><rect x="8" y="11" width="2.5" height="2.5"/><rect x="13.5" y="11" width="2.5" height="2.5"/></g></svg>',
+ mic:'<svg viewBox="0 0 24 24"><rect x="8.5" y="2" width="7" height="12" rx="3.5" fill="#fff"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V22M8 22h8" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>'};
+document.querySelectorAll('[data-ic]').forEach(e=>e.innerHTML=ICON[e.dataset.ic]);
+
+/* ---------- rolling dates ---------- */
+document.querySelectorAll('[data-roll]').forEach(el=>{
+  const t=+el.dataset.t;let k=0,h='<span class="roller ltr landed" style="--dl:'+(t+1.35)+'s">';
+  for(const ch of el.dataset.roll){
+    if(ch==='.'){h+=`<span class="dotc" style="--dl:${(t+.9).toFixed(2)}s">.</span>`;continue}
+    const f=+ch;let s='';for(let i=0;i<19;i++)s+=`<b>${(f+1+i)%10}</b>`;s+=`<b>${f}</b>`;
+    h+=`<span class="col"><span class="strip" style="--dl:${(t+k*.12).toFixed(2)}s">${s}</span></span>`;k++}
+  el.innerHTML=h+'</span>';
+});
+
+/* ---------- backgrounds: drifting blobs ---------- */
+const bcols=['#9fe6ee','#c4f0c4','#b9dcf7','#d6f6a8','#8fdfe8'];
+document.querySelectorAll('.sbg').forEach((b,j)=>{for(let i=0;i<4;i++){const s=500+R()*500;
+  b.insertAdjacentHTML('beforeend',`<div class="blob" style="left:${R()*1600-200}px;top:${R()*800-200}px;width:${s}px;height:${s}px;background:${bcols[(i+j)%5]};--d:${5+R()*4}s;--x:${R()*500-250}px;--y:${R()*300-150}px"></div>`)}});
+
+/* ---------- overlay sparkles ---------- */
+const star=c=>`<svg viewBox="0 0 40 40"><path d="M20 0C21.5 13 27 18.5 40 20 27 21.5 21.5 27 20 40 18.5 27 13 21.5 0 20 13 18.5 18.5 13 20 0Z" fill="${c}"/></svg>`;
 const fx=document.getElementById('fx');
-for(let i=0;i<28;i++){const d=document.createElement('div');d.className='spark';const s=18+R()*34;
- d.style.cssText=`left:${R()*1880}px;top:${R()*1040}px;--s:${s}px;--d:${1.5+R()*2}s;--dl:${-R()*3}s`;
- d.innerHTML=star.replace('COL',['#f2b632','#14b3c4','#ffffff','#2fae4e'][i%4]);fx.appendChild(d)}
-for(let i=0;i<26;i++){const d=document.createElement('div');d.className='dot';const s=4+R()*8;
- d.style.cssText=`left:${R()*1920}px;top:${700+R()*450}px;width:${s}px;height:${s}px;--d:${5+R()*5}s;--dl:${-R()*8}s`;fx.appendChild(d)}
+for(let i=0;i<22;i++){fx.insertAdjacentHTML('beforeend',`<div class="spark" style="left:${R()*1880}px;top:${R()*1040}px;--s:${14+R()*26}px;--d:${1.6+R()*2}s;--dl:${-R()*3}s">${star(['#f2b632','#22c3d1','#ffffff','#2fae4e'][i%4])}</div>`)}
+for(let i=0;i<18;i++){const s=10+R()*24;fx.insertAdjacentHTML('beforeend',`<div class="bokeh" style="left:${R()*1920}px;top:${600+R()*500}px;width:${s}px;height:${s}px;--d:${6+R()*5}s;--dl:${-R()*8}s"></div>`)}
 
-// flames (coords inside 900x880 menorah crop); shamash first then candles on the beat
-const flames=[[447,92],[237,92],[287,100],[336,108],[385,122],[512,150],[565,158],[618,172],[672,188]];
-function addGlows(id,t0,step){const g=document.getElementById(id);flames.forEach(([x,y],i)=>{const dl=(t0+i*step).toFixed(2)+'s';
- g.insertAdjacentHTML('beforeend',`<div class="glow" style="left:${x}px;top:${y}px;--dl:${dl}"></div><div class="burst" style="left:${x}px;top:${y}px;--dl:${dl}"></div>`)})}
-addGlows('glows1',1.0,0.25);addGlows('glows5',22.7,0.125);
+/* ---------- scene 1 menorah ---------- */
+document.querySelector('#m1').innerHTML=`<div class="popIn" style="--dl:.35s"><div class="bob">${menorah(1.0,.25)}</div></div>`;
 
-// side art for date scenes
-function side(sc,t,img){const s=document.querySelector(sc);
- s.insertAdjacentHTML('afterbegin',`<div class="sideArt">
- <svg class="raybox" viewBox="0 0 100 100">${Array.from({length:16},(_,i)=>`<path d="M50 50 L${50+60*Math.cos(i*Math.PI/8)} ${50+60*Math.sin(i*Math.PI/8)} L${50+60*Math.cos(i*Math.PI/8+.18)} ${50+60*Math.sin(i*Math.PI/8+.18)}Z" fill="#fff"/>`).join('')}</svg>
- ${img}</div>`)}
-side('#s2',8.4,`<div class="bounceIn" style="--dl:9.9s;position:absolute;direction:ltr;width:560px;height:425px;left:60px;top:180px"><div class="jiggle" style="--dl:10.7s"><img class="donut" src="donuts.png"></div></div>`);
-side('#s3',13.4,`<div class="bounceIn" style="--dl:14.9s;position:absolute;left:-60px;top:-80px;width:900px;height:880px;transform:scale(.85)"><div class="jiggle" style="--dl:15.7s;animation-duration:1s"><div class="menorahWrap" style="position:relative;transform:scale(.85)"><img src="menorah.png"></div></div></div>`);
+/* ---------- scene 2 art: sufganiyot + sugar + dreidel ---------- */
+const a2=document.getElementById('art2');
+a2.innerHTML=`<div class="glowdisc" style="left:40px;top:250px;width:720px;height:720px"></div>
+ <div class="drop" style="--dl:9.55s;position:absolute;left:300px;top:395px;width:380px"><div class="idle" style="--dl:10.6s">${donut()}</div></div>
+ <div class="drop" style="--dl:9.85s;position:absolute;left:90px;top:520px;width:470px"><div class="idle" style="--dl:10.9s;animation-direction:alternate-reverse">${donut()}</div></div>
+ <div class="enterSpin" style="--dl:10.2s;position:absolute;left:120px;top:150px;width:170px"><div class="spin">${dreidel()}</div></div>`;
+for(let i=0;i<45;i++)a2.insertAdjacentHTML('beforeend',`<div class="sugar" style="left:${130+R()*520}px;top:${300+R()*60}px;--s:${3+R()*5}px;--d:${1.6+R()*1.4}s;--dl:${10.4+R()*1.6}s;--x:${R()*60-30}px"></div>`);
 
-// confetti for outro
-const cf=document.getElementById('conf');const cols=['#f2b632','#14b3c4','#2fae4e','#0b4a6f','#ff7a59','#ffffff'];
-for(let i=0;i<120;i++){const d=document.createElement('div');d.className='conf';
- d.style.cssText=`left:${R()*1920}px;--w:${14+R()*16}px;--c:${cols[i%6]};--d:${2.4+R()*2.2}s;--dl:${23.6+R()*2.6}s;--rot:${(R()*1440-720)|0}deg`;cf.appendChild(d)}
-// bouncing donuts in outro
+/* ---------- scene 3 art: menorah + music notes ---------- */
+const a3=document.getElementById('art3');
+a3.innerHTML=`<div class="glowdisc" style="left:20px;top:120px;width:780px;height:780px"></div>
+ <div class="popIn" style="--dl:13.5s;position:absolute;left:90px;top:170px;width:620px"><div class="bob">${menorah(14.0,.09)}</div></div>`;
+const nts=['♪','♫','♬','♩'];
+for(let i=0;i<14;i++)a3.insertAdjacentHTML('beforeend',`<div class="note" style="left:${120+R()*560}px;top:${700+R()*120}px;--s:${50+R()*50}px;--c:${['#0e8fa3','#2fae4e','#f2b632','#0a3f60'][i%4]};--d:${2+R()*1.5}s;--dl:${15+R()*2.5}s;--x:${R()*160-80}px;--r:${R()*60-30}deg">${nts[i%4]}</div>`);
+
+/* ---------- scene 5 ---------- */
+document.querySelector('#m5').innerHTML=`<div class="popIn" style="--dl:22.3s"><div class="bob">${menorah(22.7,.125)}</div></div>`;
 const s5=document.getElementById('s5');
-[[140,560,23.9],[1500,560,24.15]].forEach(([x,y,t])=>s5.insertAdjacentHTML('beforeend',`<div class="bounceIn" style="--dl:${t}s;position:absolute;direction:ltr;width:280px;height:212px;left:${x}px;top:${y}px"><div class="jiggle" style="--dl:${t+.8}s"><img class="donut sdonut" src="donuts.png"></div></div>`));
+s5.insertAdjacentHTML('beforeend',`
+ <div class="drop" style="--dl:23.55s;position:absolute;left:150px;top:470px;width:400px"><div class="idle" style="--dl:24.6s">${donut()}</div></div>
+ <div class="drop" style="--dl:23.8s;position:absolute;left:1370px;top:470px;width:400px"><div class="idle" style="--dl:24.8s;animation-direction:alternate-reverse">${donut()}</div></div>
+ <div class="enterSpin" style="--dl:24.1s;position:absolute;left:390px;top:180px;width:150px"><div class="spin">${dreidel()}</div></div>
+ <div class="enterSpin" style="--dl:24.35s;position:absolute;left:1390px;top:160px;width:150px"><div class="spin" style="animation-direction:alternate-reverse">${dreidel()}</div></div>`);
+const cf=document.getElementById('conf');const cols=['#f2b632','#22c3d1','#2fae4e','#0a3f60','#ff7a59','#ffffff','#a8e05f'];
+for(let i=0;i<130;i++)cf.insertAdjacentHTML('beforeend',`<div class="conf" style="left:${R()*1920}px;--w:${12+R()*16}px;--c:${cols[i%7]};--d:${2.4+R()*2.2}s;--dl:${23.6+R()*2.6}s;--rot:${(R()*1440-720)|0}deg;--x:${(R()*200-100)|0}px"></div>`);
 
-// frame stepper for rendering
 window.seek=t=>{for(const a of document.getAnimations()){a.pause();a.currentTime=t*1000}};
 </script>
 </body>
