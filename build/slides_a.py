@@ -12,11 +12,11 @@ def s01(d):
     # holographic rings around the heart
     r1 = s.oval(6.35, 2.95, 3.3, None, dict(c=C.AQUA, w=0.75, a=0.35, dash='sysDash'), name='holo ring 1')
     r2 = s.oval(6.35, 2.95, 4.1, None, dict(c=C.LIME, w=0.5, a=0.25), name='holo ring 2')
-    t1 = s.text(0.75, 1.55, 6.2, 0.95, [[('מעצבים את', {})]], size=48, bold=True, color=C.WHITE, align='r', name='cover line 1')
-    t2 = s.text(0.75, 2.4, 6.2, 1.05, [[('רפואת העתיד', {})]], size=58, bold=True, color=C.WHITE, align='r', name='cover line 2')
-    t3 = s.text(0.75, 3.45, 6.2, 1.0, [[('בעידן ה-', {}), ('AI', {'lang': 'en-US'})]], size=58, bold=True, color=C.LIME, align='r', name='cover line 3')
+    t1 = s.text(0.75, 1.55, 6.2, 0.95, [[('מעצבים את', {})]], size=48, bold=True, color=C.WHITE, align='r', name='cover line 1', font=C.FONT_XB)
+    t2 = s.text(0.75, 2.4, 6.2, 1.05, [[('רפואת העתיד', {})]], size=58, bold=True, color=C.WHITE, align='r', name='cover line 2', font=C.FONT_XB)
+    t3 = s.text(0.75, 3.45, 6.2, 1.0, [[('בעידן ה-', {}), ('AI', {'lang': 'en-US'})]], size=58, bold=True, color=C.LIME, align='r', name='cover line 3', font=C.FONT_XB)
     nm = s.text(0.75, 4.75, 6.2, 0.45, [[('אבי עטיה', {})]], size=22, bold=True, color=C.WHITE, align='r', name='presenter')
-    role = s.text(0.75, 5.2, 6.2, 0.35, [[('סמנכ"ל, חטיבת מערכות מידע ודיגיטל', {})]], size=14, color='A9C9CB', align='r', name='role')
+    role = s.text(0.75, 5.2, 6.2, 0.35, [[('סמנכ"ל, חטיבת מערכות מידע ודיגיטל', {})]], size=14, color='A9C9CB', align='r', name='role', font=C.FONT_L)
     # particles
     random.seed(4)
     parts = []
@@ -171,7 +171,7 @@ def s04(d, n=4):
             st = s.group('stat 30')
             with st:
                 s.rect(xF + 0.1, yy - 0.04, 2.35, rh + 0.08, C.PETROL, None, r=0.1)
-                s.text(xF + 1.32, yy - 0.04, 1.08, rh + 0.08, [[('30%', {'lang': 'en-US'})]], size=30, bold=True, color=C.LIME, align='ctr', anchor='ctr', rtl=False)
+                s.text(xF + 1.32, yy - 0.04, 1.08, rh + 0.08, [[('30%', {'lang': 'en-US'})]], size=30, bold=True, color=C.LIME, align='ctr', anchor='ctr', rtl=False, font=C.FONT_XB)
                 s.text(xF + 0.18, yy - 0.04, 1.18, rh + 0.08, ['מימי האשפוז ינדדו מחוץ למוסד', [('(במחלקות נבחרות)', {'size': 9, 'color': 'B9D9D2', 'bold': False})]],
                        size=10, bold=True, color=C.WHITE, anchor='ctr', lnspc=95)
             s.anim.click(fade(gT, 0, 400), fade(gP.id, 0, 400), wipe(ar, 350, 350, 'right'), slide_in(gF.id, 550, 600, 0.25),

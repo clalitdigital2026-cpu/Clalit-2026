@@ -127,7 +127,7 @@ def s29(d, n=29):
         g = s.group(f'year {yr}')
         with g:
             s.oval(x0 - 0.35, 5.2, 0.5, C.PETROL if j == 0 else C.LIME, dict(c=C.WHITE, w=2), shadow='sm')
-            s.text(x0 - 1.55, 5.0, 1.0, 0.4, [[(yr, {'lang': 'en-US'})]], size=20, bold=True, color=C.PETROL, align='ctr', rtl=False, fill=C.BG, anchor='ctr')
+            s.text(x0 - 1.55, 5.0, 1.0, 0.4, [[(yr, {'lang': 'en-US'})]], size=20, bold=True, color=C.PETROL, align='ctr', rtl=False, fill=C.BG, anchor='ctr', font=C.FONT_XB)
             for k, (t, ic) in enumerate(its):
                 xx = x0 - 0.15 - (k + 1)*2.9 + 0.1
                 s.rect(xx, 5.6, 2.8, 1.12, C.WHITE, dict(c=C.LINE, w=0.75), r=0.16, shadow='sm')
@@ -292,7 +292,7 @@ def s31(d, n=31):
         with g:
             s.oval(x0 - 0.35, 5.45, 0.5, col, dict(c=C.WHITE, w=2), shadow='sm')
             s.rect(x0 - 5.75, 5.78, 5.4, 0.95, C.WHITE, dict(c=col, w=1), r=0.16, shadow='sm')
-            s.text(x0 - 1.45, 5.78, 1.0, 0.95, [[(yr, {'lang': 'en-US'})]], size=22, bold=True, color=col if j == 0 else C.GREEN, anchor='ctr', align='r', rtl=False)
+            s.text(x0 - 1.45, 5.78, 1.0, 0.95, [[(yr, {'lang': 'en-US'})]], size=22, bold=True, color=col if j == 0 else C.GREEN, anchor='ctr', align='r', rtl=False, font=C.FONT_XB)
             s.text(x0 - 5.6, 5.78, 4.1, 0.95, [t], size=13, bold=True, color=C.INK, anchor='ctr')
         yrs.append(g.id)
     s.anim.auto(fade(nx, 0, 400), fade(hd, 200, 500))
@@ -834,7 +834,7 @@ def s41(d, n=41):
     tint = s.rect(0, 0, SW, SH, (C.PETROL, 0.3), name='petrol grade')
     ov = s.rect(0, 0, SW, SH, dict(grad=[(0, C.NIGHT, 1.0), (46, C.NIGHT, 1.0), (64, C.NIGHT, 0.45), (82, C.NIGHT, 0.0)], ang=0), name='left fade')
     ov2 = s.rect(0, 5.0, SW, 2.5, dict(grad=[(0, C.NIGHT, 0), (100, C.NIGHT, 0.9)], ang=90), name='bottom fade')
-    t1 = s.text(0.75, 1.9, 6.0, 1.9, ['תודה'], size=110, bold=True, color=C.WHITE, align='r', anchor='ctr', name='thanks')
+    t1 = s.text(0.75, 1.9, 6.0, 1.9, ['תודה'], size=110, bold=True, color=C.WHITE, align='r', anchor='ctr', name='thanks', font=C.FONT_XB)
     t2 = s.text(0.75, 3.85, 6.0, 0.7, ['מעצבים את רפואת העתיד'], size=30, bold=True, color=C.LIME, align='r', name='message')
     random.seed(11)
     parts = []

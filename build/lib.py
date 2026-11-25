@@ -29,7 +29,7 @@ class C:
     TEAL_T = 'DDF0F0'; LIME_T = 'EEF7DA'; GREEN_T = 'E5F3EA'
     # semantic (used only where meaning requires)
     AMBER = 'D99A1E'; AMBER_T = 'FCF2DC'; SLATE_T = 'E9EFF0'; RISK = 'D9534F'
-    FONT = 'Open Sans Hebrew'
+    FONT = 'Open Sans Hebrew'; FONT_XB = 'Open Sans Hebrew Extra Bold'; FONT_L = 'Open Sans Hebrew Light'
 
 # typography scale (pt)
 T_TITLE = 30; T_SUB = 16; T_EYEBROW = 11; T_H = 17; T_BODY = 13; T_SMALL = 11
@@ -95,6 +95,7 @@ def effect_xml(shadow=None, glow=None, soft=None):
 # ------------------------------------------------------------------ text XML
 def rpr(size, color, bold=False, italic=False, lang=None, spc=None, alpha=None, font=None, u=False):
     font = font or C.FONT
+    if font != C.FONT: bold = False   # weight comes from the family itself (Light / Extra Bold)
     lang = lang or 'he-IL'
     b = ' b="1"' if bold else ' b="0"'
     i = ' i="1"' if italic else ''
@@ -104,7 +105,7 @@ def rpr(size, color, bold=False, italic=False, lang=None, spc=None, alpha=None, 
             f'<a:solidFill>{clr(color, alpha)}</a:solidFill>'
             f'<a:latin typeface="{font}"/><a:ea typeface="{font}"/><a:cs typeface="{font}"/></a:rPr>')
 
-def para_xml(runs, align='r', rtl=True, lnspc=None, spcb=0, spca=0, size=13, color=C.INK, bold=False, bullet=None, indent=0, lnpts=None):
+def para_xml(runs, align='r', rtl=True, lnspc=None, spcb=0, spca=0, size=13, color=C.INK, bold=False, bullet=None, indent=0, lnpts=None, font=None):
     """runs: str or list of (text, opts) / str"""
     if isinstance(runs, str): runs = [(runs, {})]
     ppr = f'<a:pPr algn="{align}" rtl="{1 if rtl else 0}"'
@@ -127,7 +128,7 @@ def para_xml(runs, align='r', rtl=True, lnspc=None, spcb=0, spca=0, size=13, col
             out += f'<a:br>{rpr(o.get("size", size), o.get("color", color), o.get("bold", bold))}</a:br>'
             continue
         lang = o.get('lang') or ('he-IL' if (rtl or is_heb(t)) else 'en-US')
-        out += (f'<a:r>{rpr(o.get("size", size), o.get("color", color), o.get("bold", bold), o.get("italic", False), lang, o.get("spc"), o.get("alpha"), u=o.get("u", False))}'
+        out += (f'<a:r>{rpr(o.get("size", size), o.get("color", color), o.get("bold", bold), o.get("italic", False), lang, o.get("spc"), o.get("alpha"), font=o.get("font", font), u=o.get("u", False))}'
                 f'<a:t xml:space="preserve">{esc(t)}</a:t></a:r>')
     return f'<a:p>{ppr}{out}<a:endParaRPr lang="he-IL" sz="{int(size*100)}" dirty="0"/></a:p>'
 
@@ -237,11 +238,11 @@ class Slide:
 
     def text(self, x, y, w, h, paras, size=T_BODY, color=None, bold=False, align=None, rtl=True, anchor='t',
              lnspc=None, name=None, fill=None, line=None, r=None, ins=(0, 0, 0, 0), spca=0, wrap=True, shadow=None,
-             bullet=None, indent=0.18, autofit=False, lnpts=None, vert=None, glow=None):
+             bullet=None, indent=0.18, autofit=False, lnpts=None, vert=None, glow=None, font=None):
         color = color or (C.WHITE if self.dark else C.INK)
         if align is None: align = 'r' if rtl else 'l'
         if isinstance(paras, str): paras = [paras]
-        ps = ''.join(para_xml(p, align, rtl, lnspc, 0, spca, size, color, bold, bullet, indent, lnpts) for p in paras)
+        ps = ''.join(para_xml(p, align, rtl, lnspc, 0, spca, size, color, bold, bullet, indent, lnpts, font) for p in paras)
         l, t, rr, b = ins
         body = (f'<p:txBody><a:bodyPr wrap="{"square" if wrap else "none"}" lIns="{emu(l)}" tIns="{emu(t)}" rIns="{emu(rr)}" bIns="{emu(b)}" '
                 f'rtlCol="{1 if rtl else 0}" anchor="{anchor}"{" vert=%s" % chr(34)+vert+chr(34) if vert else ""}>{"<a:normAutofit/>" if autofit else "<a:noAutofit/>"}</a:bodyPr><a:lstStyle/>{ps}</p:txBody>')
@@ -351,7 +352,7 @@ class Slide:
                                  color=color or (C.WHITE if self.dark else C.PETROL), name='!!title', anchor='t', lnspc=95)
         if sub:
             ids['sub'] = self.text(x, y + 0.62, w, 0.4, sub if isinstance(sub, list) else [sub], size=T_SUB, align=align,
-                                   color=subcolor or ('B7D3D3' if self.dark else C.MUTED), name='!!subtitle', lnspc=100)
+                                   color=subcolor or ('B7D3D3' if self.dark else C.MUTED), name='!!subtitle', lnspc=100, font=C.FONT_L)
         return ids
 
     def logo(self, white=None):

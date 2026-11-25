@@ -11,9 +11,9 @@ def countup(s, x, y, w, h, frames, final_runs, size, color, bg, align='ctr', rtl
     """frames: list of intermediate strings. Intermediate boxes are drawn in the background colour and flashed visible in sequence."""
     fx = []
     for k, f in enumerate(frames):
-        fid = s.text(x, y, w, h, [[(f, {'lang': 'en-US'})]], size=size, bold=True, color=bg, align=align, anchor='ctr', rtl=rtl, name=f'{name} frame {k}')
+        fid = s.text(x, y, w, h, [[(f, {'lang': 'en-US'})]], size=size, bold=True, color=bg, align=align, anchor='ctr', rtl=rtl, name=f'{name} frame {k}', font=C.FONT_XB)
         fx.append(flash_color(fid, color, start + k*step, step))
-    fin = s.text(x, y, w, h, [final_runs], size=size, bold=True, color=color, align=align, anchor='ctr', rtl=rtl, name=f'{name} value')
+    fin = s.text(x, y, w, h, [final_runs], size=size, bold=True, color=color, align=align, anchor='ctr', rtl=rtl, name=f'{name} value', font=C.FONT_XB)
     fx.append(appear(fin, start + len(frames)*step))
     return fin, fx
 
@@ -243,7 +243,7 @@ def s12(d, n=12):
     nb = s.group('new block')
     with nb:
         s.rect(7.75, 4.4, 4.98, 2.0, dict(grad=[(0, C.PETROL), (100, '0A5A66')], ang=0), None, r=0.18, shadow='md')
-    four = s.text(11.2, 4.35, 1.45, 1.55, [[('4', {'lang': 'en-US'})]], size=92, bold=True, color=C.LIME, align='ctr', anchor='ctr', rtl=False, name='big four')
+    four = s.text(11.2, 4.35, 1.45, 1.55, [[('4', {'lang': 'en-US'})]], size=92, bold=True, color=C.LIME, align='ctr', anchor='ctr', rtl=False, name='big four', font=C.FONT_XB)
     four_l = s.text(11.0, 5.75, 1.85, 0.55, ['נושאים קליניים', 'חדשים'], size=11.5, bold=True, color=C.WHITE, align='ctr', lnspc=90)
     nw = []
     for i, t in enumerate(NEW12):
@@ -378,7 +378,7 @@ def s15(d, n=15):
             fin, fx = countup(s, x + 0.25, y + 0.12, kw - 0.5, 0.9, frames, [(val, {'lang': 'en-US'})], 46, C.LIME, col, align='r', start=300 + i*100)
             kp.append((cardid, fin, fx))
         else:
-            fin = s.text(x + 0.25, y + 0.12, kw - 0.5, 0.9, [[('~', {'lang': 'en-US'}), ('שנה', {})]], size=46, bold=True, color=C.LIME, align='r', anchor='ctr', name='kpi value')
+            fin = s.text(x + 0.25, y + 0.12, kw - 0.5, 0.9, [[('~', {'lang': 'en-US'}), ('שנה', {})]], size=46, bold=True, color=C.LIME, align='r', anchor='ctr', name='kpi value', font=C.FONT_XB)
             kp.append((cardid, fin, [rise(fin, 300, 600, 0.03)]))
     # six ways
     hdr = s.text(MX, 3.45, SW - 2*MX, 0.35, [[('כך הבינה המלאכותית מאיצה את הפיתוח', {})]], size=13, bold=True, color=C.TEAL, name='section label')
