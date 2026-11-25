@@ -105,7 +105,11 @@ def s09(d, n=9):
     cols = {k: [] for k in xs}
     for k, (x, w) in xs.items():
         t, f, tc = heads[k]
-        cols[k].append(s.text(x, hy, w, 0.42, [t], size=13, bold=True, color=tc, fill=f, r=0.1, align='ctr', anchor='ctr', name=f'head {k}'))
+        hg = s.group(f'head {k}')
+        with hg:
+            s.text(x, hy, w, 0.42, [t], size=13, bold=True, color=tc, fill=f, r=0.1, align='ctr', anchor='ctr')
+            s.icon({'cat': 'layout-grid', 'prio': 'target', 'exam': 'search', 'keep': 'link'}[k], x + w - 0.24, hy + 0.21, 0.2, C.WHITE, 2.2)
+        cols[k].append(hg.id)
     y = hy + 0.55; chh, st = 0.33, 0.38
     for i, (cat, ic, p, e, kp) in enumerate(T9):
         nlines = max(len(p), len(e), len(kp), 1)
@@ -126,6 +130,17 @@ def s09(d, n=9):
                 cols[k].append(s.text(x + 0.05, y + off + j*st, w - 0.1, chh, [chip_runs(t)], size=10.5, color=R['tc'], fill=R['fill'], line=dict(c=R['line'], w=0.75, a=0.7),
                                       r=0.08, anchor='ctr', align='r', ins=(0.1, 0.0, 0.12, 0.0), name=f'{k} cell'))
         y += rh + 0.05
+    # consolidation graphic (top-left): three system families converge into one platform
+    gx = [(1.0, 1.0, '93A9AC', '7D9296', '6B8084'), (1.75, 0.78, C.AMBER, 'B57F12', '9A6C0F'), (2.5, 1.0, C.TURQ, C.TEAL, C.PETROL)]
+    cubes = []; links = []
+    for (cx_, cy_, top, l_, r_) in gx:
+        cubes.append(iso_slab(s, cx_, cy_, 0.55, 0.22, top, l_, r_, 'system cube'))
+    for (cx_, cy_, *_rest) in gx:
+        links.append(s.path(bez((cx_ + 0.2, cy_ + 0.25), (3.55, 1.12), 0.5), line=dict(c=C.TEAL, w=1, dash='sysDot'), name='converge'))
+    plat = iso_slab(s, 3.95, 1.0, 1.1, 0.16, dict(grad=[(0, C.LIME), (100, C.TURQ)], ang=45), C.TEAL, C.PETROL, 'unified platform')
+    pdots = [dot(s, cx_ + 0.2, cy_ + 0.25, 0.08, C.LIME) for (cx_, cy_, *_r) in gx]
+    s.anim.click(*[zoom(c, i*150, 400, 0.5) for i, c in enumerate(cubes)], *[wipe(l, 400 + i*120, 400, 'right') for i, l in enumerate(links)],
+                 zoom(plat, 800, 500, 0.5), *[flow(p, mpath_curve((gx[i][0] + 0.2, gx[i][1] + 0.25), [bez((gx[i][0] + 0.2, gx[i][1] + 0.25), (3.55, 1.12), 0.5)[1]]), 1200 + i*400, 1400, repeat='indefinite') for i, p in enumerate(pdots)])
     for k in ('cat', 'prio', 'exam', 'keep'):
         s.anim.click(*[fade(c, j*45, 400) for j, c in enumerate(cols[k])])
     s.transition = 'morph'
@@ -248,12 +263,12 @@ def s12(d, n=12):
     nw = []
     for i, t in enumerate(NEW12):
         c = i % 2; r = i // 2
-        x = 10.85 - 1.55 - c*1.6 - 0.05; y = 4.62 + r*0.82
+        x = 10.95 - 1.45 - c*1.55; y = 4.6 + r*0.84
         g = s.group(f'new topic {t}')
         with g:
-            s.rect(x, y, 1.5, 0.66, (C.LIME, 0.14), dict(c=C.LIME, w=1), r=0.12)
-            s.text(x + 0.05, y + 0.04, 1.4, 0.38, [t], size=11, bold=True, color=C.WHITE, align='ctr', anchor='ctr', lnspc=88)
-            s.chip(x + 0.45, y + 0.42, 0.6, 0.2, 'חדש!', C.LIME, C.PETROL, size=8.5)
+            s.rect(x, y, 1.45, 0.7, (C.LIME, 0.14), dict(c=C.LIME, w=1), r=0.12)
+            s.text(x + 0.05, y + 0.05, 1.35, 0.38, [t], size=12, color=C.WHITE, align='ctr', anchor='ctr', lnspc=88)
+            s.chip(x + 0.42, y + 0.44, 0.6, 0.2, 'חדש!', C.LIME, C.PETROL, size=8.5, strong=True)
         nw.append(g.id)
     stmt = s.text(0.6, 6.42, 6.65, 0.42, [[('בשנה הקרובה רמת האיכות של הטיפול במבוטחי כללית תעלה מדרגה ב-', {}), ('4', {'color': C.GREEN}), (' נושאים קליניים חדשים!', {})]],
                   size=13, bold=True, color=C.PETROL, align='ctr', anchor='ctr', name='statement')
@@ -271,7 +286,7 @@ def s13(d, n=13):
     mon, (sx, sy, sw_, sh_) = s.monitor(5.25, 1.9, 7.45, 'image65.jpg')
     bx, by = sx + sw_*0.2295, sy + sh_*0.923
     # zoom lens: real crop of the button area
-    crop = (170/1290, 590/769, 1 - 430/1290, 0)
+    crop = (170/1290, 590/769, (1290 - 430)/1290, 0)
     lw, lh = 3.75, 3.75 * (179*1.0/260) * (1290/1290)
     lh = lw * 179/260
     lx, ly = 0.75, 2.45
@@ -281,6 +296,15 @@ def s13(d, n=13):
     with lens:
         s.rect(lx - 0.07, ly - 0.07, lw + 0.14, lh + 0.14, C.WHITE, dict(c=C.TEAL, w=1.5), r=0.22, shadow='lg')
         s.pic('image65.jpg', lx, ly, lw, lh, crop=crop, r=0.17, name='zoomed button')
+        k_ = lw / 260
+        # crisp re-typeset of the interface text shown in the screenshot (same wording and position)
+        s.rect(lx + 66*k_, ly + 30*k_, 122*k_, 64*k_, C.WHITE, dict(c='E3E7EC', w=0.75), r=0.08, shadow='sm', name='tooltip')
+        s.text(lx + 70*k_, ly + 33*k_, 108*k_, 58*k_, ['לא קיים תור עתידי.', 'לחץ לשליחת SMS', 'להזמנה לתור'], size=12, color='3C4043', align='r', anchor='ctr', lnspc=100, name='tooltip text')
+        s.shape(lx + 121*k_, ly + 93*k_, 12*k_, 7*k_, 'triangle', C.WHITE, None, flipV=True, name='tooltip tip')
+        s.oval(lx + 127*k_, ly + 119*k_, 37*k_, 'E8F0FE', dict(c='4A86E8', w=1.25), name='button')
+        s.icon('calendar-check', lx + 127*k_, ly + 119*k_, 17*k_, '1A73E8', 2)
+        s.rect(lx + 96*k_, ly + 146*k_, 64*k_, 16*k_, C.WHITE, None, name='label bg')
+        s.text(lx + 92*k_, ly + 145*k_, 72*k_, 18*k_, ['הזמנה לתור'], size=11, color='3C4043', align='ctr', anchor='ctr', name='button label')
     tbx, tby = lx + lw*0.485, ly + lh*0.67
     cur = s.icon('mouse-pointer-2', tbx + 0.9, tby + 0.75, 0.42, C.INK, 2, nm='cursor')
     rip = s.oval(tbx, tby, 0.55, (C.LIME, 0.35), dict(c=C.LIME, w=2), name='click ripple')

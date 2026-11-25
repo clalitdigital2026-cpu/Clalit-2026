@@ -238,7 +238,8 @@ class Slide:
 
     def text(self, x, y, w, h, paras, size=T_BODY, color=None, bold=False, align=None, rtl=True, anchor='t',
              lnspc=None, name=None, fill=None, line=None, r=None, ins=(0, 0, 0, 0), spca=0, wrap=True, shadow=None,
-             bullet=None, indent=0.18, autofit=False, lnpts=None, vert=None, glow=None, font=None):
+             bullet=None, indent=0.18, autofit=False, lnpts=None, vert=None, glow=None, font=None, strong=False):
+        if bold and size < 13 and not strong: bold = False   # restrained bold: only headings and key figures
         color = color or (C.WHITE if self.dark else C.INK)
         if align is None: align = 'r' if rtl else 'l'
         if isinstance(paras, str): paras = [paras]
@@ -304,6 +305,12 @@ class Slide:
         vw, vh = iw * (1 - cl - cr), ih * (1 - ct - cb)
         if w is not None and h is None: h = w * vh / vw
         if h is not None and w is None: w = h * vw / vh
+        if fit == 'cover' and crop is not None and w and h:
+            ar_box, ar_im = w / h, vw / vh
+            if ar_im > ar_box:
+                extra = (1 - ar_box / ar_im) * (1 - cl - cr) / 2; cl += extra; cr += extra
+            else:
+                extra = (1 - ar_im / ar_box) * (1 - ct - cb) / 2; ct += extra; cb += extra
         if fit == 'cover' and crop is None:
             # crop to fill box keeping aspect
             ar_box, ar_im = w / h, iw / ih
@@ -339,7 +346,7 @@ class Slide:
 
     # ---------- composites (design system)
     def eyebrow(self, txt, y=TITLE_Y - 0.02, color=None):
-        return self.text(MX, y, SW - 2*MX, 0.26, [[(txt, {'spc': 0.4})]], size=T_EYEBROW, bold=True,
+        return self.text(MX, y, SW - 2*MX, 0.26, [[(txt, {'spc': 0.4})]], size=T_EYEBROW, bold=True, strong=True,
                          color=color or (C.AQUA if self.dark else C.TEAL), name='!!eyebrow')
 
     def title(self, txt, sub=None, eyebrow=None, w=None, y=None, size=T_TITLE, align='r', x=None, color=None, subcolor=None):
@@ -368,10 +375,10 @@ class Slide:
         if not txt: return
         self.sl.notes_slide.notes_text_frame.text = txt
 
-    def chip(self, x, y, w, h, txt, fill, color, size=12, bold=True, line=None, align='ctr', r=None, rtl=True, name=None, ins=0.08):
+    def chip(self, x, y, w, h, txt, fill, color, size=12, bold=True, line=None, align='ctr', r=None, rtl=True, name=None, ins=0.08, strong=False):
         return self.text(x, y, w, h, [txt] if isinstance(txt, (str,)) else txt, size=size, bold=bold, color=color,
                          fill=fill, line=line, r=r if r is not None else h/2, align=align, anchor='ctr', rtl=rtl,
-                         ins=(ins, 0.02, ins, 0.02), name=name)
+                         ins=(ins, 0.02, ins, 0.02), name=name, strong=strong)
 
     def node(self, cx, cy, d, icon, fill=C.PETROL, icolor=C.WHITE, ring=None, shadow='sm', name=None, isz=0.5, sw=1.75, glow=None):
         g = self.group(name or f'node {icon}')
@@ -532,9 +539,25 @@ class Anim:
         self.cid = 2
         self.grp = {}
         self.bld = []
-        out = []
+        # everything runs automatically from slide start: steps are chained one after another
+        # keep each slide's build within ~8 seconds: compress timing proportionally when longer
+        total = sum(self._step_len(f) for _, f in self.steps) + self.gap * (len(self.steps) - 1)
+        k = min(1.0, 8000 / total) if total else 1.0
+        if k < 1.0:
+            for _, fxs in self.steps:
+                for f in fxs:
+                    rep = f.kw.get('repeat')
+                    if f.kind in ('spin',) or rep == 'indefinite' or (f.kind == 'grow' and f.dur > 5000):
+                        f.delay = int(f.delay * k); continue
+                    f.delay = int(f.delay * k); f.dur = max(1, int(f.dur * k))
+            self.gap = int(self.gap * k)
+        t = 0; inner = ''
         for i, (trig, fxs) in enumerate(self.steps):
-            out.append(self._step(trig, fxs, i == 0))
+            inner += self._step_at(fxs, t)
+            t += self._step_len(fxs) + (self.gap if i < len(self.steps) - 1 else 0)
+        a = self.n()
+        out = [f'<p:par><p:cTn id="{a}" fill="hold"><p:stCondLst><p:cond delay="indefinite"/><p:cond evt="onBegin" delay="0"><p:tn val="2"/></p:cond></p:stCondLst>'
+               f'<p:childTnLst>{inner}</p:childTnLst></p:cTn></p:par>']
         bld = ''.join(f'<p:bldP spid="{sid}" grpId="{g}" animBg="1"/>' for sid, g in self.bld)
         xml = (f'<p:timing {NSDECL}><p:tnLst><p:par><p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot"><p:childTnLst>'
                f'<p:seq concurrent="1" nextAc="seek"><p:cTn id="2" dur="indefinite" nodeType="mainSeq"><p:childTnLst>{"".join(out)}</p:childTnLst></p:cTn>'
@@ -560,6 +583,25 @@ class Anim:
 
     def n(self):
         self.cid += 1; return self.cid
+
+    gap = 250
+    def _step_len(self, fxs):
+        end = 0
+        for f in fxs:
+            rep = f.kw.get('repeat')
+            if f.kind in ('spin',) or rep == 'indefinite' or (f.kind == 'grow' and f.dur > 5000): 
+                end = max(end, f.delay + 300); continue
+            d = f.dur * (rep if isinstance(rep, (int, float)) and rep else 1)
+            if f.kind == 'pulse': d = f.dur * 2 * (rep if isinstance(rep, (int, float)) and rep else 1)
+            end = max(end, f.delay + d)
+        return min(end, 4000)
+
+    def _step_at(self, fxs, t):
+        b = self.n()
+        inner = ''
+        for k, f in enumerate(fxs):
+            inner += self._fx(f, 'afterEffect' if k == 0 else 'withEffect')
+        return (f'<p:par><p:cTn id="{b}" fill="hold"><p:stCondLst><p:cond delay="{int(t)}"/></p:stCondLst><p:childTnLst>{inner}</p:childTnLst></p:cTn></p:par>')
 
     def _step(self, trig, fxs, first):
         a = self.n()

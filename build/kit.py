@@ -92,3 +92,22 @@ def agent_mark(s, cx, cy, d=1.0, dark=None, name='AI agent'):
         s.icon('sparkles', cx, cy - d*0.06, d*0.42, C.WHITE, 1.7)
         s.text(cx - d/2, cy + d*0.2, d, d*0.22, [[('AI Agent', {'lang': 'en-US'})]], size=max(7, d*8.5), bold=True, color=C.LIME, align='ctr', rtl=False, anchor='ctr')
     return g.id
+
+def contain(s, src, x, y, w, h, pad=0.0, name=None, r=None, shadow=None):
+    """place image fully inside box (keeps aspect), centred"""
+    p = src if os.path.isabs(src) else os.path.join(MEDIA, src)
+    iw, ih = Image.open(p).size
+    bw, bh = w - 2*pad, h - 2*pad
+    k = min(bw/iw, bh/ih); pw, ph = iw*k, ih*k
+    return s.pic(src, x + (w - pw)/2, y + (h - ph)/2, pw, ph, name=name, r=r, shadow=shadow)
+
+def trimmed(src):
+    """copy of a media image cropped to its visible content (drops transparent / white margins)"""
+    import numpy as np
+    out = os.path.join(CACHE, 'trim_' + os.path.basename(src).split('&')[0] + '.png')
+    if not os.path.exists(out):
+        im = Image.open(os.path.join(MEDIA, src)).convert('RGBA'); a = np.array(im)
+        vis = (a[..., 3] > 25) & (a[..., :3].astype(int).sum(-1) < 735)
+        ys, xs = np.where(vis)
+        im.crop((xs.min(), ys.min(), xs.max() + 1, ys.max() + 1)).save(out)
+    return out

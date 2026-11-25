@@ -92,7 +92,7 @@ def s29(d, n=29):
     s = d.new()
     ids = head(s, n, [[('Longevity score', {'lang': 'en-US'})]], sub='הארכת שנות החיים הבריאות כתחום שירות מוגדר – עם קהלי יעד, מומחים ומסלולים משלו')
     intro(s, ids)
-    nx = s.pic('image48.png', MX, 0.5, w=1.25, crop=NEXT_CROP, name='כללית NEXT')
+    nx = s.pic(os.path.join(CACHE, 'next_logo.png'), MX, 0.5, w=1.2, name='כללית NEXT')
     lap, scr = s.laptop(0.55, 2.0, 4.85, 'image127.png')
     # human at the centre of a metrics ring (no values invented)
     cx, cy = 6.62, 3.05
@@ -246,7 +246,7 @@ def s31(d, n=31):
     s = d.new()
     ids = head(s, n, 'ניתוב חכם', sub='המטופל מנותב למקום המיטבי עבורו בכל נקודת זמן')
     intro(s, ids)
-    nx = s.pic('image48.png', MX, 0.5, w=1.25, crop=NEXT_CROP, name='כללית NEXT')
+    nx = s.pic(os.path.join(CACHE, 'next_logo.png'), MX, 0.5, w=1.2, name='כללית NEXT')
     hd = s.text(MX, 1.95, SW - 2*MX, 0.4, [[('הפתרון המוצע: ', {'color': C.TEAL}), ('סוכן ', {}), ('AI', {'lang': 'en-US'}), (' לניתוב חכם קליני – קליטת פניות בשפה חופשית, זיהוי כוונה וסיווג חכם', {})]],
                 size=14.5, bold=True, color=C.INK, name='solution header')
     # flow (left)
@@ -301,6 +301,18 @@ def s31(d, n=31):
     s.anim.click(rise(A.id, 0, 500, 0.03), pulse(dd[0], 300, 400, 1.05), pulse(dd[1], 450, 400, 1.05))
     s.anim.click(rise(B.id, 0, 500, 0.03), pulse(dd[2], 300, 400, 1.05))
     s.anim.click(fade(lab, 0, 300), fade(tl, 0, 300), wipe(tlp, 100, 1500, 'left'), rise(yrs[0], 300, 500, 0.03), rise(yrs[1], 1100, 500, 0.03))
+    # living micro-animations: request typing, agent breathing, requests routed continuously, timeline marker
+    tdots = [s.oval(4.85 + k*0.14, 3.55, 0.07, C.TEAL, None, name='typing dot') for k in range(3)]
+    loops = [pulse(ag, 0, 1100, 1.05, repeat='indefinite')] + [pulse(t_, k*160, 300, 1.6, repeat='indefinite') for k, t_ in enumerate(tdots)]
+    for i, (t, ic, col, y) in enumerate(dests):
+        pth = bez((3.0, 3.22), (2.45, y), 0.5)
+        p = dot(s, 3.0, 3.22, 0.09, C.LIME)
+        loops.append(flow(p, mpath_curve((3.0, 3.22), [pth[1]]), i*700, 1100, repeat='indefinite'))
+    rq = dot(s, 4.5, 3.22, 0.09, C.TEAL)
+    loops.append(flow(rq, mpath(4.5, 3.22, 4.15, 3.22), 0, 700, repeat='indefinite'))
+    mk = dot(s, SW - MX - 0.35, 5.45, 0.16, C.LIME)
+    loops += [fade(mk, 0, 200), move(mk, mpath(SW - MX - 0.35, 5.45, 12.73 - 6.1 - 0.35, 5.45), 100, 1600), pulse(mk, 1800, 800, 1.3, repeat='indefinite')]
+    s.anim.click(*loops)
     return s
 
 # ---------------------------------------------------------------- 32 NEXT-GEN DIGITAL (reference; structure preserved)
@@ -320,7 +332,7 @@ def s32(d, n=32):
         g = s.group(f'principle {i}')
         with g:
             s.oval(12.2, y + 0.24, 0.28, C.TEAL_T, None); s.oval(12.2, y + 0.24, 0.12, C.TEAL, None)
-            s.text(7.95, y, 4.0, 0.48, [t], size=14.5, bold=True, color=C.INK, anchor='ctr')
+            s.text(7.95, y, 4.0, 0.48, [t], size=14.5, color=C.INK, anchor='ctr')
         bl.append(g.id)
     def column(x, title, items, icons, name):
         hdr = s.group(f'{name} header')

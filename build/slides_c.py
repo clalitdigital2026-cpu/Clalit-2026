@@ -117,21 +117,18 @@ def s18(d, n=18):
         x = SW - MX - cw - (3 - i)*(cw + gap) - 0.0 if False else x
         g = s.group(f'device {nm}')
         with g:
-            s.rect(x, y0, cw, ch, C.WHITE, dict(c=C.LINE, w=0.75), r=0.16, shadow='sm')
-            lf, lw, lc = logos[0]
-            s.pic(lf, x + 0.15, y0 + 0.14, w=lw, crop=lc, name=f'{nm} logo')
-            s.text(x + 0.15, y0 + ch - 0.4, cw - 0.3, 0.3, [cap], size=10.5, bold=True, color=C.MUTED, align='r')
-            px = x + cw - 0.15
-            dims = []
-            for (pf, pw) in prods:
-                im = Image.open(os.path.join(MEDIA, pf)); iw, ih = im.size
-                ph = min(pw * ih / iw, 1.05); dims.append((pf, ph * iw / ih, ph))
-            tot = sum(dd[1] for dd in dims) + 0.05*(len(dims) - 1)
-            k = min(1.0, (cw - 0.3) / tot)
-            for pf, pww, ph in dims:
-                pww *= k; ph *= k
-                s.pic(pf, px - pww, y0 + 0.62 + (1.05 - ph)/2, pww, ph, name=f'{nm} device', r=0.06 if pf.endswith('jpeg') else None)
-                px -= pww + 0.05*k
+            s.rect(x, y0, cw, ch, C.WHITE, dict(c=C.LINE, w=0.75), r=0.16, shadow='md')
+            sx_, sy_, sw2, sh2 = x + 0.1, y0 + 0.1, cw - 0.2, 1.32
+            if prods[0][0].endswith('jpeg'):      # real photo: fills the stage
+                s.pic(prods[0][0], sx_, sy_, sw2, sh2, fit='cover', r=0.12, name=f'{nm} device')
+            else:
+                s.rect(sx_, sy_, sw2, sh2, C.WHITE, dict(c=C.MIST, w=0.75), r=0.12)
+                n_ = len(prods); slot = sw2 / n_
+                for j, (pf, _pw) in enumerate(prods):
+                    contain(s, pf, sx_ + sw2 - (j + 1)*slot, sy_, slot, sh2, pad=0.12 if n_ == 1 else 0.05, name=f'{nm} device')
+            lf = trimmed(logos[0][0])
+            contain(s, lf, x + cw - 1.55, y0 + 1.5, 1.4, 0.34, name=f'{nm} logo')
+            s.text(x + 0.15, y0 + 1.86, cw - 0.3, 0.28, [cap], size=11, color=C.MUTED, align='r', anchor='ctr')
         cards.append(g.id)
         a = (x + cw/2, y0 - 0.02); b = (hx + (i - 1.5)*0.32, hy + 0.95)
         pth = bez(a, b, 0.55, 'v')
@@ -181,7 +178,7 @@ def series(d, n, title, sub, visual, photo, extra=None):
     with panel:
         s.rect(8.85, 1.85, 3.88, 2.35, dict(grad=[(0, '0A4650'), (100, C.NIGHT2)], ang=90), None, r=0.2, shadow='md', name='source bg')
     vis = visual(s, 8.85, 1.85, 3.88, 2.35)
-    ph = s.pic(photo[0], 8.85, 4.4, 3.88, 2.3, crop=photo[1], r=0.2, name='!!photo', shadow='sm')
+    ph = s.pic(photo[0], 8.85, 4.4, 3.88, 2.3, crop=photo[1], r=0.2, name='!!photo', shadow='sm', fit='cover')
     # flow from source to highlight
     tx, ty = (sx + sw_*hls[0][0] + sw_*hls[0][2], sy + sh_*hls[0][1] + sh_*hls[0][3]/2)
     pth = bez((8.8, 3.0), (tx + 0.05, ty), 0.45)
@@ -277,7 +274,7 @@ def s22(d, n=22):
     s = d.new(dark=True)
     ids = head(s, n, 'אייג׳נטים למציאת פערי טיפול בקרב מאושפזי המחלקה')
     intro(s, ids)
-    gx, gy = 0.6, 1.95; cw, ch, gxp, gyp = 1.52, 0.92, 0.12, 0.12
+    gx, gy = 0.6, 1.95; cw, ch, gxp, gyp = 1.36, 0.92, 0.12, 0.12
     recs = []; alert_cards = {}
     for r in range(4):
         for c in range(4):
@@ -302,13 +299,13 @@ def s22(d, n=22):
             s.icon('triangle-alert', x + cw - 0.27, y + ch - 0.22, 0.17, C.NIGHT, 2.4)
             s.text(x + 0.12, y + ch - 0.36, cw - 0.5, 0.28, [[(lab, {'lang': 'en-US' if lab == 'AKI' else 'he-IL'})]], size=10.5, bold=True, color=C.NIGHT, anchor='ctr', align='r')
         alerts.append(g.id)
-    ag = agent_mark(s, 7.55, 3.95, 1.05)
+    ag = agent_mark(s, 7.45, 3.95, 1.0)
     proto = s.group('protocols')
     with proto:
-        s.rect(6.9, 4.85, 1.3, 1.3, (C.WHITE, 0.06), dict(c=C.LIME, w=0.75, a=0.6), r=0.12)
-        s.icon('clipboard-check', 7.55, 5.3, 0.4, C.LIME, 1.8)
-        s.text(6.92, 5.6, 1.26, 0.45, ['פרוטוקולי', 'איכות'], size=10, bold=True, color=C.WHITE, align='ctr', lnspc=90)
-    lk = s.line(7.55, 4.55, 7.55, 4.83, C.LIME, 1.25, dash='sysDot')
+        s.rect(6.8, 4.85, 1.3, 1.3, (C.WHITE, 0.06), dict(c=C.LIME, w=0.75, a=0.6), r=0.12)
+        s.icon('clipboard-check', 7.45, 5.3, 0.4, C.LIME, 1.8)
+        s.text(6.82, 5.6, 1.26, 0.45, ['פרוטוקולי', 'איכות'], size=10, bold=True, color=C.WHITE, align='ctr', lnspc=90)
+    lk = s.line(7.45, 4.6, 7.45, 4.83, C.LIME, 1.25, dash='sysDot')
     head_t = s.text(8.6, 1.95, 4.13, 1.55, ['אייג׳נטים ייעודיים למצוא פערי טיפול אל מול פרוטוקולי איכות טיפול שכל מחלקה תבחר להגדיר'], size=17, bold=True, color=C.WHITE, lnspc=110)
     st = s.text(8.6, 3.62, 4.13, 0.62, [[('החל פיתוח פרוטוקולים ראשונים בשת"פ מחלקות בלינסון:', {})]], size=13, bold=True, color=C.LIME, lnspc=105)
     b1 = s.group('example AKI')
@@ -323,7 +320,7 @@ def s22(d, n=22):
         s.text(8.75, 5.35, 3.2, 0.8, ['איתור מתן תרופות נפרוטוקסיות'], size=14, bold=True, color=C.WHITE, anchor='ctr')
     bd = badge(s, 8.6, 6.38, 'בשלבי פיתוח', 'dev', 11, w=1.35)
     s.anim.click(*[fade(r, i*35, 350) for i, r in enumerate(recs)], fade(head_t, 300, 500))
-    s.anim.click(zoom(ag, 0, 600, 0.6), wipe(lk, 300, 300, 'down'), fade(proto.id, 400, 400), fade(beam, 600, 300), flow(beam, mpath(gx - 0.1, gy, 6.35, gy), 700, 3200, fade=True))
+    s.anim.click(zoom(ag, 0, 600, 0.6), wipe(lk, 300, 300, 'down'), fade(proto.id, 400, 400), fade(beam, 600, 300), flow(beam, mpath(gx - 0.1, gy, 5.95, gy), 700, 3200, fade=True))
     s.anim.click(fade(st, 0, 400), fade(bd, 0, 400), zoom(alerts[0], 300, 450, 0.8), pulse(alerts[0], 800, 400, 1.05), rise(b1.id, 400, 500, 0.02))
     s.anim.click(zoom(alerts[1], 0, 450, 0.8), pulse(alerts[1], 500, 400, 1.05), rise(b2.id, 100, 500, 0.02))
     return s
@@ -434,7 +431,7 @@ def s25(d, n=25):
     sub = s.text(MX, 1.28, SW - 2*MX, 0.62, [[('כלי תמלול וסיכום מבוססי ', {}), ('AI', {'lang': 'en-US'}), (', הפועלים ברקע בעת המפגש הרפואי ומייצרים תיעוד אוטומטי – כלים אלו הוכחו בעולם ככלים המקלים על תחושת העומס והשחיקה של הצוותים הרפואיים', {})]],
                  size=14, color=C.MUTED, lnspc=108, name='!!subtitle')
     # human encounter
-    photo = s.pic('image121.png', 2.35, 2.55, 4.6, 3.3, crop=(0.24, 0.30, 0.17, 0.0), r=0.22, name='doctor-patient encounter', shadow='md')
+    photo = s.pic('image22.jpeg', 2.35, 2.55, 4.6, 3.3, crop=(0.0, 0.0, 0.0, 0.0), fit='cover', r=0.22, name='doctor-patient encounter', shadow='md')
     # sound wave above
     wbg = s.rect(2.45, 1.95, 4.4, 0.7, C.PETROL, None, r=0.35, shadow='md', name='wave pill')
     wave = []

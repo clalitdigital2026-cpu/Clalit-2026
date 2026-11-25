@@ -98,8 +98,8 @@ def s03(d, n=3):
             iso_slab(s, cx, cy - k*0.42, 2.7 - k*0.55, 0.2, top, col, C.PETROL_D, f'layer {k}')
         s.oval(cx, cy - 1.02, 0.62, C.LIME, dict(c=C.WHITE, w=1.5), shadow='sm', glow=(C.LIME, 8, 0.35))
         s.icon('cpu', cx, cy - 1.02, 0.34, C.PETROL, 2)
-    tags_l = [('AI & Automation', 1.55, 3.35), ('Advanced Data Analytics', 4.95, 3.3), ('Machine Learning', 1.45, 4.25), ('Smart Support Tools', 5.05, 4.3),
-              ('תמיכה בצוות רפואי', 1.5, 5.55), ('שיפור חווית מטופל', 5.0, 5.55)]
+    tags_l = [('AI & Automation', 1.78, 3.35), ('Advanced Data Analytics', 4.95, 3.3), ('Machine Learning', 1.78, 4.25), ('Smart Support Tools', 5.05, 4.3),
+              ('תמיכה בצוות רפואי', 1.78, 5.55), ('שיפור חווית מטופל', 5.0, 5.55)]
     tls = []
     for t, x, y in tags_l:
         heb = is_heb(t)
@@ -112,7 +112,7 @@ def s03(d, n=3):
     hub = s.group('hub NEXT')
     with hub:
         s.oval(6.67, 3.95, 1.12, C.WHITE, dict(c=C.LIME, w=2), shadow='md', glow=(C.LIME, 10, 0.3))
-        s.pic('image48.png', 6.67 - 0.45, 3.95 - 0.12, 0.9, crop=NEXT_CROP, name='כללית NEXT')
+        s.pic(os.path.join(CACHE, 'next_logo.png'), 6.67 - 0.4, 3.95 - 0.056, 0.8, name='כללית NEXT')
     stmt = s.text(1.6, 6.27, 10.13, 0.5, [[('הטכנולוגיה ', {'bold': True, 'color': C.LIME}), ('מניעה את התהליך, ', {}), ('והארגון ', {'bold': True, 'color': C.LIME}), ('מאפשר לטכנולוגיה להצליח', {})]],
                   size=17, color=C.WHITE, bold=True, fill=dict(grad=[(0, C.PETROL), (100, C.TEAL)], ang=0), r=0.25, align='ctr', anchor='ctr', name='statement')
     s.anim.click(fade(L.id, 0, 500), *[rise(t, 350 + i*90, 500, 0.02) for i, t in enumerate(tls)])
@@ -218,7 +218,7 @@ def s05(d, n=5):
         arrow = s.shape(x1 - 0.12, ly - 0.14, 0.22, 0.28, 'triangle', C.TEAL, None, rot=-90, name='track head')
         nodes = []
         k = len(items)
-        sp = (x0 - 0.55 - (x1 + 0.45)) / (k - 1)
+        sp = (x0 - 0.55 - (x1 + 1.0)) / (k - 1)
         for j, (t, ic, nxt) in enumerate(items):
             cx = x0 - 0.55 - j*sp
             g = s.group(f'milestone {t}')
@@ -229,8 +229,8 @@ def s05(d, n=5):
                 heb = is_heb(t)
                 s.text(cx - tw/2, ly + 0.42, tw, 0.9, [t], size=11.5, bold=True, color=C.INK, align='ctr', lnspc=92, rtl=True)
                 if nxt:
-                    s.rect(cx - 0.42, ly - 0.72, 0.84, 0.27, C.WHITE, dict(c=C.LINE, w=0.5), r=0.135)
-                    s.pic('image48.png', cx - 0.34, ly - 0.672, 0.68, crop=NEXT_CROP, name='כללית NEXT')
+                    s.rect(cx - 0.45, ly - 0.74, 0.9, 0.28, C.WHITE, dict(c=C.LINE, w=0.5), r=0.14, shadow='sm')
+                    s.pic(os.path.join(CACHE, 'next_logo.png'), cx - 0.33, ly - 0.6 - 0.0465, 0.66, name='כללית NEXT')
             nodes.append(g.id)
         allsteps.append([fade(lab.id, 0, 400), wipe(track, 100, 900, 'left'), fade(arrow, 900, 300)] +
                         [zoom(nd, 300 + j*140, 450, 0.6) for j, nd in enumerate(nodes)] + dots)

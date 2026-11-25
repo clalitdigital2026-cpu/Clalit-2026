@@ -10,7 +10,7 @@ def orig_notes(i):
     return ''
 import slides_a
 mods = [slides_a]
-for m in ['slides_b','slides_c','slides_d','slides_e']:
+for m in ['slides_b','slides_c','slides_d','slides_e','slides_f']:
     try: mods.append(importlib.import_module(m))
     except ModuleNotFoundError: pass
 only = [int(a) for a in sys.argv[1:]] if len(sys.argv) > 1 else None
