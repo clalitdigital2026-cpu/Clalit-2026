@@ -176,9 +176,14 @@ def series(d, n, title, sub, visual, photo, extra=None):
     # right column: data source panel + human photo
     panel = s.group('!!source-panel')
     with panel:
-        s.rect(8.85, 1.85, 3.88, 2.35, dict(grad=[(0, '0A4650'), (100, C.NIGHT2)], ang=90), None, r=0.2, shadow='md', name='source bg')
-    vis = visual(s, 8.85, 1.85, 3.88, 2.35)
-    ph = s.pic(photo[0], 8.85, 4.4, 3.88, 2.3, crop=photo[1], r=0.2, name='!!photo', shadow='sm', fit='cover')
+        s.rect(8.85, 1.85, 3.88, 2.1, dict(grad=[(0, '0A4650'), (100, C.NIGHT2)], ang=90), None, r=0.2, shadow='md', name='source bg')
+    vis = visual(s, 8.85, 1.85, 3.88, 2.1)
+    l_, t_, r_, b_ = photo[1]
+    iw_, ih_ = Image.open(os.path.join(MEDIA, photo[0])).size
+    ar_ = (iw_*(1-l_-r_)) / (ih_*(1-t_-b_))
+    hmax = 2.0 if extra else 2.72
+    pw_ = min(3.88, hmax*ar_); phh = pw_ / ar_
+    ph = s.pic(photo[0], 12.73 - pw_, 4.12, pw_, phh, crop=photo[1], r=0.2, name='!!photo', shadow='sm')
     # flow from source to highlight
     tx, ty = (sx + sw_*hls[0][0] + sw_*hls[0][2], sy + sh_*hls[0][1] + sh_*hls[0][3]/2)
     pth = bez((8.8, 3.0), (tx + 0.05, ty), 0.45)
@@ -260,9 +265,9 @@ def s21(d, n=21):
     def extra(s):
         b = s.group('abbott')
         with b:
-            s.rect(8.85, 6.12, 3.88, 0.62, dict(grad=[(0, C.LIME), (100, '7DB800')], ang=0), None, r=0.31, shadow='md', glow=(C.LIME, 8, 0.35))
-            s.icon('handshake', 12.35, 6.43, 0.32, C.PETROL, 2)
-            s.text(8.95, 6.12, 3.2, 0.62, ['נחתם הסכם אבוט!'], size=17, bold=True, color=C.PETROL, anchor='ctr', align='ctr')
+            s.rect(8.85, 6.25, 3.88, 0.6, dict(grad=[(0, C.LIME), (100, '7DB800')], ang=0), None, r=0.31, shadow='md', glow=(C.LIME, 8, 0.35))
+            s.icon('handshake', 12.35, 6.55, 0.32, C.PETROL, 2)
+            s.text(8.95, 6.25, 3.2, 0.6, ['נחתם הסכם אבוט!'], size=17, bold=True, color=C.PETROL, anchor='ctr', align='ctr')
         return [zoom(b.id, 0, 600, 0.6), pulse(b.id, 700, 500, 1.06)]
     s = series(d, n, 'תרגום דאטה של גלוקוז רציף להמלצות טיפול', 'משימה שעד היום הייתה נחלתם של אנדוקרינולוגים',
                lambda s, x, y, w, h: chart_visual(s, x, y, w, h, [245, 258, 234, 267], None, 'mg/dL', 'ניטור גלוקוז רציף', C.LIME, 'radio'),
@@ -511,8 +516,7 @@ def s26(d, n=26):
         with g:
             s.rect(4.55, y, 2.6, 1.0, C.WHITE, dict(c=C.TEAL, w=1), r=0.14, shadow='md')
             s.oval(6.78, y + 0.5, 0.48, C.TEAL_T, None); s.icon(ic, 6.78, y + 0.5, 0.26, C.PETROL, 2)
-            s.text(4.65, y + 0.1, 1.85, 0.42, [t], size=11.5, bold=True, color=C.PETROL, anchor='ctr', lnspc=95)
-            s.text(4.65, y + 0.5, 1.85, 0.42, [sub], size=10.5, color=C.MUTED, anchor='ctr', lnspc=95)
+            s.text(4.7, y + 0.06, 1.75, 0.88, [[(t, {'bold': True, 'color': C.PETROL, 'size': 12.5})], [(sub, {'color': C.MUTED, 'size': 11})]], size=12, anchor='ctr', lnspc=100)
         oids.append(g.id)
     scr = s.pic('image122.png', 0.6, 2.05, 3.7, r=0.12, shadow='lg', name='summary screen')
     frame = s.rect(0.6, 2.05, 3.7, 3.7*707/995, None, dict(c=C.LINE, w=0.75), r=0.12, name='screen frame')

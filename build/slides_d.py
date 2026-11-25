@@ -171,7 +171,7 @@ def s30(d, n=30):
     colx = [MX + i*(cw + 0.05) for i in range(10)]
     ccx = [x + cw/2 for x in colx]
     # channels row
-    lab_ch = s.text(MX, 1.2, SW - 2*MX, 0.28, ['אפיקי פניית מטופלים'], size=12, bold=True, color=C.TEAL, align='r')
+    lab_ch = s.text(MX, 1.14, SW - 2*MX, 0.28, ['אפיקי פניית מטופלים'], size=12, bold=True, color=C.TEAL, align='r')
     chw = (SW - 2*MX - 0.35 - 8*0.06) / 9
     chs = []
     for i, (t, ic) in enumerate(zip(CH30, CHI30)):
@@ -179,9 +179,9 @@ def s30(d, n=30):
         ref = i >= 7
         g = s.group(f'channel {t}')
         with g:
-            s.rect(x, 1.5, chw, 0.62, C.PETROL if not ref else C.WHITE, dict(c=C.PETROL, w=1, dash='dash') if ref else None, r=0.1, shadow='sm')
-            s.icon(ic, x + chw - 0.2, 1.81, 0.2, C.LIME if not ref else C.PETROL, 2)
-            s.text(x + 0.05, 1.5, chw - 0.33, 0.62, [t], size=9, bold=True, color=C.WHITE if not ref else C.PETROL, anchor='ctr', lnspc=88)
+            s.rect(x, 1.46, chw, 0.76, C.PETROL if not ref else C.WHITE, dict(c=C.PETROL, w=1, dash='dash') if ref else None, r=0.1, shadow='sm')
+            s.icon(ic, x + chw/2, 1.63, 0.2, C.LIME if not ref else C.PETROL, 2)
+            s.text(x + 0.04, 1.77, chw - 0.08, 0.42, [t], size=8.8, color=C.WHITE if not ref else C.PETROL, anchor='ctr', align='ctr', lnspc=88)
         chs.append(g.id)
     # types
     lab_ty = s.text(MX, 2.24, SW - 2*MX, 0.28, ['סוגי פניות'], size=12, bold=True, color=C.TEAL, align='r')

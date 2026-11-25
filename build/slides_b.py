@@ -139,10 +139,10 @@ def s09(d, n=9):
         links.append(s.path(bez((cx_ + 0.2, cy_ + 0.25), (3.55, 1.12), 0.5), line=dict(c=C.TEAL, w=1, dash='sysDot'), name='converge'))
     plat = iso_slab(s, 3.95, 1.0, 1.1, 0.16, dict(grad=[(0, C.LIME), (100, C.TURQ)], ang=45), C.TEAL, C.PETROL, 'unified platform')
     pdots = [dot(s, cx_ + 0.2, cy_ + 0.25, 0.08, C.LIME) for (cx_, cy_, *_r) in gx]
-    s.anim.click(*[zoom(c, i*150, 400, 0.5) for i, c in enumerate(cubes)], *[wipe(l, 400 + i*120, 400, 'right') for i, l in enumerate(links)],
-                 zoom(plat, 800, 500, 0.5), *[flow(p, mpath_curve((gx[i][0] + 0.2, gx[i][1] + 0.25), [bez((gx[i][0] + 0.2, gx[i][1] + 0.25), (3.55, 1.12), 0.5)[1]]), 1200 + i*400, 1400, repeat='indefinite') for i, p in enumerate(pdots)])
     for k in ('cat', 'prio', 'exam', 'keep'):
         s.anim.click(*[fade(c, j*45, 400) for j, c in enumerate(cols[k])])
+    s.anim.click(*[zoom(c, i*150, 400, 0.5) for i, c in enumerate(cubes)], *[wipe(l, 400 + i*120, 400, 'right') for i, l in enumerate(links)],
+                 zoom(plat, 800, 500, 0.5), *[flow(p, mpath_curve((gx[i][0] + 0.2, gx[i][1] + 0.25), [bez((gx[i][0] + 0.2, gx[i][1] + 0.25), (3.55, 1.12), 0.5)[1]]), 1200 + i*400, 1400, repeat='indefinite') for i, p in enumerate(pdots)])
     s.transition = 'morph'
     return s
 
@@ -356,7 +356,7 @@ def s14(d, n=14):
             s.pic('image70.png', x + 0.03, y + 0.24, w - 0.06, h - 0.27, crop=(l, tp, r, b), name='legacy screen')
         lab = s.text(x - 0.05, y - 0.3, w + 0.1, 0.26, [t], size=10.5, bold=True, color=C.MUTED, align='ctr', name='window label')
         wins.append((g.id, lab))
-        conv += [move(g.id, mpath(x + w/2, y + h/2, tx, ty), 150 + i*90, 850), fadeout(g.id, 700 + i*90, 350), fadeout(lab, 0, 300), fadeout(ln, 300, 400)]
+        conv += [move(g.id, mpath(x + w/2, y + h/2, tx, ty), 1800 + i*90, 850), fadeout(g.id, 2350 + i*90, 350), fadeout(lab, 1650, 300), fadeout(ln, 1950, 400)]
     logo = s.group('cpi logo')
     with logo:
         s.rect(0.95, 3.45, 1.7, 0.46, C.WHITE, dict(c=C.LINE, w=0.75), r=0.1, shadow='sm')
@@ -373,7 +373,7 @@ def s14(d, n=14):
         s.oval(12.2, 6.0, 0.6, C.WHITE, None); s.icon('heart-pulse', 12.2, 6.0, 0.32, C.PETROL, 2)
         s.text(8.2, 5.73, 3.6, 0.55, ['רפואה טובה יותר למטופלים'], size=17, bold=True, color=C.LIME, anchor='ctr')
     s.anim.click(*[x for i, (g, lab) in enumerate(wins) for x in (zoom(g, i*130, 450, 0.8), fade(lab, i*130 + 150, 300))], *[wipe(l, 700, 500, 'down') for l in lines])
-    s.anim.click(*conv, zoom(lap, 900, 700, 0.85), fade(logo.id, 1400, 400), fade(desc, 1400, 600))
+    s.anim.click(*conv, zoom(lap, 2550, 700, 0.85), fade(logo.id, 3050, 400), fade(desc, 3050, 600))
     s.anim.click(rise(val.id, 0, 600), pulse(val.id, 700, 500, 1.03))
     return s
 

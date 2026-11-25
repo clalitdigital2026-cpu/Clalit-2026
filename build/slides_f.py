@@ -12,8 +12,8 @@ def s16(d, n=16):
     ids = head(s, n, 'הזמנה פרואקטיבית לשאלון הערכת סיכון לסרטן השד')
     intro(s, ids)
     # soft backdrop circles behind the phone
-    b1 = s.oval(3.55, 4.35, 4.6, dict(radial=[(0, C.TEAL_T), (100, C.BG, 0)], c=(50, 50)), None, name='backdrop')
-    b2 = s.oval(3.55, 4.35, 3.6, None, dict(c=C.LINE, w=1, dash='sysDash'), name='orbit')
+    b1 = s.oval(3.55, 4.5, 4.6, dict(radial=[(0, C.TEAL_T), (100, C.BG, 0)], c=(50, 50)), None, name='backdrop')
+    b2 = s.oval(3.55, 4.5, 3.6, None, dict(c=C.LINE, w=1, dash='sysDash'), name='orbit')
     # Clalit source node + broadcast waves
     sx, sy = 0.98, 2.55
     waves = [s.oval(sx, sy, 0.95, None, dict(c=C.TEAL, w=1.5), name=f'wave {k}') for k in range(3)]
@@ -23,9 +23,9 @@ def s16(d, n=16):
         s.pic('image139.png', sx - 0.36, sy - 0.073, 0.72, name='כללית')
     srcl = s.text(sx - 0.8, sy + 0.55, 1.6, 0.3, ['פנייה יזומה'], size=12, color=C.TEAL, align='ctr', name='outreach label')
     # phone (real chat screenshot, which already contains its device frame)
-    phone = s.pic('image80.png', 2.0, 1.6, h=5.4, crop=(0.155, 0.0, 0.13, 0.0), name='patient chat', r=0.42, shadow='lg')
+    phone = s.pic('image80.png', 2.15, 2.0, h=5.0, crop=(0.155, 0.0, 0.13, 0.0), name='patient chat', r=0.42, shadow='lg')
     # message travelling from Clalit to the phone
-    pth = [(sx + 0.5, sy), ((sx + 1.1, sy - 0.5), (2.0, 1.85), (2.65, 2.25))]
+    pth = [(sx + 0.5, sy), ((sx + 0.9, sy - 0.6), (1.8, 1.72), (2.4, 1.72))]
     arc = s.path(pth, line=dict(c=C.TEAL, w=1.5, dash='sysDot'), name='outreach path')
     env = s.group('message')
     with env:
@@ -33,10 +33,10 @@ def s16(d, n=16):
         s.icon('message-circle-heart', sx + 0.5, sy, 0.24, C.PETROL, 2)
     note = s.group('notification')
     with note:
-        s.rect(2.35, 1.95, 2.45, 0.62, C.WHITE, dict(c=C.LINE, w=0.75), r=0.16, shadow='lg')
-        s.oval(4.48, 2.26, 0.4, C.PETROL, None); s.icon('heart-handshake', 4.48, 2.26, 0.22, C.WHITE, 2)
-        s.text(2.45, 1.97, 1.85, 0.3, [[('כללית AI Pro', {'lang': 'he-IL'})]], size=10.5, bold=True, strong=True, color=C.INK, anchor='ctr')
-        s.text(2.45, 2.25, 1.85, 0.28, ['רפואה יוזמת'], size=10, color=C.MUTED, anchor='ctr')
+        s.rect(2.45, 1.42, 2.75, 0.6, C.WHITE, dict(c=C.LINE, w=0.75), r=0.16, shadow='lg')
+        s.oval(4.88, 1.72, 0.42, C.PETROL, None); s.icon('heart-handshake', 4.88, 1.72, 0.22, C.WHITE, 2)
+        s.text(2.6, 1.44, 1.95, 0.3, [[('כללית AI Pro', {'lang': 'he-IL'})]], size=10.5, bold=True, strong=True, color=C.INK, anchor='ctr')
+        s.text(2.6, 1.72, 1.95, 0.28, ['רפואה יוזמת'], size=9.5, color=C.MUTED, anchor='ctr')
     # hero number
     hero_bg = s.oval(10.0, 3.0, 2.9, dict(radial=[(0, C.LIME_T), (100, C.BG, 0)], c=(50, 50)), None, name='number glow')
     fin, fx = countup(s, 6.6, 1.55, 6.13, 1.75, ['0.1M', '0.3M', '0.5M', '0.7M', '0.9M', '1.0M', '1.1M'], [('1.2M', {'lang': 'en-US'})], 108, C.PETROL, C.BG, align='r', start=100, step=70, name='1.2M')
@@ -59,7 +59,7 @@ def s16(d, n=16):
                 rise(phone, 300, 800, 0.04))
     s.anim.after(*[x for k, w in enumerate(waves) for x in (fade(w, k*350, 100), grow(w, k*350, 1600, 2.2), fadeout(w, k*350 + 900, 700))],
                  wipe(arc, 300, 600, 'right'), fade(env.id, 300, 200), move(env.id, mpath_curve(pth[0], [pth[1]]), 400, 1000), fadeout(env.id, 1350, 250),
-                 slide_in(note.id, 1400, 600, 0.0, -0.15), pulse(note.id, 2100, 400, 1.04))
+                 slide_in(note.id, 1400, 600, 0.0, 0.15), pulse(note.id, 2100, 400, 1.04))
     s.anim.after(fade(hero_bg, 0, 600), *fx, fade(cap, 700, 600))
     s.anim.after(*[zoom(p, (i % 14)*55 + (i // 14)*120, 300, 0.3) for i, p in enumerate(people)])
     s.anim.after(rise(camp.id, 0, 600, 0.03))
@@ -71,9 +71,9 @@ def s27(d, n=27):
     s = d.new()
     ids = head(s, n, 'פלטפורמת פנדה – איתור מידע אמין ומהיר להקלה על הצוותים')
     intro(s, ids)
-    back = s.oval(3.6, 4.2, 5.0, dict(radial=[(0, C.TEAL_T), (100, C.BG, 0)], c=(50, 50)), None, name='backdrop')
-    lap, (lsx, lsy, lsw, lsh) = s.laptop(0.45, 2.05, 5.0, 'image124.png')
-    ph, (px, py, pw, ph_) = s.phone(5.05, 2.55, 2.0, None, name='!!phone')
+    back = s.oval(3.9, 3.9, 5.4, dict(radial=[(0, C.TEAL_T), (100, C.BG, 0)], c=(50, 50)), None, name='backdrop')
+    lap, (lsx, lsy, lsw, lsh) = s.laptop(1.0, 1.95, 5.9, 'image124.png')
+    ph, (px, py, pw, ph_) = s.phone(0.55, 3.15, 1.82, None, name='!!phone')
     chat = s.group('chat header')
     with chat:
         s.rect(px, py, pw, 0.6, dict(grad=[(0, C.PETROL), (100, C.TEAL)], ang=0), None, r=0.22); s.rect(px, py + 0.3, pw, 0.3, C.TEAL, None)
@@ -86,7 +86,7 @@ def s27(d, n=27):
         dots_ = [s.oval(px + 0.26 + k*0.17, py + 1.88, 0.08, C.SOFT, None) for k in range(3)]
     a = s.text(px + 0.1, py + 1.72, pw - 0.45, 1.15, ['תשובה המבוססת על מידע מקצועי ופרוטוקולים מאושרים'], size=10, color=C.INK, fill=C.MIST, r=0.14, anchor='ctr', ins=(0.1, 0.04, 0.1, 0.04), name='answer bubble')
     srcs = s.chip(px + 0.1, py + 2.98, 1.0, 0.26, 'מקורות', C.WHITE, C.TEAL, size=9, line=dict(c=C.TEAL, w=0.75))
-    tag = s.chip(px + pw/2 - 0.45, 2.22, 0.9, 0.26, 'המחשה', C.AMBER_T, '8A5A00', size=9, line=dict(c=C.AMBER, w=0.75))
+    tag = s.chip(px + pw/2 - 0.45, 2.83, 0.9, 0.26, 'המחשה', C.AMBER_T, '8A5A00', size=9, line=dict(c=C.AMBER, w=0.75))
     # features (instead of bullets)
     feats = [('בוט למענה בשפה חופשית על שאלות', 'לייעול העבודה ולהקלת העומס', 'message-square-text'),
              ('תשאול פרוטוקולים קליניים', 'לרבות על ידי מתמחים', 'book-open-check'),

@@ -144,19 +144,19 @@ def s04(d, n=4):
     # headers
     hT = s.group('header today')
     with hT:
-        s.rect(xT, hy, wT, 0.72, 'DCE3E4', None, r=0.12)
-        s.pic('image45.png', xT + wT - 0.86, hy - 0.08, 0.86, 0.86, geom='ellipse', gray=True, name='today hospital')
-        s.text(xT + 0.15, hy, wT - 1.1, 0.72, ['בית החולים של היום'], size=16, bold=True, color='5B6E72', anchor='ctr')
+        s.rect(xT, hy, wT, 0.72, 'EDF1F1', dict(c='B9C6C8', w=1, dash='dash'), r=0.12)
+        s.pic('image45.png', xT + wT - 0.86, hy - 0.08, 0.86, 0.86, geom='ellipse', gray=True, alpha=0.75, name='today hospital')
+        s.text(xT + 0.15, hy, wT - 1.1, 0.72, ['בית החולים של היום'], size=15, color='7E8C8F', anchor='ctr')
     hF = s.group('header future')
     with hF:
-        s.rect(xF, hy, wF, 0.72, dict(grad=[(0, C.TEAL), (100, C.PETROL)], ang=0), None, r=0.12, shadow='sm')
-        s.pic('image47.png', xF + wF - 0.92, hy - 0.1, 0.92, 0.92, geom='ellipse', name='future hospital')
-        s.text(xF + 0.2, hy, wF - 1.25, 0.72, ['בית החולים של העתיד'], size=16, bold=True, color=C.WHITE, anchor='ctr')
+        s.rect(xF, hy - 0.04, wF, 0.8, dict(grad=[(0, C.TURQ), (55, C.TEAL), (100, C.PETROL)], ang=0), dict(c=C.LIME, w=1.5), r=0.14, shadow='md', glow=(C.LIME, 8, 0.35))
+        s.pic('image47.png', xF + wF - 0.98, hy - 0.14, 0.98, 0.98, geom='ellipse', name='future hospital', line=dict(c=C.LIME, w=2))
+        s.text(xF + 0.2, hy - 0.04, wF - 1.3, 0.8, ['בית החולים של העתיד'], size=18, bold=True, color=C.WHITE, anchor='ctr', font=C.FONT_XB)
     s.anim.auto(fade(hT.id, 300, 500), fade(hF.id, 450, 500))
-    y = 2.55; rh = 0.74; step = 0.86
+    y = 2.6; rh = 0.74; step = 0.88
     for i, (lab, ic, today, fut) in enumerate(ROWS4):
         yy = y + i*step
-        gT = s.text(xT, yy, wT, rh, [today], size=12.5, color='5B6E72', fill='E7ECEC', r=0.1, anchor='ctr', ins=(0.18, 0.05, 0.18, 0.05), name=f'today {i}')
+        gT = s.text(xT, yy, wT, rh, [today], size=12, color='7E8C8F', fill=None, line=dict(c='C3CDCE', w=0.75, dash='dash'), r=0.1, anchor='ctr', ins=(0.18, 0.05, 0.18, 0.05), name=f'today {i}')
         gP = s.group(f'param {i}')
         with gP:
             s.oval(xP + wP - 0.3, yy + rh/2, 0.5, C.WHITE, dict(c=C.LINE, w=0.75), shadow='sm')
@@ -166,19 +166,19 @@ def s04(d, n=4):
         if i == 1:
             gF = s.group('future 1')
             with gF:
-                s.rect(xF, yy - 0.12, wF, rh + 0.24, dict(grad=[(0, C.WHITE), (100, C.TEAL_T)], ang=180), dict(c=C.TEAL, w=1), r=0.12, shadow='md')
-                s.text(xF + 2.55, yy - 0.12, wF - 2.7, rh + 0.24, [fut], size=13, bold=True, color=C.INK, anchor='ctr')
+                s.rect(xF, yy - 0.04, wF, rh + 0.08, C.WHITE, dict(c=C.TEAL, w=1.25), r=0.12, shadow='md')
+                s.text(xF + 2.55, yy - 0.04, wF - 2.7, rh + 0.08, [fut], size=13, bold=True, color=C.PETROL, anchor='ctr')
             st = s.group('stat 30')
             with st:
-                s.rect(xF + 0.1, yy - 0.04, 2.35, rh + 0.08, C.PETROL, None, r=0.1)
-                s.text(xF + 1.32, yy - 0.04, 1.08, rh + 0.08, [[('30%', {'lang': 'en-US'})]], size=30, bold=True, color=C.LIME, align='ctr', anchor='ctr', rtl=False, font=C.FONT_XB)
-                s.text(xF + 0.18, yy - 0.04, 1.18, rh + 0.08, ['מימי האשפוז ינדדו מחוץ למוסד', [('(במחלקות נבחרות)', {'size': 9, 'color': 'B9D9D2', 'bold': False})]],
+                s.rect(xF + 0.06, yy + 0.0, 2.4, rh, C.PETROL, None, r=0.1)
+                s.text(xF + 1.32, yy, 1.08, rh, [[('30%', {'lang': 'en-US'})]], size=30, bold=True, color=C.LIME, align='ctr', anchor='ctr', rtl=False, font=C.FONT_XB)
+                s.text(xF + 0.14, yy, 1.18, rh, ['מימי האשפוז ינדדו מחוץ למוסד', [('(במחלקות נבחרות)', {'size': 9, 'color': 'B9D9D2', 'bold': False})]],
                        size=10, bold=True, color=C.WHITE, anchor='ctr', lnspc=95)
             s.anim.click(fade(gT, 0, 400), fade(gP.id, 0, 400), wipe(ar, 350, 350, 'right'), slide_in(gF.id, 550, 600, 0.25),
                          zoom(st.id, 1100, 600, 0.7), pulse(st.id, 1800, 500, 1.05))
         else:
-            gF = s.text(xF, yy, wF, rh, [fut], size=13, bold=True, color=C.INK, fill=dict(grad=[(0, C.WHITE), (100, C.TEAL_T)], ang=180),
-                        line=dict(c=C.LINE, w=0.75), r=0.1, anchor='ctr', ins=(0.2, 0.05, 0.2, 0.05), shadow='sm', name=f'future {i}')
+            gF = s.text(xF, yy, wF, rh, [fut], size=13, bold=True, color=C.PETROL, fill=C.WHITE,
+                        line=dict(c=C.TEAL, w=1.25), r=0.1, anchor='ctr', ins=(0.2, 0.05, 0.2, 0.05), shadow='sm', name=f'future {i}')
             s.anim.click(fade(gT, 0, 400), fade(gP.id, 0, 400), wipe(ar, 350, 350, 'right'), slide_in(gF, 550, 600, 0.25))
     return s
 
