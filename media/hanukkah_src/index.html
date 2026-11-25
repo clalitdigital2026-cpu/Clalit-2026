@@ -76,17 +76,30 @@ svg{overflow:visible}
 @keyframes note{0%{opacity:0;transform:translate(0,0) rotate(0) scale(.5)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x),-420px) rotate(var(--r)) scale(1.1)}}
 
 /* ===== scene 1 ===== */
-#s1 .logo{position:absolute;left:345px;top:48px;width:450px}
-#s1 .titleBlock{position:absolute;right:950px;width:880px;text-align:center}
-#t1{top:155px;font-weight:900;font-size:90px;line-height:1.12;color:var(--navy);white-space:nowrap}
-#sub1{top:410px;font-weight:800;font-size:60px;color:var(--teal)}
-#inv1{top:525px;font-weight:400;font-size:46px;line-height:1.4;color:#2a4c62}
-#teaser{top:730px}
-.pill{display:inline-flex;align-items:center;gap:18px;padding:16px 40px;border-radius:999px;font-size:44px;font-weight:700;color:#fff;
+#s1 .logo{position:absolute;left:50%;top:40px;width:400px;margin-left:-200px}
+#m1{position:absolute;left:640px;top:150px;width:640px;animation:mv 1s var(--io) 3.15s both}
+@keyframes mv{to{transform:translate(500px,40px) scale(.86)}}
+#m1 .push{animation:push 3s ease-out .3s both}
+@keyframes push{from{transform:scale(.9)}to{transform:scale(1.04)}}
+.grp{position:absolute;right:880px;width:960px;text-align:center}
+.out{animation:gout .5s var(--io) var(--o) forwards}
+@keyframes gout{to{opacity:0;transform:translateY(-80px);filter:blur(12px)}}
+#gA{top:250px}
+#gA .h1{font-size:250px;font-weight:900;line-height:1;color:var(--navy)}
+#gA .h2{font-size:64px;font-weight:700;color:var(--teal);margin-top:20px}
+#gB{top:215px}
+#gB .l1{font-size:120px;font-weight:900;line-height:1.05;color:var(--navy)}
+#gB .l2{display:inline-block;font-size:200px;font-weight:900;line-height:1.05;color:var(--teal);animation:slam .6s var(--spring) 6.0s both}
+@keyframes slam{0%{opacity:0;transform:scale(2.4) rotate(-8deg);filter:blur(10px)}100%{opacity:1;transform:none;filter:none}}
+#gB .l3{font-size:56px;font-weight:500;color:#2a4c62;margin-top:26px}
+#gB .l3 b{font-weight:800;color:var(--navy)}
+#teaser{position:absolute;right:880px;width:960px;top:790px;text-align:center}
+.pill{display:inline-flex;align-items:center;gap:18px;padding:16px 44px;border-radius:999px;font-size:48px;font-weight:800;color:#fff;
  background:linear-gradient(90deg,var(--teal),var(--green));box-shadow:0 16px 40px rgba(14,143,163,.35),inset 0 2px 0 rgba(255,255,255,.35)}
-.pill.breathe{animation:breathe 1s ease-in-out 7s infinite}
-@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-#m1{position:absolute;left:1120px;top:120px;width:700px}
+.pill.breathe{animation:breathe .5s ease-in-out 7.4s infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.pstar{position:absolute;width:var(--s);height:var(--s);animation:pburst .9s var(--out) var(--dl) both}
+@keyframes pburst{0%{opacity:0;transform:translate(0,0) scale(.2) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1) rotate(180deg)}}
 
 /* ===== date scenes ===== */
 .kicker{position:absolute;top:100px;right:140px;font-size:40px;font-weight:700;color:#fff;padding:8px 30px;border-radius:999px;background:linear-gradient(90deg,var(--teal),var(--aqua))}
@@ -148,18 +161,19 @@ svg{overflow:visible}
 <!-- ============ SCENE 1 ============ -->
 <section class="scene" id="s1">
   <div class="sbg" style="--b1:#f2fbfd;--b2:#e2f6ee"></div>
-  <div id="m1"><div class="bob"></div></div>
+  <div id="m1"></div>
   <img class="logo popIn" style="--dl:.2s" src="logo.png" alt="">
-  <div class="titleBlock" id="t1">
-    <div><span class="rv"><i style="--dl:1.9s">חנוכה</i></span> <span class="rv"><i style="--dl:2.15s">בחטיבת</i></span></div>
-    <div><span class="rv"><i class="grad" style="--dl:2.65s">מערכות</i></span> <span class="rv"><i class="grad" style="--dl:2.9s">מידע</i></span> <span class="rv"><i class="grad" style="--dl:3.15s">ודיגיטל</i></span></div>
+  <div class="out" style="--o:5.35s"><div class="grp" id="gA">
+    <div class="h1"><span class="rv"><i style="--dl:3.45s">חנוכה</i></span></div>
+    <div class="h2 blurIn" style="--dl:3.95s">בחטיבת מערכות מידע ודיגיטל</div>
+  </div></div>
+  <div id="burst1"></div>
+  <div class="grp" id="gB">
+    <div class="l1"><span class="rv"><i style="--dl:5.55s">חוגגים</i></span> <span class="rv"><i style="--dl:5.7s">וחוגגות</i></span></div>
+    <div><span class="l2">ביחד!</span></div>
+    <div class="l3 blurIn" style="--dl:6.5s">מוזמנים.ות ל<b>הדלקת הנרות החטיבתית</b></div>
   </div>
-  <div class="titleBlock blurIn" id="sub1" style="--dl:4s">חוגגים וחוגגות חנוכה ביחד</div>
-  <div class="titleBlock" id="inv1">
-    <div class="blurIn" style="--dl:4.7s">לרגל חג החנוכה, אתם.ן מוזמנים.ות לקחת</div>
-    <div class="blurIn" style="--dl:5.1s">חלק בהדלקת הנרות החטיבתית</div>
-  </div>
-  <div class="titleBlock popIn" id="teaser" style="--dl:6s"><span class="pill breathe">שני מועדים · שני בניינים</span></div>
+  <div id="teaser" class="popIn" style="--dl:7.0s"><span class="pill breathe">2 מועדים · 2 בניינים</span></div>
 </section>
 
 <!-- ============ SCENE 2 : ARLOZOROV ============ -->
@@ -351,7 +365,10 @@ for(let i=0;i<22;i++){fx.insertAdjacentHTML('beforeend',`<div class="spark" styl
 for(let i=0;i<18;i++){const s=10+R()*24;fx.insertAdjacentHTML('beforeend',`<div class="bokeh" style="left:${R()*1920}px;top:${600+R()*500}px;width:${s}px;height:${s}px;--d:${6+R()*5}s;--dl:${-R()*8}s"></div>`)}
 
 /* ---------- scene 1 menorah ---------- */
-document.querySelector('#m1').innerHTML=`<div class="popIn" style="--dl:.35s"><div class="bob">${menorah(1.0,.25)}</div></div>`;
+document.querySelector('#m1').innerHTML=`<div class="popIn" style="--dl:.35s"><div class="push"><div class="bob">${menorah(1.0,.25)}</div></div></div>`;
+{const b=document.getElementById('burst1');const cx=560,cy=360;
+ for(const [t,n] of [[3.5,16],[6.05,16]])for(let i=0;i<n;i++){const a=i/n*Math.PI*2+R()*.3,d=260+R()*220;
+  b.insertAdjacentHTML('beforeend',`<div class="pstar" style="left:${cx}px;top:${cy+(t>5?40:0)}px;--s:${20+R()*26}px;--dl:${t}s;--x:${(Math.cos(a)*d*1.3)|0}px;--y:${(Math.sin(a)*d*.8)|0}px">${star(['#f2b632','#22c3d1','#2fae4e','#ffffff'][i%4])}</div>`)}}
 
 /* ---------- scene 2 art: sufganiyot + sugar + dreidel ---------- */
 const a2=document.getElementById('art2');
