@@ -138,12 +138,12 @@ export const TEXT = {
   },
   events: {
     moments: [
-      {label: 'תוצאת בדיקת מעבדה', icon: 'tube'},
-      {label: 'מרשם דיגיטלי', icon: 'rx'},
-      {label: 'תור נקבע באפליקציה', icon: 'phone'},
-      {label: 'שחרור מאשפוז', icon: 'bed'},
-      {label: 'בדיקת דימות', icon: 'scan'},
-      {label: 'עדכון תיק רפואי', icon: 'record'},
+      {label: 'תוצאת בדיקת מעבדה', status: 'התוצאה זמינה', icon: 'tube'},
+      {label: 'מרשם דיגיטלי', status: 'המרשם הונפק', icon: 'rx'},
+      {label: 'קביעת תור באפליקציה', status: 'התור נקבע', icon: 'calendar'},
+      {label: 'שחרור מאשפוז', status: 'המטופל שוחרר', icon: 'bed'},
+      {label: 'בדיקת דימות', status: 'הבדיקה הושלמה', icon: 'scan'},
+      {label: 'עדכון תיק רפואי', status: 'התיק עודכן', icon: 'record'},
     ],
     headlineLead: 'כל רגע מייצר',
     headlineWord: 'מידע',

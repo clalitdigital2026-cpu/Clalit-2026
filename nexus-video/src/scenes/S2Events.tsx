@@ -1,279 +1,208 @@
 /**
  * Scene 2 – "Every moment is an event" (00:08–00:17)
- * A bright, clean space. The camera sweeps right-to-left past six moments of
- * care; each action fires a pulse of light that becomes a data packet. The
- * packets gather into the word "מידע", which breaks apart and re-forms as EVENT.
+ * Six moments of care arrive as large glass cards in a 3×2 grid (in reading
+ * order, right to left) and stay on screen together so every one can be read.
+ * Each card's action completes, an EVENT tag lights up and a packet of light
+ * flies from it to the centre, where the packets gather into the word "מידע",
+ * which then breaks apart and re-forms as EVENT.
  */
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {COLORS, CUES, FONTS, TEXT} from '../config/config';
 import {Center, WordReveal} from '../components/Kinetic';
 import {ParticleType, ShapeSpec} from '../components/ParticleType';
-import {clamp01, easeInOutCubic, easeOutBack, easeOutCubic, easeOutExpo, lerp, ramp, rgba} from '../lib/anim';
-import {project} from '../lib/camera';
-import {SceneCanvas, Stage} from '../lib/canvas';
-import {drawIcon, IconName} from '../lib/icons';
+import {clamp01, easeInCubic, easeInOutCubic, easeOutCubic, easeOutExpo, flash, lerp, ramp, rgba, springAt} from '../lib/anim';
+import {drawGlow, SceneCanvas, Stage} from '../lib/canvas';
+import {Icon, IconName} from '../lib/icons';
 import {hash01} from '../lib/random';
 import {cueIn, useSceneTime} from '../lib/time';
 
 const at = cueIn('events');
-const MOMENTS = TEXT.events.moments.map((m, k) => ({
-  ...m,
-  t: at(CUES.moments[k]),
-  wx: -k * 620,
-  wy: k % 2 === 0 ? -40 : 60,
-  wz: 1000 + (k % 3) * 180,
-}));
 const HEAD = at(CUES.eventsHeadline);
 const MORPH = at(CUES.eventMorph);
 const CLOSE = at(CUES.eventsClosing);
 
 const NAVY = COLORS.navy;
+const CARD_W = 540;
+const CARD_H = 300;
+const GATHER = {x: 960, y: 610};
+const OUT0 = HEAD - 0.75; // cards begin to leave
+const OUT1 = HEAD - 0.1;
 
-const camAt = (t: number) => {
-  // centre moment k at its action time; ease between them
-  const ts = MOMENTS.map((m) => m.t);
-  let x = MOMENTS[0].wx + 260;
-  if (t <= ts[0]) x = lerp(MOMENTS[0].wx + 520, MOMENTS[0].wx, easeOutCubic(clamp01((t + 0.1) / (ts[0] + 0.1))));
-  else if (t >= ts[ts.length - 1]) x = MOMENTS[ts.length - 1].wx - easeInOutCubic(clamp01((t - ts[ts.length - 1]) / 1.2)) * 200;
-  else {
-    for (let k = 0; k < ts.length - 1; k++) {
-      if (t >= ts[k] && t < ts[k + 1]) {
-        const p = (t - ts[k]) / (ts[k + 1] - ts[k]);
-        x = lerp(MOMENTS[k].wx, MOMENTS[k + 1].wx, easeInOutCubic(p));
-      }
-    }
-  }
-  // pull back for the headline
-  const back = easeInOutCubic(clamp01((t - (HEAD - 0.9)) / 1.2));
-  return {x: x, y: -30 + back * -80, z: 0 - back * 900, yaw: lerp(-0.08, 0, back), focal: 1000};
+const MOMENTS = TEXT.events.moments.map((m, k) => {
+  const col = k % 3; // 0 = right (first in reading order)
+  const row = Math.floor(k / 3);
+  return {
+    ...m,
+    k,
+    act: at(CUES.moments[k]), // the moment happens (beat-synced)
+    appear: at(CUES.moments[k]) - 0.55,
+    x: 960 + (1 - col) * 580,
+    y: 395 + row * 350,
+    green: k % 2 === 0,
+  };
+});
+
+/** One moment of care: a glass card with a big icon, title, live status and its EVENT. */
+const MomentCard: React.FC<{m: (typeof MOMENTS)[number]; t: number}> = ({m, t}) => {
+  const local = t - m.appear;
+  if (local < 0) return null;
+  const sp = springAt(local, {stiffness: 140, damping: 16});
+  const prog = easeInOutCubic(clamp01((t - m.appear - 0.1) / (m.act - m.appear - 0.1)));
+  const done = t >= m.act;
+  const ping = flash(t, m.act, 0.35);
+  const out = easeInCubic(clamp01((t - (OUT0 + m.k * 0.05)) / (OUT1 - OUT0)));
+  const c1 = m.green ? COLORS.emerald : COLORS.skyBlue;
+  const c2 = m.green ? COLORS.teal : COLORS.deepBlue;
+  // gentle 3D float, cards lean toward the centre
+  const tiltY = (m.x - 960) / 960 * -14 + Math.sin(t * 0.8 + m.k) * 2;
+  const tiltX = (m.y - 540) / 540 * 10;
+  const leave = {x: (GATHER.x - m.x) * out * 0.6, y: (GATHER.y - m.y) * out * 0.6};
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: m.x - CARD_W / 2,
+        top: m.y - CARD_H / 2,
+        width: CARD_W,
+        height: CARD_H,
+        transform: `translate(${leave.x}px, ${leave.y}px) perspective(1400px) translateZ(${lerp(-500, 0, sp) - out * 300}px) rotateY(${tiltY}deg) rotateX(${tiltX}deg) scale(${1 + ping * 0.035})`,
+        opacity: clamp01(local / 0.25) * (1 - out),
+        filter: `blur(${(1 - clamp01(local / 0.35)) * 10 + out * 8}px)`,
+        borderRadius: 36,
+        background: 'linear-gradient(160deg, rgba(255,255,255,0.97), rgba(255,255,255,0.82))',
+        border: `1.5px solid ${done ? rgba(c1, 0.55) : 'rgba(255,255,255,0.9)'}`,
+        boxShadow: `0 30px 70px ${rgba(NAVY, 0.13)}, 0 6px 18px ${rgba(NAVY, 0.06)}, 0 0 ${ping * 60}px ${rgba(c1, 0.45 * ping)}`,
+        direction: 'rtl',
+        fontFamily: FONTS.stack,
+        overflow: 'hidden',
+        boxSizing: 'border-box',
+        padding: '34px 38px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+      }}
+    >
+      {/* light sweep across the glass when the moment happens */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: `linear-gradient(110deg, transparent ${(t - m.act) * 260 - 40}%, ${rgba(c1, 0.12)} ${(t - m.act) * 260 - 20}%, transparent ${(t - m.act) * 260}%)`,
+        }}
+      />
+      <div style={{display: 'flex', alignItems: 'center', gap: 28}}>
+        <div
+          style={{
+            width: 118,
+            height: 118,
+            flex: 'none',
+            borderRadius: 32,
+            background: `linear-gradient(145deg, ${c1}, ${c2})`,
+            boxShadow: `0 14px 30px ${rgba(c1, 0.35)}, inset 0 2px 0 rgba(255,255,255,0.35)`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transform: `scale(${lerp(0.6, 1, springAt(local - 0.08, {stiffness: 160, damping: 12}))})`,
+          }}
+        >
+          <Icon name={m.icon as IconName} size={70} color="#FFFFFF" stroke={2.8} />
+        </div>
+        <div style={{fontSize: 46, fontWeight: 800, color: NAVY, lineHeight: 1.12, letterSpacing: '-0.01em'}}>{m.label}</div>
+      </div>
+      <div>
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: 12, fontSize: 30, fontWeight: 600, color: done ? c2 : rgba(NAVY, 0.45)}}>
+            <Check on={done} t={t - m.act} color={c1} />
+            <span>{done ? m.status : 'מתבצע…'}</span>
+          </div>
+          {/* the EVENT tag */}
+          <div
+            style={{
+              direction: 'ltr',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '8px 18px',
+              borderRadius: 30,
+              background: done ? NAVY : rgba(NAVY, 0.06),
+              color: done ? '#fff' : rgba(NAVY, 0.35),
+              fontFamily: FONTS.latinStack,
+              fontWeight: 800,
+              fontSize: 20,
+              letterSpacing: '0.16em',
+              transform: `scale(${1 + ping * 0.15})`,
+              boxShadow: done ? `0 0 ${10 + ping * 30}px ${rgba(c1, 0.6)}` : 'none',
+            }}
+          >
+            <span style={{width: 10, height: 10, borderRadius: 5, background: done ? COLORS.glowGreen : rgba(NAVY, 0.2), boxShadow: done ? `0 0 10px ${COLORS.glowGreen}` : 'none'}} />
+            EVENT
+          </div>
+        </div>
+        {/* progress of the moment */}
+        <div style={{height: 8, borderRadius: 4, background: rgba(NAVY, 0.07), overflow: 'hidden'}}>
+          <div style={{height: '100%', width: `${prog * 100}%`, borderRadius: 4, background: `linear-gradient(270deg, ${c1}, ${c2})`}} />
+        </div>
+      </div>
+    </div>
+  );
 };
 
-/** The extra motion that makes each moment "happen". */
-const drawMoment = (
-  ctx: CanvasRenderingContext2D,
-  m: (typeof MOMENTS)[number],
-  x: number,
-  y: number,
-  s: number,
-  t: number,
-  alpha: number
-) => {
-  const local = t - m.t;
-  const size = 210 * s;
-  const act = easeOutExpo(clamp01((local + 0.25) / 0.45));
-  const accent = MOMENTS.indexOf(m) % 2 === 0 ? COLORS.emerald : COLORS.skyBlue;
-  ctx.save();
-  // soft disc
-  ctx.globalAlpha = alpha;
-  const g = ctx.createRadialGradient(x, y, 0, x, y, size * 0.95);
-  g.addColorStop(0, 'rgba(255,255,255,1)');
-  g.addColorStop(0.7, 'rgba(255,255,255,0.85)');
-  g.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = g;
-  ctx.beginPath();
-  ctx.arc(x, y, size * 0.95, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = rgba(NAVY, 0.08);
-  ctx.lineWidth = 1.5 * s;
-  ctx.beginPath();
-  ctx.arc(x, y, size * 0.72, 0, Math.PI * 2);
-  ctx.stroke();
-  // progress arc = the action
-  ctx.strokeStyle = accent;
-  ctx.lineWidth = 4 * s;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.arc(x, y, size * 0.72, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * act);
-  ctx.stroke();
-
-  const icon = m.icon as IconName;
-  if (icon === 'tube') {
-    // spinning test tube with rising sample
-    const spin = Math.cos(local * 5);
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(-0.35 + Math.sin(local * 2) * 0.08);
-    ctx.scale(0.55 + 0.45 * Math.abs(spin), 1);
-    const lvl = 0.25 + act * 0.5;
-    ctx.fillStyle = rgba(COLORS.emerald, 0.85 * alpha);
-    const tw = 8 * (size / 48);
-    const th = 33 * (size / 48);
-    ctx.beginPath();
-    ctx.roundRect(-tw / 2, -size / 2 + 4 * (size / 48) + th * (1 - lvl), tw, th * lvl, tw / 2);
-    ctx.fill();
-    drawIcon(ctx, 'tube', 0, 0, size, NAVY, alpha, 2.2);
-    ctx.restore();
-  } else {
-    drawIcon(ctx, icon, x, y, size, NAVY, alpha, 2.2);
-  }
-  if (icon === 'rx' || icon === 'record') {
-    // lines of the document being written
-    ctx.globalAlpha = alpha;
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 3 * s;
-    const k = size / 48;
-    const lines = icon === 'rx' ? [[17, 35, 31]] : [[16, 18, 30]];
-    for (const [lx, ly, lx2] of lines) {
-      ctx.beginPath();
-      ctx.moveTo(x - size / 2 + lx * k, y - size / 2 + ly * k);
-      ctx.lineTo(x - size / 2 + lerp(lx, lx2, act) * k, y - size / 2 + ly * k);
-      ctx.stroke();
-    }
-  }
-  if (icon === 'phone') {
-    const k = size / 48;
-    ctx.globalAlpha = alpha * act;
-    ctx.fillStyle = accent;
-    ctx.beginPath();
-    ctx.roundRect(x - size / 2 + 24.5 * k, y - size / 2 + 19.5 * k, 3.5 * k, 3.5 * k, 1 * k);
-    ctx.fill();
-  }
-  if (icon === 'scan') {
-    ctx.globalAlpha = alpha;
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 3 * s;
-    const k = size / 48;
-    const a0 = local * 4;
-    ctx.beginPath();
-    ctx.arc(x, y - size / 2 + 22 * k, 13 * k, a0, a0 + 1.4);
-    ctx.stroke();
-  }
-  if (icon === 'bed') {
-    // the discharge arrow keeps moving out
-    ctx.globalAlpha = alpha * act;
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 3 * s;
-    const k = size / 48;
-    const off = ((local * 1.5) % 1) * 6 * k;
-    ctx.beginPath();
-    ctx.moveTo(x - size / 2 + 28 * k + off, y - size / 2 + 6 * k);
-    ctx.lineTo(x - size / 2 + 40 * k + off, y - size / 2 + 6 * k);
-    ctx.stroke();
-  }
-  // pulse ring at the moment of action
-  if (local > 0 && local < 1.2) {
-    const p = local / 1.2;
-    ctx.globalAlpha = (1 - p) * 0.9 * alpha;
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = (6 - 5 * p) * s;
-    ctx.beginPath();
-    ctx.arc(x, y, size * (0.72 + easeOutExpo(p) * 1.1), 0, Math.PI * 2);
-    ctx.stroke();
-  }
-  // label
-  ctx.globalAlpha = alpha * ramp(local, -0.3, 0.1);
-  ctx.fillStyle = NAVY;
-  ctx.font = `600 ${Math.round(30 * s)}px ${FONTS.stack}`;
-  ctx.direction = 'rtl';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(m.label, x, y + size * 1.05);
-  ctx.restore();
-};
-
-/** A data packet: glowing capsule. */
-const drawPacket = (ctx: CanvasRenderingContext2D, x: number, y: number, ang: number, color: string, a: number, scale = 1) => {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(ang);
-  ctx.globalAlpha = a * 0.35;
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.roundRect(-22 * scale, -7 * scale, 44 * scale, 14 * scale, 7 * scale);
-  ctx.fill();
-  ctx.globalAlpha = a;
-  ctx.beginPath();
-  ctx.roundRect(-14 * scale, -4 * scale, 28 * scale, 8 * scale, 4 * scale);
-  ctx.fill();
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(8 * scale, 0, 2 * scale, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
+const Check: React.FC<{on: boolean; t: number; color: string}> = ({on, t, color}) => {
+  const p = on ? easeOutCubic(clamp01(t / 0.3)) : 0;
+  return (
+    <svg width={34} height={34} viewBox="0 0 34 34">
+      <circle cx={17} cy={17} r={15} fill={on ? color : 'none'} stroke={on ? color : rgba(NAVY, 0.25)} strokeWidth={2.5} />
+      <path d="M10 17.5l5 5 9-10" fill="none" stroke="#fff" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={24} strokeDashoffset={24 * (1 - p)} />
+    </svg>
+  );
 };
 
 export const S2Events: React.FC = () => {
   const t = useSceneTime();
-  const cam = camAt(t);
 
+  // packets of light: born at each card's EVENT tag, they fly to the centre
   const draw = (ctx: CanvasRenderingContext2D) => {
-    // perspective dot floor for depth
-    ctx.fillStyle = NAVY;
-    for (let gx = -16; gx <= 16; gx++) {
-      for (let gz = 0; gz < 14; gz++) {
-        const wx = Math.round(cam.x / 160) * 160 + gx * 160;
-        const p = project({x: wx, y: 340, z: 500 + gz * 260}, cam);
-        if (!p) continue;
-        ctx.globalAlpha = 0.16 * (1 - gz / 14);
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.8 * p.s, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-    // floating motes (parallax foreground / background)
-    for (let i = 0; i < 160; i++) {
-      const wx = cam.x + ((hash01(1, i) * 4000 - cam.x * (0.2 + hash01(2, i) * 0.5)) % 4000) - 2000;
-      const p = project({x: wx, y: (hash01(3, i) - 0.5) * 1400, z: 300 + hash01(4, i) * 3000}, cam);
-      if (!p) continue;
-      ctx.globalAlpha = 0.25;
-      ctx.fillStyle = i % 2 ? COLORS.turquoise : COLORS.glowGreen;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 2.2 * p.s, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    const gather = {x: 960, y: 610};
-    const fadeMoments = 1 - ramp(t, HEAD - 0.6, HEAD + 0.2);
-    // moments (far first)
-    const order = [...MOMENTS].sort((a, b) => b.wz - a.wz);
-    for (const m of order) {
-      const p = project({x: m.wx, y: m.wy, z: m.wz}, cam);
-      if (!p) continue;
-      const appear = ramp(t, m.t - 0.9, m.t - 0.3, easeOutBack);
-      drawMoment(ctx, m, p.x, p.y, p.s * lerp(0.7, 1, appear), t, clamp01(appear) * fadeMoments);
-    }
-    // packets: each action emits a burst of packets that flow to the centre
-    MOMENTS.forEach((m, k) => {
-      const color = k % 2 === 0 ? COLORS.emerald : COLORS.skyBlue;
-      for (let j = 0; j < 6; j++) {
-        const born = m.t + j * 0.05;
+    ctx.globalCompositeOperation = 'source-over';
+    for (const m of MOMENTS) {
+      const color = m.green ? COLORS.emerald : COLORS.skyBlue;
+      // the tag sits at the card's lower-left corner (RTL layout)
+      const ox = m.x - CARD_W / 2 + 110;
+      const oy = m.y + CARD_H / 2 - 82;
+      for (let j = 0; j < 5; j++) {
+        const born = m.act + j * 0.07;
         const life = t - born;
         if (life < 0) continue;
-        // origin follows the moment on screen
-        const p0 = project({x: m.wx, y: m.wy, z: m.wz}, camAt(born));
-        if (!p0) continue;
-        const dur = Math.max(0.6, HEAD - born - 0.1);
+        const dur = Math.max(0.8, HEAD + 0.2 - born);
         const e = easeInOutCubic(clamp01(life / dur));
-        const orbitA = hash01(k, j) * Math.PI * 2 + t * 1.6;
-        const orbitR = 120 + hash01(k + 9, j) * 160;
-        const tx = gather.x + Math.cos(orbitA) * orbitR * 1.6;
-        const ty = gather.y + Math.sin(orbitA) * orbitR * 0.45;
-        const cx1 = p0.x + (hash01(k + 3, j) - 0.5) * 500;
-        const cy1 = p0.y - 380 - hash01(k + 5, j) * 200;
-        const u = 1 - e;
-        const x = u * u * p0.x + 2 * u * e * cx1 + e * e * tx;
-        const y = u * u * p0.y + 2 * u * e * cy1 + e * e * ty;
-        const dx = 2 * u * (cx1 - p0.x) + 2 * e * (tx - cx1);
-        const dy = 2 * u * (cy1 - p0.y) + 2 * e * (ty - cy1);
-        const fade = 1 - ramp(t, HEAD + 0.1, HEAD + 0.6);
-        // trail
-        ctx.globalAlpha = 0.35 * fade;
+        const ang = hash01(m.k, j) * Math.PI * 2 + t * 1.4;
+        const r = 40 + hash01(m.k + 7, j) * 150;
+        const tx = GATHER.x + Math.cos(ang) * r * 1.4 * (1 - ramp(t, HEAD - 0.2, HEAD + 0.3));
+        const ty = GATHER.y + Math.sin(ang) * r * 0.4 * (1 - ramp(t, HEAD - 0.2, HEAD + 0.3));
+        const cx1 = lerp(ox, tx, 0.5) + (hash01(m.k + 3, j) - 0.5) * 300;
+        const cy1 = Math.min(oy, ty) - 160 - hash01(m.k + 5, j) * 160;
+        const fade = 1 - ramp(t, HEAD + 0.15, HEAD + 0.55);
+        if (fade <= 0) continue;
+        const pt = (ee: number) => {
+          const u = 1 - ee;
+          return {x: u * u * ox + 2 * u * ee * cx1 + ee * ee * tx, y: u * u * oy + 2 * u * ee * cy1 + ee * ee * ty};
+        };
         ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        for (let q = 0; q <= 10; q++) {
-          const ee = clamp01(e - q * 0.025);
-          const uu = 1 - ee;
-          const qx = uu * uu * p0.x + 2 * uu * ee * cx1 + ee * ee * tx;
-          const qy = uu * uu * p0.y + 2 * uu * ee * cy1 + ee * ee * ty;
-          if (q === 0) ctx.moveTo(qx, qy);
-          else ctx.lineTo(qx, qy);
+        ctx.lineCap = 'round';
+        for (let q = 0; q < 12; q++) {
+          const a0 = pt(clamp01(e - q * 0.02));
+          const a1 = pt(clamp01(e - (q + 1) * 0.02));
+          ctx.globalAlpha = fade * 0.5 * (1 - q / 12);
+          ctx.lineWidth = 5 * (1 - q / 12) + 0.5;
+          ctx.beginPath();
+          ctx.moveTo(a0.x, a0.y);
+          ctx.lineTo(a1.x, a1.y);
+          ctx.stroke();
         }
-        ctx.stroke();
-        drawPacket(ctx, x, y, Math.atan2(dy, dx), color, fade * clamp01(life / 0.15), 1 + (1 - e) * 0.5);
+        const p = pt(e);
+        drawGlow(ctx, color, p.x, p.y, 22, fade * 0.9, true);
       }
-    });
+    }
     ctx.globalAlpha = 1;
   };
 
@@ -315,6 +244,19 @@ export const S2Events: React.FC = () => {
           background: `radial-gradient(circle at 20% 15%, ${rgba(COLORS.glowGreen, 0.12)} 0%, transparent 40%), radial-gradient(circle at 85% 85%, ${rgba(COLORS.turquoise, 0.14)} 0%, transparent 45%)`,
         }}
       />
+      {/* fine dot grid for depth */}
+      <AbsoluteFill
+        style={{
+          backgroundImage: `radial-gradient(${rgba(NAVY, 0.09)} 1.6px, transparent 1.6px)`,
+          backgroundSize: '44px 44px',
+          backgroundPosition: `${-t * 18}px 0px`,
+          opacity: 1 - ramp(t, HEAD - 0.4, HEAD + 0.4) * 0.6,
+          WebkitMaskImage: 'radial-gradient(ellipse 70% 65% at 50% 50%, black 30%, transparent 100%)',
+        }}
+      />
+      {MOMENTS.map((m) => (
+        <MomentCard key={m.k} m={m} t={t} />
+      ))}
       <SceneCanvas draw={draw} />
       <Center y={400}>
         <WordReveal

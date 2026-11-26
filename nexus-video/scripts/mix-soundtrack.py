@@ -122,6 +122,12 @@ for name in LAYER:
     lvl, _ = frame_rms_peak(SFX[name])
     SFX[name] = SFX[name] * (db(-10) / max(lvl, 1e-6))
 
+# a warmer, darker variant of the particle sound for the quiet opening
+from scipy.signal import butter, sosfilt  # noqa: E402
+_sos = butter(4, 2600, 'low', fs=SR, output='sos')
+SFX['particles-assemble-soft'] = sosfilt(_sos, SFX['particles-assemble'], axis=0).astype(np.float32)
+PEAK['particles-assemble-soft'] = PEAK['particles-assemble']
+
 C = CUES
 events = []
 
@@ -134,11 +140,11 @@ def ev(name, at, g, p0=0.0, p1=None, heavy=False):
 for k, h in enumerate(C['heartbeats']):
     if h < 7.8:
         ev('heartbeat', h, -4 - k * 0.8)
-for k, tt in enumerate(C['pulseTexts']):
-    ev('particles-assemble', tt + 0.5, -10, 0.5, -0.5)          # words assemble (RTL)
-    ev('particles-disperse', [3.7, 5.7, 7.5][k], -9, 0, 0)      # …and fly back into the stream
+# the three opening lines: one soft, warm (low-passed) gathering on the first and the last line only
+ev('particles-assemble-soft', C['pulseTexts'][0] + 0.5, -15, 0.15, -0.15)
+ev('particles-assemble-soft', C['pulseTexts'][2] + 0.5, -14, 0.15, -0.15)
 for at_, pan in [(3.0, -0.5), (3.6, 0.5), (4.4, 0.4), (5.0, -0.45), (5.6, -0.1), (6.2, 0.3)]:
-    ev('data-tap', at_ + 0.35, -20, pan)                         # a place of care condenses
+    ev('data-tap', at_ + 0.35, -26, pan)                         # a place of care condenses
 ev('fly-by', 4.3, -15, -0.7, 0.7)
 ev('fly-by', 6.4, -13, 0.7, -0.7)
 ev('whoosh', 7.95, -10)                                          # flight into the light
@@ -252,7 +258,7 @@ ev('shimmer', 88.8, -14, -0.4, 0.4)                               # last glint o
 
 # — continuous data-flow beds: (start, end, gain_from, gain_to, pan_from, pan_to) —
 BEDS = [
-    (2.6, 7.9, -26, -15, 0.0, 0.0),        # the flight through the particle field
+    (3.2, 7.9, -32, -22, 0.0, 0.0),        # the flight through the particle field (kept soft)
     (8.3, 11.8, -26, -22, 0.3, -0.3),      # packets streaming toward the centre
     (17.4, C['freeze'], -25, -12, -0.3, 0.3),  # complexity grows… and stops dead
     (25.0, MEET, -24, -12, -0.8, 0.0),     # the green stream (from the left)
