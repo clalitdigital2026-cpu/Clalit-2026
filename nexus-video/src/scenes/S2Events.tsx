@@ -3,8 +3,8 @@
  * Six moments of care arrive as large glass cards in a 3×2 grid (in reading
  * order, right to left) and stay on screen together so every one can be read.
  * Each card's action completes, an EVENT tag lights up and a packet of light
- * flies from it to the centre, where the packets gather into the word "מידע",
- * which then breaks apart and re-forms as EVENT.
+ * flies from it to the centre, where the packets gather into the word "אירוע",
+ * which then breaks apart and re-forms as its English twin, EVENT.
  */
 import React from 'react';
 import {AbsoluteFill} from 'remotion';

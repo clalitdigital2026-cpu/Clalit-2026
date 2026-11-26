@@ -21,7 +21,15 @@
   "id": "04",
   "at": 12.1,
   "text": "כל רגע מְיַצֵּר מידע.",
-  "take_index": 3
+  "take_index": 3,
+  "skip": true,
+  "note": "replaced by 04b: text and voice now both say אירוע"
+ },
+ {
+  "id": "04b",
+  "at": 12.25,
+  "text": "כל רגע הוא אירוע.",
+  "file": "voiceover/line04-event.mp3"
  },
  {
   "id": "05",
