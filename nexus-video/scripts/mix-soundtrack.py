@@ -321,24 +321,98 @@ for i in range(0, len(env), 64):  # block-wise envelope follower
     sm[i:i + 64] = acc
 duck = 1 / (1 + 1.2 * sm)
 
-mix = music * duck[:, None] + fx
+# ---------------------------------------------------------------------------
+# 3. Hebrew voiceover: one long take, cut at its pauses, each line placed on its cue
+# ---------------------------------------------------------------------------
+VO_SRC = ROOT / 'assets-src/voiceover/narration.mp3'
+SCRIPT = json.loads((ROOT / 'assets-src/voiceover/script.json').read_text())
+vo = np.zeros_like(music)
+if VO_SRC.exists():
+    from scipy.signal import butter as _b, sosfilt as _f  # noqa: E402
+    take = load(VO_SRC)
+    take = _f(_b(2, 90, 'high', fs=SR, output='sos'), take, axis=0).astype(np.float32)
+    # line boundaries from word-level timestamps (assets-src/voiceover/alignment.json),
+    # snapped to the quietest point nearby so no syllable is clipped
+    ALIGN = json.loads((ROOT / 'assets-src/voiceover/alignment.json').read_text())['lines']
+    assert len(ALIGN) == len(SCRIPT)
+    mono = take.mean(axis=1)
+    env10 = np.sqrt(np.convolve(mono ** 2, np.ones(480) / 480, mode='same'))
+
+    def quiet_near(t0, lo, hi):
+        a_, b_ = s(max(0, t0 + lo)), s(min(len(mono) / SR, t0 + hi))
+        return (a_ + int(np.argmin(env10[a_:b_]))) / SR if b_ > a_ else t0
+
+    def stretch(x, tempo):
+        if abs(tempo - 1) < 1e-3:
+            return x
+        out_ = subprocess.run(
+            ['ffmpeg', '-v', 'error', '-f', 'f32le', '-ac', '2', '-ar', str(SR), '-i', '-',
+             '-af', f'atempo={tempo}', '-f', 'f32le', '-ac', '2', '-ar', str(SR), '-'],
+            input=x.astype(np.float32).tobytes(), check=True, capture_output=True).stdout
+        return np.frombuffer(out_, dtype=np.float32).reshape(-1, 2).copy()
+
+    target = db(-15.5)
+    for (w0, w1), line in zip(ALIGN, SCRIPT):
+        if line.get('skip'):
+            continue
+        t0 = quiet_near(w0, -0.25, 0.02)
+        t1 = quiet_near(w1, -0.02, 0.3)
+        seg = stretch(take[s(t0): s(t1)].copy(), line.get('tempo', 1.0))
+        # the word timestamps mark the first word's start – keep it on the cue
+        lead = (w0 - t0) / line.get('tempo', 1.0)
+        seg *= target / max(np.sqrt(np.mean(seg ** 2)), 1e-6)
+        r = np.linspace(0, 1, int(0.01 * SR), dtype=np.float32)[:, None]
+        seg[: len(r)] *= r
+        seg[-len(r) * 4:] *= np.linspace(1, 0, len(r) * 4, dtype=np.float32)[:, None]
+        st = s(line['at'] - lead)
+        vo[st: st + len(seg)] += seg[: max(0, len(vo) - st)]
+        print(f"  VO {line['id']} {line['at']:6.2f}–{line['at'] + len(seg) / SR - lead:6.2f}s  {line['text']}")
+    # make room for the voice: music and effects dip under it
+    venv = np.abs(vo).max(axis=1)
+    kv = np.exp(-1 / (0.18 * SR))
+    vs = np.zeros_like(venv)
+    acc = 0.0
+    for i in range(0, len(venv), 64):
+        acc = max(venv[i:i + 64].max(), acc * kv ** 64)
+        vs[i:i + 64] = acc
+    vduck = 1 / (1 + 5.0 * np.clip(vs / max(vs.max(), 1e-6), 0, 1) ** 0.7)  # ≈ -7.5 dB while speaking
+    mix_novo = music * duck[:, None] + fx
+    mix = music * duck[:, None] * vduck[:, None] + fx * (0.45 + 0.55 * vduck[:, None]) + vo
+else:
+    mix_novo = None
+    mix = music * duck[:, None] + fx
 
 if os.environ.get('STEMS'):  # debugging aid: write the music and effects stems separately
-    for stem_name, stem in (('music', music * duck[:, None]), ('fx', fx)):
+    for stem_name, stem in (('music', music * duck[:, None]), ('fx', fx), ('vo', vo)):
         np.save(Path(os.environ['STEMS']) / f'{stem_name}.npy', stem)
 
 # ---------------------------------------------------------------------------
-# 3. Master: soft limiter + normalisation
+# 4. Master: soft limiter + normalisation → with and without voiceover
 # ---------------------------------------------------------------------------
-peak = np.abs(mix).max()
-mix = np.tanh(mix / peak * 1.25) / np.tanh(1.25)
-mix *= db(-1.0)
+def master(x, target_db=-14.5):
+    """Loudness-normalise (RMS of the louder half of the film) and soft-limit the peaks."""
+    win = int(0.4 * SR)
+    blocks = np.array([np.sqrt(np.mean(x[i:i + win] ** 2)) for i in range(0, len(x) - win, win)])
+    ref = np.sqrt(np.mean(np.sort(blocks)[len(blocks) // 2:] ** 2))
+    x = x * (db(target_db) / max(ref, 1e-9))
+    knee = 0.75
+    a = np.abs(x)
+    over = a > knee
+    x[over] = np.sign(x[over]) * (knee + (0.86 - knee) * np.tanh((a[over] - knee) / (0.86 - knee)))
+    return x
 
-out = ROOT / 'public/audio/nexus-score.wav'
-pcm = (np.clip(mix, -1, 1) * 32767).astype('<i2')
-with wave.open(str(out), 'wb') as w:
-    w.setnchannels(2)
-    w.setsampwidth(2)
-    w.setframerate(SR)
-    w.writeframes(pcm.tobytes())
-print(f'wrote {out} ({TOTAL}s, {len(events)} sound-design events)')
+
+def write_wav(path, x):
+    pcm = (np.clip(x, -1, 1) * 32767).astype('<i2')
+    with wave.open(str(path), 'wb') as w:
+        w.setnchannels(2)
+        w.setsampwidth(2)
+        w.setframerate(SR)
+        w.writeframes(pcm.tobytes())
+    print(f'wrote {path}')
+
+
+write_wav(ROOT / 'public/audio/nexus-score.wav', master(mix))
+if mix_novo is not None:
+    write_wav(ROOT / 'public/audio/nexus-score-no-voiceover.wav', master(mix_novo))
+print(f'{TOTAL}s, {len(events)} sound-design events, voiceover: {"yes" if mix_novo is not None else "no"}')

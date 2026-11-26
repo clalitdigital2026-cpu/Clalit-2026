@@ -24,3 +24,15 @@ Generated in ElevenLabs for this film (instrumental, no vocals). To keep them in
 | `sfx/shimmer.mp3` | eleven_text_to_sound_v3 | A soft glint of light over glass: logo and wordmark sweeps |
 
 `scripts/mix-soundtrack.py` cuts the music on bar lines (the source is exactly 120 BPM, the film's grid) and places every effect on the cue times in `src/config/cues.json`: about 165 point events, plus continuous data-flow beds panned with the motion (right → left). Run with `STEMS=<dir>` to also write the music and effects stems as `.npy` files for checking the balance.
+
+## Hebrew voiceover
+
+| File | Description |
+|---|---|
+| `voiceover/script.json` | The approved script: line text, cue time (`at`), optional `tempo` (speed-up), and `skip` |
+| `voiceover/narration.mp3` | One take of the whole script: eleven_v3, voice "Nimrod – Warm and Confident" (native Hebrew), `[long pause]` between lines |
+| `voiceover/alignment.json` | Start and end of every line in the take (word timestamps from eleven_scribe_v1) |
+
+The mix script cuts each line at the quietest point near its boundaries, levels it, applies the tempo, and places the first word on the cue time. Music and effects dip about 7.5 dB under the voice. It writes two soundtracks: `public/audio/nexus-score.wav` (with voiceover) and `public/audio/nexus-score-no-voiceover.wav`.
+
+Lines 25 and 26 ("ממידע, לתובנות" and "מתובנות, להשפעה") are marked `skip`: there wasn't room for them next to line 24 and the big pulse. Those words are shown large on screen.
