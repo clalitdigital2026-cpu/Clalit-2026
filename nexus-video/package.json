@@ -1,0 +1,27 @@
+{
+  "name": "nexus-launch-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NEXUS – Clalit launch film (Remotion)",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "music": "node scripts/generate-music.mjs",
+    "render": "remotion render src/index.ts Nexus out/nexus-launch.mp4",
+    "render:4k": "remotion render src/index.ts Nexus4K out/nexus-launch-4k.mp4",
+    "still": "remotion still src/index.ts Nexus out/still.png",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.547",
+    "@remotion/fonts": "4.0.547",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.547"
+  },
+  "devDependencies": {
+    "@fontsource/heebo": "5.1.1",
+    "@fontsource/inter": "5.1.1",
+    "@types/react": "18.3.12",
+    "typescript": "5.6.3"
+  }
+}
