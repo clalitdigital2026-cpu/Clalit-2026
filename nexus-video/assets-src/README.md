@@ -35,4 +35,6 @@ Generated in ElevenLabs for this film (instrumental, no vocals). To keep them in
 
 The mix script cuts each line at the quietest point near its boundaries, levels it, applies the tempo, and places the first word on the cue time. Music and effects dip about 7.5 dB under the voice. It writes two soundtracks: `public/audio/nexus-score.wav` (with voiceover) and `public/audio/nexus-score-no-voiceover.wav`.
 
-Lines 25 and 26 ("ממידע, לתובנות" and "מתובנות, להשפעה") are marked `skip`: there wasn't room for them next to line 24 and the big pulse. Those words are shown large on screen.
+Line placement rules: speech boundaries are measured from the audio of each line, pauses inside a line are shortened to at most 0.3 s, and there are always at least 0.35 s of silence between lines. When a line doesn't fit, it is pushed later and the script prints a ⚠ warning.
+
+Skipped lines (`skip`): 20 ("מידע בתנועה. ארגון בתנועה.", shown on screen), replaced by the bridging question 20b ("ומה אנחנו מקבלים, כארגון רפואי?", `voiceover/q-benefits.mp3`); and 25 and 26 ("ממידע, לתובנות" and "מתובנות, להשפעה"), which had no room and are shown large on screen.

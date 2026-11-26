@@ -334,7 +334,7 @@ if VO_SRC.exists():
     # line boundaries from word-level timestamps (assets-src/voiceover/alignment.json),
     # snapped to the quietest point nearby so no syllable is clipped
     ALIGN = json.loads((ROOT / 'assets-src/voiceover/alignment.json').read_text())['lines']
-    assert len(ALIGN) == len(SCRIPT)
+    assert len(ALIGN) == sum(1 for ln in SCRIPT if "file" not in ln)
     mono = take.mean(axis=1)
     env10 = np.sqrt(np.convolve(mono ** 2, np.ones(480) / 480, mode='same'))
 
@@ -352,21 +352,64 @@ if VO_SRC.exists():
         return np.frombuffer(out_, dtype=np.float32).reshape(-1, 2).copy()
 
     target = db(-15.5)
-    for (w0, w1), line in zip(ALIGN, SCRIPT):
+    MIN_GAP = 0.35  # silence between consecutive lines (s)
+
+    def speech_extent(x):
+        e = np.sqrt(np.convolve(x.mean(axis=1) ** 2, np.ones(480) / 480, mode='same'))
+        lv = 20 * np.log10(e + 1e-9)
+        on = np.where(lv > lv.max() - 35)[0]
+        return (on[0] / SR, on[-1] / SR) if len(on) else (0.0, len(x) / SR)
+
+    def tighten(x, max_pause):
+        """Shorten pauses inside a line (between its sentences) to at most max_pause."""
+        e = np.sqrt(np.convolve(x.mean(axis=1) ** 2, np.ones(480) / 480, mode='same'))
+        lv = 20 * np.log10(e + 1e-9)
+        quiet = lv < lv.max() - 32
+        keep = np.ones(len(x), dtype=bool)
+        i, n_, lim = 0, len(x), int(max_pause * SR)
+        while i < n_:
+            if quiet[i]:
+                j = i
+                while j < n_ and quiet[j]:
+                    j += 1
+                if 0 < i and j < n_ and j - i > lim:  # an inner pause
+                    cut0 = i + lim // 2
+                    cut1 = j - lim // 2
+                    keep[cut0:cut1] = False
+                i = j
+            else:
+                i += 1
+        y = x[keep]
+        return y
+
+    prev_end = -1.0
+    for line in SCRIPT:
         if line.get('skip'):
             continue
-        t0 = quiet_near(w0, -0.25, 0.02)
-        t1 = quiet_near(w1, -0.02, 0.3)
-        seg = stretch(take[s(t0): s(t1)].copy(), line.get('tempo', 1.0))
-        # the word timestamps mark the first word's start – keep it on the cue
-        lead = (w0 - t0) / line.get('tempo', 1.0)
+        tempo = line.get('tempo', 1.0)
+        if 'file' in line:
+            raw = load(ROOT / 'assets-src' / line['file'])
+            raw = _f(_b(2, 90, 'high', fs=SR, output='sos'), raw, axis=0).astype(np.float32)
+        else:
+            w0, w1 = ALIGN[line['take_index']]
+            raw = take[s(quiet_near(w0, -0.25, 0.02)): s(quiet_near(w1, -0.02, 0.3))]
+        a0, a1 = speech_extent(raw)
+        seg = raw[max(0, s(a0 - 0.03)): s(a1 + 0.1)].copy()
+        seg = tighten(seg, line.get('max_pause', 0.3))
+        seg = stretch(seg, tempo)
         seg *= target / max(np.sqrt(np.mean(seg ** 2)), 1e-6)
         r = np.linspace(0, 1, int(0.01 * SR), dtype=np.float32)[:, None]
         seg[: len(r)] *= r
         seg[-len(r) * 4:] *= np.linspace(1, 0, len(r) * 4, dtype=np.float32)[:, None]
-        st = s(line['at'] - lead)
+        start = line['at'] - 0.03 / tempo
+        note = ''
+        if start < prev_end + MIN_GAP:
+            note = f'  ⚠ pushed +{prev_end + MIN_GAP - start:.2f}s'
+            start = prev_end + MIN_GAP
+        st = s(start)
         vo[st: st + len(seg)] += seg[: max(0, len(vo) - st)]
-        print(f"  VO {line['id']} {line['at']:6.2f}–{line['at'] + len(seg) / SR - lead:6.2f}s  {line['text']}")
+        prev_end = start + len(seg) / SR - 0.1 / tempo
+        print(f"  VO {line['id']:>3} {start + 0.03:6.2f}–{prev_end:6.2f}s{note}  {line['text']}")
     # make room for the voice: music and effects dip under it
     venv = np.abs(vo).max(axis=1)
     kv = np.exp(-1 / (0.18 * SR))
