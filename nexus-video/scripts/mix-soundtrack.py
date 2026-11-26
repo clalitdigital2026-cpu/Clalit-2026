@@ -306,6 +306,10 @@ for t0, t1, g0, g1, p0, p1 in BEDS:
     loop *= (gain * edge)[:, None]
     place(fx, loop, s(t0), 1.0, p0, p1)
 
+# the quiet opening: the whole effects layer sits lower until the flight into the light
+open_gain = db(-6) + (1 - db(-6)) * np.clip((t - 7.6) / 0.9, 0, 1)
+fx *= open_gain[:, None].astype(np.float32)
+
 # keep the music out of the way of the biggest hits only (gentle sidechain)
 env = np.abs(heavy).max(axis=1)
 k = np.exp(-1 / (0.25 * SR))
