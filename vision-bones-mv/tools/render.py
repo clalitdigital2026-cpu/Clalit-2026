@@ -57,6 +57,25 @@ def drawings(sid):
             out.append(p)
     return out
 
+_clips = {}
+def clip_frames(sid):
+    """All frames of clips/<sid>.mp4 (Grok Imagine Video), resized to output size, uint8. Keeps 2 clips cached."""
+    p = f"{ROOT}/clips/{sid}.mp4"
+    if not os.path.exists(p):
+        return None
+    if sid not in _clips:
+        if len(_clips) >= 2:
+            _clips.pop(next(iter(_clips)))
+        cap = cv2.VideoCapture(p); fr = []
+        while True:
+            ok, im = cap.read()
+            if not ok: break
+            fr.append(cv2.resize(im, (OW, OH), interpolation=cv2.INTER_LANCZOS4))
+        _clips[sid] = (fr, cap.get(cv2.CAP_PROP_FPS) or 24)
+    return _clips[sid]
+
+USE_CLIPS = os.environ.get("NO_CLIPS") != "1"
+
 def moth_sprite():
     """Cut the spread-wing moth from the reference sheet (cream background -> alpha)."""
     im = cv2.imread(f"{ROOT}/refs/moth-sheet.jpg")
@@ -130,6 +149,7 @@ CAM = {  # zoom0, zoom1, x0, y0, x1, y1 (offsets as fraction of frame), rot0, ro
     "hold":    (1.06, 1.08, 0, 0, 0, 0, 0, 0),
     "fall":    (1.05, 1.35, 0, 0, 0, 0, 0, 25),
     "spin":    (1.20, 1.30, 0, 0, 0, 0, -10, 10),
+    "video":   (1.025, 1.025, 0, 0, 0, 0, 0, 0),
 }
 
 def camera_warp(img, cam, u, shake, t):
@@ -277,6 +297,16 @@ def render_shot(shot, t, fi):
     fx = shot.get("fx", [])
     if shot["id"] == "black":
         img = np.zeros((OH, OW, 3), np.float32)
+    elif USE_CLIPS and clip_frames(shot["id"]) is not None:
+        fr, cfps = clip_frames(shot["id"])
+        k = min(len(fr) - 1, int((t - shot["start"]) * cfps))
+        src = fr[k].astype(np.float32) / 255.0
+        shake = beat_shake(fi, shot.get("shake", 0))
+        # gentle unsharp to firm up the 720p upscale, then weave/shake only (the clip has its own camera move)
+        src = cv2.addWeighted(src, 1.35, cv2.GaussianBlur(src, (0, 0), 1.2), -0.35, 0)
+        img = camera_warp(src, "video", u, shake, t)
+        fx = [x for x in fx if x not in ("rain", "lightrain", "rings", "swarm", "spiral")]
+        shot = {k2: v for k2, v in shot.items() if k2 != "moth_path"}
     else:
         ds = drawings(shot["id"])
         on = shot.get("on", 3)  # limited animation: hold each drawing N frames
