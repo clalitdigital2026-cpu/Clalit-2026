@@ -155,7 +155,7 @@ export const S3Challenge: React.FC = () => {
         {x: 380, y: 330, z: 700},
         {x: -300, y: -330, z: 600},
       ][k];
-      const p = project({x: wpos.x * 1.25 + cam.x, y: wpos.y * 1.1 + cam.y, z: cam.z + 560 + wpos.z * 0.45}, cam);
+      const p = project({x: wpos.x * 0.78 + cam.x, y: wpos.y * 0.85 + cam.y, z: cam.z + 560 + wpos.z * 0.45}, cam);
       if (!p) return;
       const inA = easeOutExpo(clamp01(life / 0.6));
       const outA = 1 - ramp(t, FREEZE + 0.1, FREEZE + 0.5);

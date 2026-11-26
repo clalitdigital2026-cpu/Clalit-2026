@@ -528,7 +528,7 @@ const AIOverlay: React.FC<{t: number}> = ({t}) => {
 /** REAL-TIME · CONNECTED · SCALABLE · AI-READY – one per beat. */
 const Keywords: React.FC<{t: number}> = ({t}) => {
   if (t < KW[0] - 0.02) return null;
-  const k = Math.min(KW.length - 1, KW.filter((x) => t >= x).length - 1);
+  const k = Math.max(0, Math.min(KW.length - 1, KW.filter((x) => t >= x).length - 1));
   const lt = t - KW[k];
   const words = TEXT.benefits.keywords;
   const themes = [
