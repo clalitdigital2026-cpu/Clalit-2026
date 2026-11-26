@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "generations": [
+    {
+      "createdAt": "2026-11-26T23:12:49.968Z",
+      "command": "image",
+      "requestedPrompt": "Wide establishing shot, original 1990s Japanese cel-animation style for an adult seinen anime, hand-painted background art, analog film grain. A vast industrial dystopian city at night in heavy rain seen from high above: endless grey concrete apartment blocks, smokestacks breathing smoke, tangled power cables strung between buildings, an old elevated train line curving through, tiny flickering sodium lights in a few windows. Almost monochrome cold blue-grey palette, deep black shadows, rain streaks, low clouds. Cinematic 16:9 composition.",
+      "sessionId": "01a21a21-b98f-7cd0-af46-29795e4d1fdc",
+      "aspect": "16:9",
+      "costUsd": 0.02142816,
+      "assets": [
+        {
+          "file": "k01-city-1.jpg",
+          "bytes": 329693,
+          "tool": "image_gen",
+          "prompt": "Wide establishing shot, original 1990s Japanese cel-animation style for an adult seinen anime, hand-painted background art, analog film grain. A vast industrial dystopian city at night in heavy rain seen from high above: endless grey concrete apartment blocks, smokestacks breathing smoke, tangled power cables strung between buildings, an old elevated train line curving through, tiny flickering sodium lights in a few windows. Almost monochrome cold blue-grey palette, deep black shadows, rain streaks, low clouds. Cinematic 16:9 composition.",
+          "aspectRatio": "16:9"
+        }
+      ]
+    }
+  ]
+}

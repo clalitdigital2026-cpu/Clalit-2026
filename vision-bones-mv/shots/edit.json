@@ -1,0 +1,849 @@
+{
+ "duration": 327.13,
+ "shots": [
+  {
+   "id": "black",
+   "start": 0,
+   "end": 2.833
+  },
+  {
+   "id": "s02",
+   "start": 2.833,
+   "end": 11.447,
+   "cam": "aerial",
+   "fx": [
+    "rain",
+    "flicker"
+   ],
+   "fade_in": 2.5
+  },
+  {
+   "id": "s03",
+   "start": 11.447,
+   "end": 16.231,
+   "cam": "panR",
+   "fx": [
+    "rain"
+   ]
+  },
+  {
+   "id": "s04",
+   "start": 16.231,
+   "end": 20.248,
+   "cam": "push",
+   "fx": [
+    "rain"
+   ]
+  },
+  {
+   "id": "s05",
+   "start": 20.248,
+   "end": 24.079,
+   "cam": "track",
+   "fx": [
+    "rain"
+   ]
+  },
+  {
+   "id": "s06",
+   "start": 24.079,
+   "end": 26.982,
+   "cam": "push",
+   "fx": [
+    "lightrain"
+   ]
+  },
+  {
+   "id": "s07",
+   "start": 26.982,
+   "end": 29.35,
+   "cam": "trackL",
+   "fx": [
+    "rain"
+   ]
+  },
+  {
+   "id": "s08",
+   "start": 29.35,
+   "end": 31.393,
+   "cam": "hold",
+   "fx": [
+    "rain",
+    "flicker"
+   ],
+   "shake": 3
+  },
+  {
+   "id": "s09",
+   "start": 31.393,
+   "end": 33.367,
+   "cam": "drift",
+   "fx": [
+    "lightrain"
+   ]
+  },
+  {
+   "id": "s10",
+   "start": 33.367,
+   "end": 38.104,
+   "cam": "track",
+   "fx": [
+    "flicker"
+   ],
+   "shake": 2
+  },
+  {
+   "id": "s11",
+   "start": 38.104,
+   "end": 41.935,
+   "cam": "push",
+   "fx": [],
+   "trans": "cut"
+  },
+  {
+   "id": "s12",
+   "start": 41.935,
+   "end": 45.743,
+   "cam": "push",
+   "fx": []
+  },
+  {
+   "id": "s13",
+   "start": 45.743,
+   "end": 49.087,
+   "cam": "pushfast",
+   "fx": [
+    "glow"
+   ],
+   "on": 4
+  },
+  {
+   "id": "s14",
+   "start": 49.087,
+   "end": 53.359,
+   "cam": "panL",
+   "fx": [
+    "flicker"
+   ]
+  },
+  {
+   "id": "s15",
+   "start": 53.359,
+   "end": 57.168,
+   "cam": "push",
+   "fx": []
+  },
+  {
+   "id": "s16",
+   "start": 57.168,
+   "end": 60.024,
+   "cam": "dutch",
+   "fx": [
+    "flicker"
+   ],
+   "shake": 2
+  },
+  {
+   "id": "s17",
+   "start": 60.024,
+   "end": 63.832,
+   "cam": "pull",
+   "fx": [],
+   "moth_path": [
+    [
+     0.3,
+     0.15
+    ],
+    [
+     0.5,
+     0.25
+    ],
+    [
+     0.62,
+     0.18
+    ]
+   ],
+   "moth_size": 40
+  },
+  {
+   "id": "s18",
+   "start": 63.832,
+   "end": 68.592,
+   "cam": "push",
+   "fx": [
+    "lightrain"
+   ],
+   "moth_path": [
+    [
+     0.45,
+     0.4
+    ],
+    [
+     0.55,
+     0.3
+    ],
+    [
+     0.7,
+     0.45
+    ]
+   ],
+   "moth_size": 55
+  },
+  {
+   "id": "s19",
+   "start": 68.592,
+   "end": 73.816,
+   "cam": "track",
+   "fx": [
+    "rain"
+   ],
+   "shake": 4
+  },
+  {
+   "id": "s20",
+   "start": 73.816,
+   "end": 78.112,
+   "cam": "pull",
+   "fx": [
+    "rain"
+   ],
+   "moth_path": [
+    [
+     0.5,
+     0.55
+    ],
+    [
+     0.6,
+     0.35
+    ],
+    [
+     0.8,
+     0.2
+    ]
+   ],
+   "moth_size": 45
+  },
+  {
+   "id": "s21",
+   "start": 78.112,
+   "end": 82.408,
+   "cam": "trackL",
+   "fx": [
+    "rain",
+    "pulse"
+   ],
+   "shake": 6,
+   "on": 3,
+   "trans": "ink"
+  },
+  {
+   "id": "s22",
+   "start": 82.408,
+   "end": 84.312,
+   "cam": "pushfast",
+   "fx": [
+    "dust",
+    "glow"
+   ],
+   "shake": 8
+  },
+  {
+   "id": "s23",
+   "start": 84.312,
+   "end": 86.216,
+   "cam": "hold",
+   "fx": [
+    "dust",
+    "pulse"
+   ],
+   "shake": 5,
+   "on": 2
+  },
+  {
+   "id": "s24",
+   "start": 86.216,
+   "end": 88.12,
+   "cam": "panL",
+   "fx": [
+    "lightrain"
+   ]
+  },
+  {
+   "id": "s25",
+   "start": 88.12,
+   "end": 90.024,
+   "cam": "hold",
+   "fx": [
+    "dust",
+    "pulse"
+   ],
+   "shake": 7,
+   "on": 2
+  },
+  {
+   "id": "s26",
+   "start": 90.024,
+   "end": 94.296,
+   "cam": "tiltU",
+   "fx": [
+    "glow"
+   ]
+  },
+  {
+   "id": "s27",
+   "start": 94.296,
+   "end": 96.2,
+   "cam": "push",
+   "fx": [
+    "dust",
+    "glow",
+    "pulse"
+   ]
+  },
+  {
+   "id": "s28",
+   "start": 96.2,
+   "end": 98.104,
+   "cam": "dutch",
+   "fx": [
+    "rain"
+   ],
+   "shake": 5
+  },
+  {
+   "id": "s29",
+   "start": 98.104,
+   "end": 100.032,
+   "cam": "pushfast",
+   "fx": [
+    "dust",
+    "pulse"
+   ],
+   "shake": 6
+  },
+  {
+   "id": "s30",
+   "start": 100.032,
+   "end": 106.208,
+   "cam": "pushfast",
+   "fx": [
+    "rain"
+   ],
+   "shake": 5,
+   "moth_path": [
+    [
+     0.55,
+     0.45
+    ],
+    [
+     0.5,
+     0.38
+    ],
+    [
+     0.48,
+     0.3
+    ]
+   ],
+   "moth_size": 50
+  },
+  {
+   "id": "s31",
+   "start": 106.208,
+   "end": 117.632,
+   "cam": "push",
+   "fx": [
+    "lightrain",
+    "flicker"
+   ],
+   "moth_path": [
+    [
+     0.55,
+     0.45
+    ],
+    [
+     0.52,
+     0.48
+    ],
+    [
+     0.5,
+     0.5
+    ]
+   ],
+   "moth_size": 24
+  },
+  {
+   "id": "s32",
+   "start": 117.632,
+   "end": 122.903,
+   "cam": "push",
+   "fx": [
+    "dust"
+   ],
+   "trans": "ink",
+   "trans_dur": 0.8
+  },
+  {
+   "id": "s33",
+   "start": 122.903,
+   "end": 130.032,
+   "cam": "pull",
+   "fx": [
+    "dust",
+    "glow"
+   ],
+   "trans": "white",
+   "trans_dur": 0.4
+  },
+  {
+   "id": "s34",
+   "start": 130.032,
+   "end": 134.327,
+   "cam": "track",
+   "fx": [
+    "dust"
+   ]
+  },
+  {
+   "id": "s35",
+   "start": 134.327,
+   "end": 138.6,
+   "cam": "panR",
+   "fx": [
+    "dust"
+   ]
+  },
+  {
+   "id": "s36",
+   "start": 138.6,
+   "end": 142.385,
+   "cam": "push",
+   "fx": [
+    "flicker"
+   ]
+  },
+  {
+   "id": "s37",
+   "start": 142.385,
+   "end": 146.68,
+   "cam": "drift",
+   "fx": [
+    "dust"
+   ]
+  },
+  {
+   "id": "s38",
+   "start": 146.68,
+   "end": 151.441,
+   "cam": "trackL",
+   "fx": [
+    "dust"
+   ]
+  },
+  {
+   "id": "s39",
+   "start": 151.441,
+   "end": 157.176,
+   "cam": "tiltU",
+   "fx": [
+    "dust",
+    "glow"
+   ]
+  },
+  {
+   "id": "s40",
+   "start": 157.176,
+   "end": 162.4,
+   "cam": "push",
+   "fx": [
+    "dust",
+    "glow"
+   ]
+  },
+  {
+   "id": "s41",
+   "start": 162.4,
+   "end": 169.064,
+   "cam": "pull",
+   "fx": [
+    "dust",
+    "glow",
+    "pulse"
+   ],
+   "trans": "ink"
+  },
+  {
+   "id": "s42",
+   "start": 169.064,
+   "end": 172.873,
+   "cam": "push",
+   "fx": [
+    "dust",
+    "pulse"
+   ],
+   "shake": 4
+  },
+  {
+   "id": "s43",
+   "start": 172.873,
+   "end": 177.168,
+   "cam": "drift",
+   "fx": [
+    "dust",
+    "pulse"
+   ],
+   "shake": 4,
+   "on": 2
+  },
+  {
+   "id": "s44",
+   "start": 177.168,
+   "end": 180.976,
+   "cam": "tiltU",
+   "fx": [
+    "dust",
+    "pulse"
+   ],
+   "shake": 3
+  },
+  {
+   "id": "s45",
+   "start": 180.976,
+   "end": 184.784,
+   "cam": "hold",
+   "fx": [
+    "dust",
+    "pulse"
+   ],
+   "shake": 7,
+   "on": 2
+  },
+  {
+   "id": "s46",
+   "start": 184.784,
+   "end": 190.032,
+   "cam": "track",
+   "fx": [
+    "dust",
+    "ember",
+    "pulse"
+   ],
+   "shake": 6
+  },
+  {
+   "id": "s47",
+   "start": 190.032,
+   "end": 194.792,
+   "cam": "pull",
+   "fx": [
+    "rings",
+    "dust",
+    "glow"
+   ]
+  },
+  {
+   "id": "s48",
+   "start": 194.792,
+   "end": 200.017,
+   "cam": "push",
+   "fx": [
+    "lightrain",
+    "flicker",
+    "rings"
+   ]
+  },
+  {
+   "id": "s49",
+   "start": 200.017,
+   "end": 203.848,
+   "cam": "panR",
+   "fx": [
+    "ember",
+    "glow"
+   ]
+  },
+  {
+   "id": "s50",
+   "start": 203.848,
+   "end": 209.072,
+   "cam": "push",
+   "fx": [
+    "lightrain"
+   ]
+  },
+  {
+   "id": "s51",
+   "start": 209.072,
+   "end": 213.833,
+   "cam": "tiltU",
+   "fx": [
+    "ember",
+    "glow"
+   ]
+  },
+  {
+   "id": "s52",
+   "start": 213.833,
+   "end": 219.545,
+   "cam": "pull",
+   "fx": [
+    "dust",
+    "glow",
+    "pulse"
+   ],
+   "shake": 4
+  },
+  {
+   "id": "s53",
+   "start": 219.545,
+   "end": 224.792,
+   "cam": "push",
+   "fx": [
+    "ember",
+    "glow"
+   ]
+  },
+  {
+   "id": "s54",
+   "start": 224.792,
+   "end": 230.969,
+   "cam": "pull",
+   "fx": [
+    "ash",
+    "glow",
+    "pulse"
+   ],
+   "trans": "ink"
+  },
+  {
+   "id": "s55",
+   "start": 230.969,
+   "end": 236.217,
+   "cam": "spin",
+   "fx": [
+    "pulse"
+   ],
+   "shake": 5
+  },
+  {
+   "id": "s56",
+   "start": 236.217,
+   "end": 241.929,
+   "cam": "tiltU",
+   "fx": [
+    "swarm",
+    "glow"
+   ],
+   "n": 80
+  },
+  {
+   "id": "s57",
+   "start": 241.929,
+   "end": 247.153,
+   "cam": "pushfast",
+   "fx": [
+    "rings",
+    "glow",
+    "pulse"
+   ],
+   "shake": 5
+  },
+  {
+   "id": "s58",
+   "start": 247.153,
+   "end": 251.937,
+   "cam": "track",
+   "fx": [
+    "ember",
+    "pulse"
+   ]
+  },
+  {
+   "id": "s59",
+   "start": 251.937,
+   "end": 258.113,
+   "cam": "fall",
+   "fx": [
+    "ember"
+   ]
+  },
+  {
+   "id": "s60",
+   "start": 258.113,
+   "end": 265.265,
+   "cam": "spin",
+   "fx": [
+    "glow",
+    "dust"
+   ],
+   "trans": "white",
+   "trans_dur": 0.3
+  },
+  {
+   "id": "s61",
+   "start": 265.265,
+   "end": 270.025,
+   "cam": "pull",
+   "fx": [
+    "glow",
+    "pulse"
+   ],
+   "shake": 4
+  },
+  {
+   "id": "s62",
+   "start": 270.025,
+   "end": 277.177,
+   "cam": "dutch",
+   "fx": [
+    "ember",
+    "glow",
+    "pulse"
+   ],
+   "shake": 6
+  },
+  {
+   "id": "s63",
+   "start": 277.177,
+   "end": 281.913,
+   "cam": "pushfast",
+   "fx": [
+    "glow",
+    "ember"
+   ],
+   "shake": 3
+  },
+  {
+   "id": "s64",
+   "start": 281.913,
+   "end": 289.065,
+   "cam": "spin",
+   "fx": [
+    "spiral",
+    "glow",
+    "pulse"
+   ],
+   "n": 70
+  },
+  {
+   "id": "s65",
+   "start": 289.065,
+   "end": 292.873,
+   "cam": "pushfast",
+   "fx": [
+    "glow",
+    "pulse"
+   ],
+   "shake": 10
+  },
+  {
+   "id": "s66",
+   "start": 292.873,
+   "end": 300.025,
+   "cam": "pull",
+   "fx": [],
+   "trans": "white",
+   "trans_dur": 0.25
+  },
+  {
+   "id": "s67",
+   "start": 300.025,
+   "end": 302.881,
+   "cam": "push",
+   "fx": [
+    "dust"
+   ]
+  },
+  {
+   "id": "s68",
+   "start": 302.881,
+   "end": 306.202,
+   "cam": "drift",
+   "fx": [
+    "dust"
+   ]
+  },
+  {
+   "id": "s69",
+   "start": 306.202,
+   "end": 309.568,
+   "cam": "track",
+   "fx": [
+    "dust"
+   ]
+  },
+  {
+   "id": "s70",
+   "start": 309.568,
+   "end": 312.889,
+   "cam": "push",
+   "fx": [
+    "dust"
+   ]
+  },
+  {
+   "id": "s71",
+   "start": 312.889,
+   "end": 316.209,
+   "cam": "push",
+   "fx": [
+    "glow"
+   ]
+  },
+  {
+   "id": "s72",
+   "start": 316.209,
+   "end": 319.5,
+   "cam": "drift",
+   "fx": [
+    "dust"
+   ]
+  },
+  {
+   "id": "s73",
+   "start": 319.5,
+   "end": 322.5,
+   "cam": "push",
+   "fx": [
+    "glow"
+   ],
+   "moth_path": [
+    [
+     0.85,
+     0.1
+    ],
+    [
+     0.75,
+     0.3
+    ],
+    [
+     0.66,
+     0.52
+    ]
+   ],
+   "moth_size": 70
+  },
+  {
+   "id": "s74",
+   "start": 322.5,
+   "end": 324.6,
+   "cam": "rise",
+   "fx": [
+    "swarm",
+    "glow"
+   ],
+   "n": 110
+  },
+  {
+   "id": "logo",
+   "start": 324.6,
+   "end": 327.13
+  }
+ ],
+ "impacts": [
+  78.112,
+  162.4,
+  224.792,
+  258.113,
+  289.065
+ ]
+}

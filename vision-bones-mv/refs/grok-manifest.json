@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "generations": [
+    {
+      "createdAt": "2026-11-26T23:12:18.591Z",
+      "command": "image",
+      "requestedPrompt": "Character model sheet in original 1990s Japanese cel-animation style for an adult seinen anime: hand-inked lines, flat muted cel shading, heavy shadows, analog film grain. A young man about 24, thin build, messy unkempt black hair falling over his forehead, tired heavy-lidded dark eyes with faint shadows under them, pale skin, light stubble. He wears a worn charcoal knee-length coat over a faded frayed grey t-shirt, dark trousers and old scuffed black boots, with a small plain rectangular stamped metal ID tag on the coat's left chest. Full-body front view, three-quarter view, side profile and back view standing in a row, plus three head close-ups showing exhaustion, shock and a faint smile. Plain dirty cream paper background.",
+      "sessionId": "01a21a21-4921-7ad2-9cc1-109ff76079c6",
+      "aspect": "16:9",
+      "costUsd": 0.01243584,
+      "assets": [
+        {
+          "file": "hero-sheet-1.jpg",
+          "bytes": 384366,
+          "tool": "image_gen",
+          "prompt": "Character model sheet in original 1990s Japanese cel-animation style for an adult seinen anime: hand-inked lines, flat muted cel shading, heavy shadows, analog film grain. A young man about 24, thin build, messy unkempt black hair falling over his forehead, tired heavy-lidded dark eyes with faint shadows under them, pale skin, light stubble. He wears a worn charcoal knee-length coat over a faded frayed grey t-shirt, dark trousers and old scuffed black boots, with a small plain rectangular stamped metal ID tag on the coat's left chest. Full-body front view, three-quarter view, side profile and back view standing in a row, plus three head close-ups showing exhaustion, shock and a faint smile. Plain dirty cream paper background.",
+          "aspectRatio": "16:9"
+        }
+      ]
+    }
+  ]
+}

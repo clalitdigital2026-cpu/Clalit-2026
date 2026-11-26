@@ -1,0 +1,4 @@
+renders/part_*
+renders/*.log
+renders/parts.txt
+renders/preview_*
