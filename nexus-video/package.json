@@ -5,7 +5,7 @@
   "description": "NEXUS – Clalit launch film (Remotion)",
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "music": "node scripts/generate-music.mjs",
+    "music": "python3 scripts/mix-soundtrack.py",
     "render": "remotion render src/index.ts Nexus out/nexus-launch.mp4",
     "render:4k": "remotion render src/index.ts Nexus4K out/nexus-launch-4k.mp4",
     "still": "remotion still src/index.ts Nexus out/still.png",

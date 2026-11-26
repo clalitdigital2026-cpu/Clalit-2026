@@ -2,7 +2,7 @@
 
 סרטון השקה קולנועי (90 שניות, 1920×1080 ב‑60fps, עם אפשרות ל‑4K) לפלטפורמת הנתונים NEXUS של כללית.
 הסרטון בנוי ב‑**Remotion + React + TypeScript**. כל ההמחשות מצוירות בקוד (Canvas2D עם מצלמת פרספקטיבה תלת‑ממדית, SVG ו‑DOM),
-והפסקול מסונתז מאפס על ידי סקריפט, כך שאין צורך ברישוי של מוזיקה או אפקטים.
+הפסקול הוא מוזיקה מקורית ואפקטים שנוצרו ב‑ElevenLabs, ערוכים לתמונה על ידי סקריפט לפי ציר הזמן של הסרטון.
 
 ## Quick start
 
@@ -11,7 +11,7 @@ npm install
 npm run studio          # interactive preview in the browser (timeline, every scene separately)
 npm run render          # → out/nexus-launch.mp4      (1920×1080, 60fps, H.264)
 npm run render:4k       # → out/nexus-launch-4k.mp4   (3840×2160, 60fps)
-npm run music           # regenerate public/audio/nexus-score.wav from the cue sheet
+npm run music           # re-edit and re-mix public/audio/nexus-score.wav from the cue sheet (needs ffmpeg + numpy)
 ```
 
 Render a single scene, for example: `npx remotion render src/index.ts Scene-architecture out/architecture.mp4`
@@ -27,7 +27,8 @@ Render a single scene, for example: `npx remotion render src/index.ts Scene-arch
 | `src/components/ParticleType.tsx` | Typography and logos assembled from data particles (morph, dissolve) |
 | `src/components/Kinetic.tsx` | RTL-safe kinetic typography (the word order comes from the browser's bidi engine) |
 | `src/lib/*` | Perspective camera, deterministic random/noise, glow sprites, icon set, fonts, timing |
-| `scripts/generate-music.mjs` | The original score: synths, drums, FX, reverb, sidechain, mastering |
+| `scripts/mix-soundtrack.py` | Edits the score to picture on bar lines, places the sound design on the cues, sidechain and mastering |
+| `assets-src/` | Source music and sound effects generated in ElevenLabs (see `assets-src/README.md`) |
 | `scripts/extract-logos.py` | Builds transparent logo layers from the supplied brand images |
 | `public/logos`, `public/fonts` | Logo layers and the Heebo/Inter fonts (bundled locally, so rendering works offline) |
 
@@ -48,7 +49,7 @@ Render a single scene, for example: `npx remotion render src/index.ts Scene-arch
 ## Editing
 
 - **Texts**: `TEXT` in `config.ts`.
-- **Scene length or sync point**: `cues.json`. Then run `npm run music` so the score follows.
+- **Scene length or sync point**: `cues.json`. Then run `npm run music` so the sound follows. The music edit points are in the `EDIT` list in `scripts/mix-soundtrack.py`.
 - **Draft speed**: in `config.ts`, set `FX.particleDensity = 0.5`, or render with `--scale=0.5`.
 - **Voiceover**: put a file in `public/audio/` and set `ASSETS.voiceover` to it. It plays as a separate track under the music.
 - **Logos**: the files in `public/logos` were extracted from the supplied images (`python3 scripts/extract-logos.py <nexus.jpg> <clalit.png>`). To use official vector/PNG files, replace the files and keep the names.
