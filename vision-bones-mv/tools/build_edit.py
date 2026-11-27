@@ -21,7 +21,7 @@ S = [
  ("s06", 24.0, 27.0, dict(cam="push", fx=[L])),
  ("s07", 27.0, 29.4, dict(cam="trackL", fx=[R])),
  ("s08", 29.4, 31.4, dict(cam="hold", fx=[R, "flicker"], shake=3)),
- ("s09", 31.4, 33.5, dict(cam="drift", fx=[L])),
+ ("s09", 31.4, 33.5, dict(cam="push", fx=[R], use_still=True)),  # Grok take grew a second head: animate the keyframe instead
  # --- 2. THE FIRST CRACK (full band 33.5)
  ("s10", 33.5, 38.0, dict(cam="track", fx=["flicker"], shake=2)),
  ("s11", 38.0, 42.0, dict(cam="push", fx=[], trans="cut")),
@@ -45,9 +45,9 @@ S = [
  ("s28", 96.1, 98.0, dict(cam="dutch", fx=[R], shake=5)),
  ("s29", 98.0, 100.0, dict(cam="pushfast", fx=[D, P], shake=6)),
  ("s30", 100.0, 106.0, dict(cam="pushfast", fx=[R], shake=5, moth_path=[[0.55,0.45],[0.5,0.38],[0.48,0.3]], moth_size=50)),
- ("s31", 106.0, 117.6, dict(cam="push", fx=[L, "flicker"], moth_path=[[0.55,0.45],[0.52,0.48],[0.5,0.5]], moth_size=24)),
+ ("s31", 106.0, 117.6, dict(cam="push", fx=[L, "flicker"], clip_speed=0.42)),  # the take ends with him walking out toward camera: use its first 5 s only
  # --- drop: descent
- ("s32", 117.6, 123.0, dict(cam="push", fx=[D], trans="ink", trans_dur=0.8)),
+ ("s32", 117.6, 123.0, dict(cam="push", fx=[D], trans="ink", trans_dur=0.8, clip_in=2.85, clip_speed=0.6)),  # skip the backwards-walk start of the take
  # --- 4. THE CITY UNDER THE CITY (123)
  ("s33", 123.0, 130.0, dict(cam="pull", fx=[D, G], trans="white", trans_dur=0.4)),
  ("s34", 130.0, 134.5, dict(cam="track", fx=[D])),

@@ -299,10 +299,12 @@ def render_shot(shot, t, fi):
     fx = shot.get("fx", [])
     if shot["id"] == "black":
         img = np.zeros((OH, OW, 3), np.float32)
-    elif USE_CLIPS and clip_frames(shot["id"]) is not None:
+    elif USE_CLIPS and not shot.get("use_still") and clip_frames(shot["id"]) is not None:
         fr, cfps = clip_frames(shot["id"])
-        k = min(len(fr) - 1, int((t - shot["start"]) * cfps))
-        src = fr[k].astype(np.float32) / 255.0
+        # clip_in: skip the start of a take; clip_speed < 1 slows it (frames blended, no stutter)
+        pos = shot.get("clip_in", 0.0) * cfps + (t - shot["start"]) * cfps * shot.get("clip_speed", 1.0)
+        k = min(len(fr) - 1, int(pos)); k2 = min(len(fr) - 1, k + 1); w = pos - int(pos)
+        src = (fr[k].astype(np.float32) * (1 - w) + fr[k2].astype(np.float32) * w) / 255.0
         shake = beat_shake(fi, shot.get("shake", 0))
         # gentle unsharp to firm up the 720p upscale, then weave/shake only (the clip has its own camera move)
         src = cv2.addWeighted(src, 1.15, cv2.GaussianBlur(src, (0, 0), 1.0), -0.15, 0)

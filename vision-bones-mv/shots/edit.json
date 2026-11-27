@@ -77,10 +77,11 @@
    "id": "s09",
    "start": 31.393,
    "end": 33.367,
-   "cam": "drift",
+   "cam": "push",
    "fx": [
-    "lightrain"
-   ]
+    "rain"
+   ],
+   "use_still": true
   },
   {
    "id": "s10",
@@ -355,21 +356,7 @@
     "lightrain",
     "flicker"
    ],
-   "moth_path": [
-    [
-     0.55,
-     0.45
-    ],
-    [
-     0.52,
-     0.48
-    ],
-    [
-     0.5,
-     0.5
-    ]
-   ],
-   "moth_size": 24
+   "clip_speed": 0.42
   },
   {
    "id": "s32",
@@ -380,7 +367,9 @@
     "dust"
    ],
    "trans": "ink",
-   "trans_dur": 0.8
+   "trans_dur": 0.8,
+   "clip_in": 2.85,
+   "clip_speed": 0.6
   },
   {
    "id": "s33",
