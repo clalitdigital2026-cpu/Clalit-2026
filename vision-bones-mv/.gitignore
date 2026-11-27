@@ -1,4 +1,2 @@
-renders/part_*
-renders/*.log
-renders/parts.txt
-renders/preview_*
+renders/*
+!renders/THE_VISION_BONES-We_Have_No_Name_share.mp4

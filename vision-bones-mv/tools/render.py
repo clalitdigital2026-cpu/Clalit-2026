@@ -372,21 +372,45 @@ def impact(img, t):
             return img * 0.6 + 0.4  # flash decay
     return img
 
+_SUB = None
+def subtitle_layer():
+    """'WE HAVE NO NAME' in Anton, ink colour with slight rough edge, as BGRA float layer."""
+    global _SUB
+    if _SUB is None:
+        from PIL import Image, ImageDraw, ImageFont, ImageFilter
+        font = ImageFont.truetype(f"{ROOT}/fonts/Anton-Regular.ttf", int(64 * SC))
+        im = Image.new("L", (OW, OH), 0); d = ImageDraw.Draw(im)
+        txt = "WE HAVE NO NAME"
+        # letter spacing
+        sp = int(10 * SC); ws = [d.textlength(ch, font=font) for ch in txt]
+        tw = sum(ws) + sp * (len(txt) - 1); x = (OW - tw) / 2; y = int(OH * 0.80)
+        for ch, w in zip(txt, ws):
+            d.text((x, y), ch, fill=255, font=font); x += w + sp
+        al = np.asarray(im.filter(ImageFilter.GaussianBlur(0.6)), np.float32) / 255
+        rough = np.random.default_rng(4).random(al.shape).astype(np.float32)
+        al = al * (0.82 + 0.18 * rough)
+        col = np.zeros((OH, OW, 3), np.float32) + np.array([0.09, 0.14, 0.22], np.float32)  # dark rust-brown (BGR)
+        _SUB = np.dstack([col, al])
+    return _SUB
+
 LOGO = None
 def logo_card(t, u):
     """Finale: cream album paper, moths converge, official logo emerges through ink/dust."""
     global LOGO
     if LOGO is None:
-        lg = cv2.imread(f"{ROOT}/logo/logo.png").astype(np.float32) / 255
+        lg4 = cv2.imread(f"{ROOT}/logo/logo.png", cv2.IMREAD_UNCHANGED).astype(np.float32) / 255
+        lg, lga = (lg4[..., :3], lg4[..., 3:4]) if lg4.shape[2] == 4 else (lg4, np.ones_like(lg4[..., :1]))
         paper = np.full((H, W, 3), (0.80, 0.88, 0.92), np.float32)  # dirty cream (BGR)
         r = np.random.default_rng(9)
         tex = cv2.GaussianBlur(r.standard_normal((H, W)).astype(np.float32), (0, 0), 2) * 0.03
         paper += tex[..., None]
         lw = int(W * 0.72); lh = int(lw * lg.shape[0] / lg.shape[1])
         lg = cv2.resize(lg, (lw, lh), interpolation=cv2.INTER_AREA)
+        lga = cv2.resize(lga, (lw, lh), interpolation=cv2.INTER_AREA)[..., None]
         card = paper.copy()
         y0 = int(H * 0.40 - lh / 2); x0 = (W - lw) // 2
-        card[y0:y0 + lh, x0:x0 + lw] *= lg  # multiply: white of the logo file vanishes into paper
+        reg = card[y0:y0 + lh, x0:x0 + lw]
+        card[y0:y0 + lh, x0:x0 + lw] = reg * (1 - lga) + lg * lga  # official logo, untouched, over the paper
         LOGO = (cv2.resize(paper, (OW, OH)), cv2.resize(card, (OW, OH)))
     paper, card = LOGO
     m = ink_mask(min(1, u * 1.6), seed=21)
@@ -394,13 +418,9 @@ def logo_card(t, u):
     # subtitle under the logo
     if u > 0.35:
         a = min(1, (u - 0.35) / 0.25)
-        txt = img.copy()
-        font = cv2.FONT_HERSHEY_TRIPLEX
-        s = "WE HAVE NO NAME"
-        fs = 1.6 * SC; th = max(1, int(3 * SC))
-        (tw, tth), _ = cv2.getTextSize(s, font, fs, th)
-        cv2.putText(txt, s, ((OW - tw) // 2, int(OH * 0.86)), font, fs, (0.10, 0.16, 0.24), th, cv2.LINE_AA)
-        img = img * (1 - a) + txt * a
+        txt = subtitle_layer()
+        m = txt[..., 3:4] * a
+        img = img * (1 - m) + txt[..., :3] * m
     return img
 
 def frame(fi):
