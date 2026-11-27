@@ -264,24 +264,26 @@ def grade(img, sat, orange_keep, warmth, contrast):
     # warmth: >0 pushes amber, <0 pushes cold blue-grey
     img += np.array([-0.04, 0.0, 0.05], np.float32) * warmth
     img = (img - 0.5) * contrast + 0.5
-    return np.power(np.clip(img, 0, 1), 0.88)  # gentle lift: keyframes are dark
+    return np.power(np.clip(img, 0, 1), 0.92)  # gentle lift
 
-GRAIN = [np.random.default_rng(50 + i).standard_normal((OH, OW)).astype(np.float32) for i in range(8)]
+GRAIN = [cv2.GaussianBlur(np.random.default_rng(50 + i).standard_normal((OH, OW)).astype(np.float32), (0, 0), 0.7) for i in range(8)]
 VIG = None
 def film(img, f, t):
     global VIG
     if VIG is None:
         yy, xx = np.mgrid[0:OH, 0:OW].astype(np.float32)
         d = np.sqrt(((xx - OW / 2) / (OW / 2)) ** 2 + ((yy - OH / 2) / (OH / 2)) ** 2)
-        VIG = np.clip(1 - 0.38 * d ** 2.2, 0, 1)[..., None]
+        VIG = np.clip(1 - 0.18 * d ** 2.6, 0, 1)[..., None]
     img = img * VIG
     g = GRAIN[f % 8]
-    img += (g * 0.045)[..., None]
+    # soft grain, weaker in dark areas so faces and line art stay clean
+    img += (g * 0.018)[..., None] * (0.35 + 0.65 * np.clip(img.mean(axis=2, keepdims=True) * 2, 0, 1))
     r = np.random.default_rng(f)
-    if r.random() < 0.18:  # vertical scratch
+    if r.random() < 0.03:  # rare, faint vertical scratch
         x = int(r.random() * OW)
-        cv2.line(img, (x, 0), (x + int(r.normal() * 8), OH), (0.85, 0.85, 0.8), 1, cv2.LINE_AA)
-    for _ in range(r.integers(0, 4)):  # dust specks
+        ov = img.copy(); cv2.line(ov, (x, 0), (x + int(r.normal() * 8), OH), (0.85, 0.85, 0.8), 1, cv2.LINE_AA)
+        img = img * 0.7 + ov * 0.3
+    for _ in range(int(r.random() < 0.08)):  # occasional dust speck
         cv2.circle(img, (int(r.random() * OW), int(r.random() * OH)), int(1 + r.random() * 3 * SC),
                    (0.05, 0.05, 0.05) if r.random() < .6 else (0.9, 0.9, 0.85), -1, cv2.LINE_AA)
     return img
@@ -303,7 +305,7 @@ def render_shot(shot, t, fi):
         src = fr[k].astype(np.float32) / 255.0
         shake = beat_shake(fi, shot.get("shake", 0))
         # gentle unsharp to firm up the 720p upscale, then weave/shake only (the clip has its own camera move)
-        src = cv2.addWeighted(src, 1.35, cv2.GaussianBlur(src, (0, 0), 1.2), -0.35, 0)
+        src = cv2.addWeighted(src, 1.15, cv2.GaussianBlur(src, (0, 0), 1.0), -0.15, 0)
         img = camera_warp(src, "video", u, shake, t)
         fx = [x for x in fx if x not in ("rain", "lightrain", "rings", "swarm", "spiral")]
         shot = {k2: v for k2, v in shot.items() if k2 != "moth_path"}
@@ -338,16 +340,16 @@ def render_shot(shot, t, fi):
         b = cv2.GaussianBlur(np.clip(img - 0.55, 0, 1), (0, 0), 18 * SC + 1)
         img += b * np.array([0.3, 0.6, 1.0], np.float32) * (0.8 + 0.8 * KICK[min(fi, len(KICK) - 1)])
     if "pulse" in fx:
-        img *= 0.88 + 0.22 * KICK[min(fi, len(KICK) - 1)]
+        img *= 0.94 + 0.10 * KICK[min(fi, len(KICK) - 1)]
     fade_in = shot.get("fade_in", 0); fade_out = shot.get("fade_out", 0)
     if fade_in and t - shot["start"] < fade_in: img *= (t - shot["start"]) / fade_in
     if fade_out and shot["end"] - t < fade_out: img *= max(0, (shot["end"] - t) / fade_out)
     return img
 
 def palette(t):
-    keys = [(0, (0.10, 1.0, -1.0, 1.08)), (33.5, (0.15, 1.2, -0.8, 1.10)), (78, (0.35, 1.25, -0.3, 1.12)),
-            (123, (0.85, 1.15, 0.6, 1.08)), (162.6, (1.0, 1.3, 0.9, 1.12)), (225, (1.05, 1.35, 1.0, 1.18)),
-            (292.7, (0.30, 1.2, -0.4, 1.05)), (300, (0.65, 1.25, 0.3, 1.05)), (320, (0.9, 1.25, 0.6, 1.05))]
+    keys = [(0, (0.15, 1.0, -0.6, 1.03)), (33.5, (0.2, 1.1, -0.5, 1.04)), (78, (0.4, 1.12, -0.2, 1.05)),
+            (123, (0.9, 1.05, 0.3, 1.03)), (162.6, (1.0, 1.08, 0.4, 1.04)), (225, (1.0, 1.1, 0.4, 1.06)),
+            (292.7, (0.35, 1.1, -0.3, 1.02)), (300, (0.7, 1.1, 0.2, 1.02)), (320, (0.9, 1.1, 0.3, 1.02))]
     for i, (ta, va) in enumerate(keys):
         if i + 1 == len(keys) or t < keys[i + 1][0]:
             if i == 0:
