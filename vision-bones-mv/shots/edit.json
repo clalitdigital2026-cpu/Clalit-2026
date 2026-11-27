@@ -15,7 +15,8 @@
     "rain",
     "flicker"
    ],
-   "fade_in": 2.5
+   "fade_in": 2.5,
+   "clip_speed": 0.925
   },
   {
    "id": "s03",
@@ -369,7 +370,7 @@
    "trans": "ink",
    "trans_dur": 0.8,
    "clip_in": 2.85,
-   "clip_speed": 0.6
+   "clip_speed": 0.59
   },
   {
    "id": "s33",

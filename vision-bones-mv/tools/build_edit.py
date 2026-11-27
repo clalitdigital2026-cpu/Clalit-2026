@@ -14,7 +14,7 @@ R, L, D, E, P, G = "rain", "lightrain", "dust", "ember", "pulse", "glow"
 S = [
  # --- 1. THE CITY WITHOUT NAMES (quiet intro -> band enters 16.2)
  ("black", 0, 3.0, dict()),
- ("s02", 3.0, 11.6, dict(cam="aerial", fx=[R, "flicker"], fade_in=2.5)),
+ ("s02", 3.0, 11.6, dict(cam="aerial", fx=[R, "flicker"], fade_in=2.5, clip_speed=0.925)),  # 8 s take stretched to its 8.6 s slot (was freezing at 0:10.9)
  ("s03", 11.6, 16.2, dict(cam="panR", fx=[R])),
  ("s04", 16.2, 20.1, dict(cam="push", fx=[R])),
  ("s05", 20.1, 24.0, dict(cam="track", fx=[R])),
@@ -47,7 +47,7 @@ S = [
  ("s30", 100.0, 106.0, dict(cam="pushfast", fx=[R], shake=5, moth_path=[[0.55,0.45],[0.5,0.38],[0.48,0.3]], moth_size=50)),
  ("s31", 106.0, 117.6, dict(cam="push", fx=[L, "flicker"], clip_speed=0.42)),  # the take ends with him walking out toward camera: use its first 5 s only
  # --- drop: descent
- ("s32", 117.6, 123.0, dict(cam="push", fx=[D], trans="ink", trans_dur=0.8, clip_in=2.85, clip_speed=0.6)),  # skip the backwards-walk start of the take
+ ("s32", 117.6, 123.0, dict(cam="push", fx=[D], trans="ink", trans_dur=0.8, clip_in=2.85, clip_speed=0.59)),  # skip the backwards-walk start of the take
  # --- 4. THE CITY UNDER THE CITY (123)
  ("s33", 123.0, 130.0, dict(cam="pull", fx=[D, G], trans="white", trans_dur=0.4)),
  ("s34", 130.0, 134.5, dict(cam="track", fx=[D])),
